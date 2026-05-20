@@ -301,6 +301,276 @@ ipcMain.handle('gp:pre-session', async (_evt, { entries }) => {
   return recommendation;
 });
 
+// ── Shared Anthropic call helper ───────────────────────────────
+// Wraps the boilerplate: get key, build envelope, POST, parse inner JSON.
+// Returns the parsed JSON the model produced in content[0].text, or throws.
+async function anthropicJSONCall({ systemPrompt, userContent, maxTokens=1024 }) {
+  const key = store.get('anthropic');
+  if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
+
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userContent }],
+  });
+
+  const { status, buffer } = await httpsPost({
+    hostname: 'api.anthropic.com',
+    path: '/v1/messages',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+    body,
+  });
+
+  const text = buffer.toString();
+  let env;
+  try { env = JSON.parse(text); }
+  catch { throw new Error(`Anthropic ${status}: non-JSON response`); }
+  if (status !== 200) {
+    const msg = env.error?.message || env.error || `HTTP ${status}`;
+    throw new Error(`Anthropic: ${msg}`);
+  }
+
+  const raw = env.content?.[0]?.text || '';
+  try {
+    return JSON.parse(raw.replace(/```json|```/g, '').trim());
+  } catch {
+    throw new Error('Council response could not be parsed as JSON');
+  }
+}
+
+// Variant for non-JSON responses (multi-turn shadow dialogue returns free text)
+async function anthropicTextCall({ systemPrompt, messages, maxTokens=1024 }) {
+  const key = store.get('anthropic');
+  if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
+
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages,
+  });
+
+  const { status, buffer } = await httpsPost({
+    hostname: 'api.anthropic.com',
+    path: '/v1/messages',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+    body,
+  });
+
+  const text = buffer.toString();
+  let env;
+  try { env = JSON.parse(text); }
+  catch { throw new Error(`Anthropic ${status}: non-JSON response`); }
+  if (status !== 200) {
+    const msg = env.error?.message || env.error || `HTTP ${status}`;
+    throw new Error(`Anthropic: ${msg}`);
+  }
+  return env.content?.[0]?.text || '';
+}
+
+// ── IPC: V4a · Monthly Pattern Recognition ─────────────────────
+const MONTHLY_PATTERNS_PROMPT = `You are the Council of Five — Monroe, Lipton, Dispenza, Tesla, Jung — performing a deep month-scale pattern reading.
+
+You are given a practitioner's journal entries from the last 30 days. Read for:
+- Recurring shadow themes (what keeps coming up that they haven't integrated)
+- Breakthroughs (real shifts in state, not just hopes)
+- Energetic arc (where did they start, where are they now, where is the trajectory pointing)
+- What is being avoided or under-practiced
+
+Return JSON with EXACTLY these fields:
+
+{
+  "themes": [<string>, ...],              // 3-5 recurring themes, each one short phrase
+  "breakthroughs": [<string>, ...],        // 0-3 genuine shifts you can see in the entries
+  "shadows": [<string>, ...],              // 1-3 unintegrated patterns asking for attention
+  "coherenceArc": <string>,                // 2-3 sentences on the trajectory month-over-month
+  "suggestion": <string>                   // 1-2 sentences: the single most important next move
+}
+
+Return ONLY valid JSON. No preamble. No markdown fences.`;
+
+ipcMain.handle('gp:monthly-patterns', async (_evt, { entries }) => {
+  if (!Array.isArray(entries) || entries.length < 3) {
+    throw new Error('Need at least 3 journal entries for monthly pattern analysis');
+  }
+  const dossier = entries.map((e, i) => {
+    const when = e.date || 'unknown';
+    const lines = (e.data || []).map(d => `  ${d.prompt}: ${d.response}`).join('\n');
+    return `─── Entry ${i+1} · ${when} ───\n${lines}`;
+  }).join('\n\n');
+  return await anthropicJSONCall({
+    systemPrompt: MONTHLY_PATTERNS_PROMPT,
+    userContent: `Practitioner's last ${entries.length} entries:\n\n${dossier}`,
+    maxTokens: 1500,
+  });
+});
+
+// ── IPC: V4b · Custom Affirmation Generator ────────────────────
+const AFFIRMATION_PROMPT = `You are the Council of Five writing a custom activation affirmation for a Gateway practitioner.
+
+The practitioner has given you an intention (what they want) and chosen an activation code (the energetic frequency: 55515, 1111, 528 Hz, 432 Hz, 888, 369, Focus 15, Shadow, Gateway). Write a single affirmation that:
+- Is spoken in first person, present tense ("I am" / "I have" — not "I will")
+- Embodies the energetic signature of the chosen code
+- Speaks to their specific intention
+- Is 1-3 sentences, no longer
+- Is precise, not vague spiritual platitude
+- Has rhythmic, almost incantatory quality when spoken aloud
+
+Return JSON:
+{
+  "affirmation": <the affirmation text>,
+  "intent": <one short phrase summarizing what it activates, e.g. "Wealth · Freedom · Life Upgrade">
+}
+
+Return ONLY valid JSON. No markdown fences.`;
+
+ipcMain.handle('gp:generate-affirmation', async (_evt, { intention, code }) => {
+  if (!intention || !code) throw new Error('Intention and code are required');
+  return await anthropicJSONCall({
+    systemPrompt: AFFIRMATION_PROMPT,
+    userContent: `Intention: ${intention}\nActivation code: ${code}\n\nWrite the affirmation.`,
+    maxTokens: 512,
+  });
+});
+
+// ── IPC: V4c · Shadow Work Dialogue (multi-turn) ───────────────
+const SHADOW_DIALOGUE_PROMPT = `You are Carl Jung speaking through the Council of Five, holding a shadow work dialogue with a practitioner.
+
+Your method:
+- Open with one short, direct question that goes immediately beneath the surface of whatever they've brought.
+- Each turn, ask ONE question. Never two. Never a paragraph of teaching.
+- The question should reveal the next layer they haven't seen yet — not what they want to talk about, but what they're avoiding.
+- Use their own words and images back to them. Notice what they emphasize, what they minimize, what they joke about.
+- Track for resistance: if they deflect, name the deflection gently and re-ask.
+- After roughly 6-8 exchanges, when a genuine integration moment arrives (recognition, grief, embodied yes), name what you've seen and offer a single practice to anchor it.
+
+Format every reply as JSON:
+{
+  "reply": <your message, 1-3 sentences max, ending in either a question or — at integration — a closing practice>,
+  "isComplete": <true only when you've named the integration and offered a closing practice; otherwise false>
+}
+
+Return ONLY valid JSON. No markdown fences.`;
+
+ipcMain.handle('gp:shadow-dialogue', async (_evt, { history, message }) => {
+  // history: array of {role:'user'|'assistant', content:string} representing past turns
+  const messages = Array.isArray(history) ? history.slice() : [];
+  messages.push({ role: 'user', content: message || '(beginning)' });
+  const raw = await anthropicTextCall({
+    systemPrompt: SHADOW_DIALOGUE_PROMPT,
+    messages,
+    maxTokens: 512,
+  });
+  try {
+    return JSON.parse(raw.replace(/```json|```/g, '').trim());
+  } catch {
+    // If parsing fails, return the raw text as the reply
+    return { reply: raw.trim() || 'Tell me more.', isComplete: false };
+  }
+});
+
+// ── IPC: V4d · Synchronicity Pattern Analysis ──────────────────
+const SYNCHRONICITY_PROMPT = `You are the Council of Five analyzing a practitioner's synchronicity log.
+
+Synchronicities are meaningful coincidences — number sequences (11:11, 333, 444), repeated symbols, dream/waking echoes, "right person/right time" events. They are the visible edge of the field reorganizing around the practitioner.
+
+Read the log for:
+- Recurring symbols or numbers
+- Time-of-day clustering (do most syncs happen morning/afternoon/evening/night?)
+- Themes the syncs are pointing to
+- What the field is trying to tell them
+
+Return JSON:
+{
+  "recurringSymbols": [<string>, ...],     // 0-5 symbols/numbers appearing more than once
+  "timeClusters": <string>,                // 1 sentence on when they tend to happen
+  "themes": [<string>, ...],               // 1-4 themes the syncs collectively point to
+  "fieldMessage": <string>                  // 2-3 sentences: what the field is showing them
+}
+
+Return ONLY valid JSON. No markdown fences.`;
+
+ipcMain.handle('gp:analyze-synchronicities', async (_evt, { syncs }) => {
+  if (!Array.isArray(syncs) || syncs.length < 3) {
+    throw new Error('Need at least 3 synchronicity entries for pattern analysis');
+  }
+  const log = syncs.map((s, i) => {
+    const when = s.date || 'unknown';
+    return `${i+1}. [${when}] ${s.text}`;
+  }).join('\n');
+  return await anthropicJSONCall({
+    systemPrompt: SYNCHRONICITY_PROMPT,
+    userContent: `Practitioner's synchronicity log (${syncs.length} entries):\n\n${log}`,
+    maxTokens: 1024,
+  });
+});
+
+// ── IPC: V4f · Practice Reminders (Electron native notifications) ──
+const { Notification } = require('electron');
+const REMINDER_KEY = 'reminders';
+let reminderTimers = [];
+
+function clearReminderTimers() {
+  reminderTimers.forEach(t => clearTimeout(t));
+  reminderTimers = [];
+}
+
+// Schedule the next firing of each enabled time-of-day reminder. Re-runs
+// itself daily because setTimeout can't reliably span >24h.
+function scheduleReminders() {
+  clearReminderTimers();
+  const cfg = store.get(REMINDER_KEY) || { enabled: false };
+  if (!cfg.enabled) return;
+  const times = cfg.times || { morning: '07:30', midday: '13:00', evening: '21:00' };
+  const titles = {
+    morning: 'Morning Activation',
+    midday: 'Midday Reset',
+    evening: 'Evening Integration',
+  };
+  const bodies = {
+    morning: 'Set the field. Choose the state. The Council is here.',
+    midday: 'Three deep breaths. One conscious return to center.',
+    evening: 'Anchor today. Journal one shift before you sleep.',
+  };
+  const now = new Date();
+  for (const key of Object.keys(times)) {
+    const [h, m] = (times[key] || '07:30').split(':').map(Number);
+    const next = new Date();
+    next.setHours(h, m || 0, 0, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    const delay = next - now;
+    const timer = setTimeout(() => {
+      try {
+        new Notification({ title: '◈ ' + titles[key], body: bodies[key] }).show();
+      } catch (e) { console.warn('Notification failed:', e); }
+      // Re-schedule the day after
+      scheduleReminders();
+    }, delay);
+    reminderTimers.push(timer);
+  }
+}
+
+ipcMain.handle('gp:reminders-get', () => store.get(REMINDER_KEY) || { enabled: false, times: { morning:'07:30', midday:'13:00', evening:'21:00' } });
+ipcMain.handle('gp:reminders-set', (_evt, cfg) => {
+  store.set(REMINDER_KEY, cfg || { enabled: false });
+  scheduleReminders();
+  return true;
+});
+
+// Schedule on app ready (after createWindow)
+app.whenReady().then(scheduleReminders);
+
 // ── IPC: Key storage ───────────────────────────────────────────
 const ALLOWED_KEYS = new Set(['elevenlabs', 'openai', 'anthropic']);
 

@@ -258,11 +258,150 @@ body{
   .timer-time{font-size:42px}
   .solf-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ═══ V4e · CODE OF THE DAY ═══ */
+.gp-cotd{background:linear-gradient(90deg,rgba(201,168,76,.07) 0%,rgba(201,168,76,.02) 60%,transparent 100%);border-left:1px solid var(--gold);padding:1rem 1.25rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0;position:relative}
+.gp-cotd-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.35rem}
+.gp-cotd-code{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--gold2);letter-spacing:3px;line-height:1.1}
+.gp-cotd-intent{font-size:11px;color:var(--silver);letter-spacing:.5px;margin-top:.4rem;font-style:italic}
+.gp-cotd-text{font-size:13px;color:var(--muted);line-height:1.7;margin-top:.6rem;max-width:560px;font-family:'Cormorant Garamond',serif;font-style:italic}
+
+/* ═══ V4a · MONTHLY PATTERNS PANEL ═══ */
+.gp-patterns{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.gp-patterns-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem}
+.gp-patterns-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
+.gp-patterns-results{display:none;margin-top:1rem;font-size:12px;color:var(--silver);line-height:1.7}
+.gp-patterns-results.visible{display:block;animation:gpFadeIn .5s ease-out}
+.gp-pat-block{margin-bottom:1rem}
+.gp-pat-block-h{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.4rem}
+.gp-pat-block ul{margin:0;padding-left:1.2rem}
+.gp-pat-block li{margin-bottom:.3rem}
+.gp-pat-arc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--gold2);line-height:1.6}
+
+/* ═══ V4b · CUSTOM AFFIRMATION GENERATOR ═══ */
+.gp-genaff{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.gp-genaff-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+.gp-genaff textarea,.gp-genaff select{width:100%;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:12px;margin-bottom:.6rem;box-sizing:border-box}
+.gp-genaff textarea{resize:vertical;min-height:60px;font-family:'Cormorant Garamond',serif}
+.gp-genaff-result{display:none;margin-top:1rem;padding:1rem;background:rgba(201,168,76,.05);border:.5px solid rgba(201,168,76,.2);border-radius:4px}
+.gp-genaff-result.visible{display:block;animation:gpFadeIn .5s ease-out}
+.gp-genaff-aff{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--gold2);line-height:1.5;margin-bottom:.7rem}
+.gp-genaff-intent{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+/* ═══ V4c · SHADOW DIALOGUE MODAL ═══ */
+.gp-shadow-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;flex-direction:column;align-items:center;justify-content:flex-end}
+.gp-shadow-modal.visible{display:flex;animation:gpFadeIn .4s ease-out}
+.gp-shadow-frame{width:min(720px,92vw);height:min(82vh,720px);background:rgba(15,15,20,.95);border:.5px solid rgba(201,168,76,.35);border-radius:6px;display:flex;flex-direction:column;margin:auto 0}
+.gp-shadow-head{padding:1rem 1.25rem;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.gp-shadow-head-l{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold2);letter-spacing:2px}
+.gp-shadow-head-x{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
+.gp-shadow-head-x:hover{color:var(--gold)}
+.gp-shadow-log{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;font-size:14px;line-height:1.7}
+.gp-shadow-msg{max-width:80%;padding:.8rem 1.1rem;border-radius:6px}
+.gp-shadow-msg.jung{background:rgba(201,168,76,.06);border:.5px solid rgba(201,168,76,.15);color:var(--gold2);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;align-self:flex-start}
+.gp-shadow-msg.user{background:rgba(255,255,255,.03);border:.5px solid var(--border);color:var(--text);align-self:flex-end}
+.gp-shadow-msg.system{color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;align-self:center;text-align:center}
+.gp-shadow-input{padding:1rem 1.25rem;border-top:.5px solid var(--border);display:flex;gap:8px}
+.gp-shadow-input textarea{flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:'Cormorant Garamond',serif;font-size:14px;resize:none;min-height:44px;max-height:120px}
+.gp-shadow-input button{background:none;border:.5px solid var(--gold);color:var(--gold);padding:8px 18px;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;font-family:'Montserrat',sans-serif;align-self:flex-end}
+.gp-shadow-input button:hover{background:rgba(201,168,76,.1)}
+.gp-shadow-thinking{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);align-self:flex-start;display:flex;gap:8px;align-items:center}
+
+/* ═══ V4d · SYNCHRONICITY SCREEN ═══ */
+.gp-sync-input{display:flex;gap:8px;margin-bottom:1.5rem}
+.gp-sync-input textarea{flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:10px;font-family:'Cormorant Garamond',serif;font-size:14px;resize:vertical;min-height:50px}
+.gp-sync-list{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem}
+.gp-sync-item{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:.85rem 1.1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.gp-sync-item .text{color:var(--silver);font-size:13px;line-height:1.6;flex:1;font-family:'Cormorant Garamond',serif;font-style:italic}
+.gp-sync-item .meta{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;text-align:right}
+.gp-sync-analysis{display:none;background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.gp-sync-analysis.visible{display:block;animation:gpFadeIn .5s ease-out}
+
+/* ═══ V4f · REMINDER SETTINGS PANEL ═══ */
+.gp-reminders{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.gp-reminders-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+.gp-reminders-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;font-size:12px;color:var(--silver)}
+.gp-reminders-row input[type=time]{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:4px 8px;font-family:inherit;font-size:12px}
+.gp-reminders-row input[type=checkbox]{accent-color:var(--gold)}
+
+/* ═══ V3d · HRV COHERENCE VISUALIZER ═══ */
+.gp-hrv-wrap{margin:1rem auto;max-width:520px;background:rgba(255,255,255,.015);border:.5px solid rgba(201,168,76,.12);border-radius:6px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.6rem}
+.gp-hrv-head{display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+.gp-hrv-score{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:2px;line-height:1}
+.gp-hrv-score-label{font-size:8px;letter-spacing:2px;color:var(--muted)}
+#gp-hrv-canvas{width:100%;height:60px;display:block;border-radius:2px}
+/* When cinematic, the HRV bar floats at the bottom subtly */
+body.gp-cinematic .gp-hrv-wrap{position:fixed;bottom:6.5rem;left:50%;transform:translateX(-50%);width:min(640px,80vw);z-index:55;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:flex!important}
+
+/* ═══ V3b · CINEMATIC FULLSCREEN MODE ═══ */
+/* When body.gp-cinematic is set, hide every non-essential element and
+   blow up the timer + guidance cue to fill the viewport. The Three.js
+   field becomes the only background. Triggered on session start. */
+body.gp-cinematic{cursor:none}
+body.gp-cinematic .nav,
+body.gp-cinematic .hero,
+body.gp-cinematic .gp-rec,
+body.gp-cinematic .gp-rec-loading,
+body.gp-cinematic .screen:not(#screen-sessions),
+body.gp-cinematic #screen-sessions .session-grid,
+body.gp-cinematic #screen-sessions #pairing-guide,
+body.gp-cinematic #screen-sessions .section-title,
+body.gp-cinematic #screen-sessions .section-sub,
+body.gp-cinematic #voice-settings-panel,
+body.gp-cinematic .ambient-controls,
+body.gp-cinematic .btn-row > button:not(#timer-btn){display:none!important}
+
+body.gp-cinematic #screen-sessions{padding:0;max-width:none;margin:0}
+body.gp-cinematic #screen-sessions .timer-wrap{
+  position:fixed;inset:0;width:100vw;height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1.5rem;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
+  z-index:50;
+}
+body.gp-cinematic .timer-session{font-size:11px!important;letter-spacing:6px!important;color:var(--gold)!important;opacity:.7;margin:0!important}
+body.gp-cinematic .timer-phase-display{font-size:18px!important;letter-spacing:4px!important;margin:0!important;font-style:italic;opacity:.8}
+body.gp-cinematic .timer-time{font-size:96px!important;letter-spacing:12px!important;color:var(--gold2)!important;opacity:.92;margin:0!important;line-height:1!important}
+body.gp-cinematic .timer-progress{width:180px!important;height:180px!important;opacity:.8;margin:1rem 0!important}
+body.gp-cinematic #guidance-cue{
+  font-size:clamp(20px,4vw,40px)!important;line-height:1.5!important;max-width:min(900px,90vw)!important;
+  color:var(--gold2)!important;font-weight:300!important;letter-spacing:1px!important;text-align:center!important;
+  margin:1rem auto!important;opacity:1!important;text-shadow:0 0 30px rgba(201,168,76,.25);
+}
+body.gp-cinematic #timer-btn{
+  position:fixed;bottom:3rem;left:50%;transform:translateX(-50%);
+  background:none;border:.5px solid rgba(201,168,76,.4);color:var(--gold);
+  font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  padding:12px 28px;cursor:pointer;border-radius:2px;
+}
+.gp-cinematic-exit-hint{
+  display:none;position:fixed;top:1.5rem;right:1.5rem;
+  font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.5);
+  background:rgba(0,0,0,.4);border:.5px solid rgba(201,168,76,.2);
+  padding:6px 12px;border-radius:2px;z-index:60;pointer-events:auto;cursor:pointer;
+}
+body.gp-cinematic .gp-cinematic-exit-hint{display:block;animation:gpFadeIn .8s ease-out}
+@keyframes gpFadeIn{from{opacity:0}to{opacity:1}}
+
+/* ═══ V3a · THREE.JS PARTICLE FIELD (replaces CSS starfield + SVG geometry when ready) ═══ */
+#gp-three-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;display:block}
+/* When the Three.js field initializes successfully it adds .gp-three-ready to <body>.
+   This hides the legacy CSS starfield and SVG sacred geometry so they don't compete. */
+body.gp-three-ready #starfield{display:none}
+body.gp-three-ready #geo-bg{display:none}
 </style>
+<!-- Three.js: bundled locally (vendor/three.min.js) so the app works offline
+     and on first launch without a network call. Loaded synchronously so THREE
+     is defined by the time the main inline script at the bottom runs. -->
+<script src="vendor/three.min.js"></script>
 </head>
 <body>
 
-<!-- STARFIELD -->
+<!-- V3a · Three.js particle field canvas (replaces starfield + sacred-geometry SVG when ready) -->
+<canvas id="gp-three-canvas"></canvas>
+
+<!-- V3b · Cinematic mode exit hint (only visible when body.gp-cinematic) -->
+<div class="gp-cinematic-exit-hint" id="gp-cinematic-exit" onclick="CINEMATIC.exit()">Esc · exit cinematic</div>
+
+<!-- STARFIELD (V1 fallback — hidden via CSS when Three.js initializes) -->
 <div id="starfield"></div>
 
 <!-- SACRED GEOMETRY -->
@@ -316,6 +455,7 @@ body{
     <button class="nav-btn" onclick="show('affirmations')">Affirmations</button>
     <button class="nav-btn" onclick="show('journal')">Journal</button>
     <button class="nav-btn" onclick="show('progress')">Progress</button>
+    <button class="nav-btn" onclick="show('synchronicity')">Synchronicity</button>
     <button class="nav-btn" onclick="show('council')">Council</button>
   </nav>
 
@@ -324,6 +464,14 @@ body{
     <div class="fade-in visible">
       <div class="section-title">The Seven Waves</div>
       <div class="section-sub">Monroe Institute's complete Gateway Experience — accurately rendered. Each wave builds on the last. Do not skip levels.</div>
+    </div>
+
+    <!-- V4e · Code of the Day (deterministic per-day rotation, no AI call) -->
+    <div class="gp-cotd" id="gp-cotd">
+      <div class="gp-cotd-label">◈ Today's Code</div>
+      <div class="gp-cotd-code" id="gp-cotd-code">—</div>
+      <div class="gp-cotd-intent" id="gp-cotd-intent"></div>
+      <div class="gp-cotd-text" id="gp-cotd-text"></div>
     </div>
 
     <!-- V2 #2: Council pre-session recommendation. Hidden until QM.requestPreSession resolves. -->
@@ -448,6 +596,14 @@ body{
         <button class="gp-btn primary" id="breath-btn" onclick="toggleBreath()">Begin</button>
         <button class="gp-btn" onclick="stopBreath()">Stop</button>
       </div>
+      <!-- V3d · HRV coherence visualizer -->
+      <div class="gp-hrv-wrap" id="gp-hrv-wrap">
+        <div class="gp-hrv-head">
+          <span>Heart-Brain Coherence</span>
+          <span><span class="gp-hrv-score" id="gp-hrv-score">—</span> <span class="gp-hrv-score-label">/100</span></span>
+        </div>
+        <canvas id="gp-hrv-canvas" height="60"></canvas>
+      </div>
     </div>
     <div class="breath-science">
       <p><strong>The Science:</strong> Slow rhythmic breathing (5–6 breaths/min) activates the parasympathetic nervous system, reduces cortisol by up to 30%, synchronizes the heart rate variability (HRV), and creates the coherent heart-brain signal required for Gateway entry. Dispenza uses this exact preparation before all quantum field work.</p>
@@ -475,6 +631,32 @@ body{
       <button class="gp-btn primary" onclick="nextAffirm()">Next →</button>
     </div>
     <div id="all-affirmations" style="margin-top:1.5rem;display:flex;flex-direction:column;gap:10px"></div>
+
+    <!-- V4b · Custom Affirmation Generator -->
+    <div class="gp-genaff">
+      <div class="gp-genaff-title">◈ Generate Custom Affirmation · Council of Five</div>
+      <textarea id="gp-genaff-intention" placeholder="Your intention — what state, condition, or shift you want to anchor (be specific)"></textarea>
+      <select id="gp-genaff-code">
+        <option value="">Activation code…</option>
+        <option value="55515">55515 · Wealth · Freedom · Life Upgrade</option>
+        <option value="528 Hz">528 Hz · Healing · DNA Repair · Vitality</option>
+        <option value="888">888 · Abundance · Receiving · Flow</option>
+        <option value="369">369 · Manifestation · Certainty · Creation</option>
+        <option value="1111">1111 · Alignment · Presence · Quantum Self</option>
+        <option value="432 Hz">432 Hz · Peace · Groundedness · Natural Order</option>
+        <option value="Focus 15">Focus 15 · Liberation · Time Freedom · Authorship</option>
+        <option value="Shadow">Shadow · Integration · Wholeness · Jung</option>
+        <option value="Gateway">Gateway · Consciousness · OBE · Monroe</option>
+      </select>
+      <div class="btn-row">
+        <button class="gp-btn primary" onclick="AFFIRM_GEN.generate()">Generate</button>
+        <button class="gp-btn" id="gp-genaff-save" onclick="AFFIRM_GEN.save()" disabled>Save to My Affirmations</button>
+      </div>
+      <div class="gp-genaff-result" id="gp-genaff-result">
+        <div class="gp-genaff-aff" id="gp-genaff-aff"></div>
+        <div class="gp-genaff-intent" id="gp-genaff-intent2"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ════ SCREEN: JOURNAL ════ -->
@@ -574,6 +756,37 @@ body{
       </div>
     </div>
 
+    <!-- V4a · Monthly Pattern Recognition (Council reads 30 days of entries) -->
+    <div class="gp-patterns">
+      <div class="gp-patterns-head">
+        <span class="gp-patterns-title">◈ Monthly Pattern Reading · Council of Five</span>
+        <button class="gp-btn" id="gp-pat-btn" onclick="PATTERNS.analyze()">Analyze Last 30 Days</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">The Council reads all journal entries from the last 30 days and surfaces recurring themes, breakthroughs, and unintegrated shadows — patterns invisible from inside a single entry.</div>
+      <div class="gp-patterns-results" id="gp-pat-results"></div>
+    </div>
+
+    <!-- V4f · Practice Reminder Settings -->
+    <div class="gp-reminders">
+      <div class="gp-reminders-title">◈ Practice Reminders · Native Notifications</div>
+      <div class="gp-reminders-row">
+        <label><input type="checkbox" id="gp-rem-enabled" onchange="REMINDERS.save()"> Enable daily reminders</label>
+      </div>
+      <div class="gp-reminders-row">
+        <span>Morning Activation</span>
+        <input type="time" id="gp-rem-morning" value="07:30" onchange="REMINDERS.save()">
+      </div>
+      <div class="gp-reminders-row">
+        <span>Midday Reset</span>
+        <input type="time" id="gp-rem-midday" value="13:00" onchange="REMINDERS.save()">
+      </div>
+      <div class="gp-reminders-row">
+        <span>Evening Integration</span>
+        <input type="time" id="gp-rem-evening" value="21:00" onchange="REMINDERS.save()">
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:.6rem;line-height:1.6">Reminders fire as native OS notifications. They're scheduled by the app and persist across restarts.</div>
+    </div>
+
     <!-- Streak -->
     <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">21-Day Activation</div>
     <div class="streak-grid" id="streak-grid"></div>
@@ -600,14 +813,60 @@ body{
     </div>
   </div>
 
+  <!-- ════ SCREEN: SYNCHRONICITY (V4d) ════ -->
+  <div id="screen-synchronicity" class="screen">
+    <div class="section-title">Synchronicity Log</div>
+    <div class="section-sub">Meaningful coincidences are the visible edge of the field reorganizing. Capture them as they happen. The Council will read patterns when you have enough entries.</div>
+
+    <div class="gp-sync-input">
+      <textarea id="gp-sync-text" placeholder="A sync just happened. What was it? — number, symbol, encounter, echo, dream-into-waking…"></textarea>
+      <button class="gp-btn primary" onclick="SYNC.add()" style="align-self:flex-end">Anchor</button>
+    </div>
+
+    <div class="gp-patterns" style="margin-bottom:1.5rem">
+      <div class="gp-patterns-head">
+        <span class="gp-patterns-title">◈ Field Reading · Council of Five</span>
+        <button class="gp-btn" onclick="SYNC.analyze()">Analyze Field</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">Add at least 3 entries, then ask the Council to read recurring symbols, time clusters, and themes across your log.</div>
+      <div class="gp-sync-analysis" id="gp-sync-analysis"></div>
+    </div>
+
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">Log · <span id="gp-sync-count">0</span></div>
+    <div class="gp-sync-list" id="gp-sync-list"></div>
+  </div>
+
   <!-- ════ SCREEN: COUNCIL ════ -->
   <div id="screen-council" class="screen">
     <div class="section-title">The Council of Five</div>
     <div class="section-sub">Five of the greatest minds ever assembled on consciousness, healing, and human potential. Their unified insights are the foundation of this protocol.</div>
     <div class="agents-grid" id="agents-grid"></div>
+
+    <!-- V4c · Shadow Work Dialogue entry -->
+    <div style="background:rgba(201,168,76,.05);border:.5px solid var(--border2);border-radius:4px;padding:1.5rem;margin-top:1.5rem;text-align:center">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Shadow Work Dialogue</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--silver);line-height:1.7;margin-bottom:1rem">Jung speaks through the Council. One question at a time, beneath the surface of whatever you bring. Ends when integration arrives.</div>
+      <button class="gp-btn primary" onclick="SHADOW.open()">Begin Dialogue</button>
+    </div>
+
     <div class="divider"></div>
     <div class="section-title" style="margin-top:1rem">Key Transmissions</div>
     <div id="insights-list"></div>
+  </div>
+</div>
+
+<!-- V4c · Shadow Dialogue Modal (full-screen overlay) -->
+<div class="gp-shadow-modal" id="gp-shadow-modal" role="dialog" aria-modal="true">
+  <div class="gp-shadow-frame">
+    <div class="gp-shadow-head">
+      <span class="gp-shadow-head-l">◈ Shadow Dialogue · Jung</span>
+      <button class="gp-shadow-head-x" onclick="SHADOW.close()" title="Close & save to journal" aria-label="Close">×</button>
+    </div>
+    <div class="gp-shadow-log" id="gp-shadow-log"></div>
+    <div class="gp-shadow-input">
+      <textarea id="gp-shadow-input" placeholder="What's surfacing… (Enter to send, Shift+Enter for newline)"></textarea>
+      <button onclick="SHADOW.send()">Send</button>
+    </div>
   </div>
 </div>
 
@@ -666,6 +925,28 @@ const GP_API = {
     if(!res.ok || data.error) throw new Error(data.error?.message||data.error||'Council unreachable');
     return data;
   },
+  // V4 — Electron-only Council features (no V1 proxy fallback; require window.gp)
+  async monthlyPatterns(opts){
+    if(!GP_ELECTRON) throw new Error('Monthly patterns require the V2 desktop app');
+    return await window.gp.monthlyPatterns(opts);
+  },
+  async generateAffirmation(opts){
+    if(!GP_ELECTRON) throw new Error('Affirmation generator requires the V2 desktop app');
+    return await window.gp.generateAffirmation(opts);
+  },
+  async shadowDialogue(opts){
+    if(!GP_ELECTRON) throw new Error('Shadow dialogue requires the V2 desktop app');
+    return await window.gp.shadowDialogue(opts);
+  },
+  async analyzeSynchronicities(opts){
+    if(!GP_ELECTRON) throw new Error('Synchronicity analysis requires the V2 desktop app');
+    return await window.gp.analyzeSynchronicities(opts);
+  },
+  // Reminder settings (Electron only — uses native notifications)
+  reminders:{
+    async get(){ if(!GP_ELECTRON) return {enabled:false}; return await window.gp.reminders.get(); },
+    async set(cfg){ if(!GP_ELECTRON) return; return await window.gp.reminders.set(cfg); }
+  },
   // Mirror key writes to electron-store (encrypted at rest). Fire-and-forget.
   saveKey(name, value){
     if(GP_ELECTRON && window.gp.keys){
@@ -691,6 +972,292 @@ const GP_API = {
         localStorage.setItem('gp_anthropic_key',ant);
       }
     }catch(e){ console.warn('Key hydration failed:',e); }
+  }
+};
+
+// ═══════════════════════════ V3d · HRV COHERENCE VISUALIZER ═══════════════════════════
+// A scrolling sine-wave canvas locked to the breath cadence. Coherence
+// score climbs from a baseline as the practitioner sustains consistent
+// rhythmic breathing — a proxy for real heart-rate variability that
+// you'd measure with a chest strap. It's a visual entrainment aid, not
+// a clinical metric.
+const HRV={
+  _canvas:null,_ctx:null,_raf:null,
+  _history:[],            // last ~600 samples for the trailing wave
+  _phase:null,            // current breath phase label
+  _phaseStart:0,_phaseDur:0,
+  _cycles:0,              // completed breath cycles since start
+  _score:0,               // 0..100 coherence score
+  _running:false,
+
+  _ensure(){
+    if(this._canvas) return true;
+    this._canvas=document.getElementById('gp-hrv-canvas');
+    if(!this._canvas) return false;
+    this._ctx=this._canvas.getContext('2d');
+    return true;
+  },
+
+  // Called each time runPhase advances. Updates target amplitude + estimates
+  // coherence based on cycle count and phase consistency.
+  pulse(phaseLabel,durSec){
+    if(!this._ensure()) return;
+    this._phase=phaseLabel;
+    this._phaseStart=performance.now();
+    this._phaseDur=durSec*1000;
+    if(phaseLabel==='Inhale') this._cycles++;
+    // Coherence climbs as cycles accumulate, asymptoting near 95.
+    // Curve: score = 95 * (1 - e^(-cycles/4))
+    this._score=Math.round(95*(1-Math.exp(-this._cycles/4)));
+    if(!this._running){ this._running=true; this._loop(); }
+    document.getElementById('gp-hrv-score').textContent=this._score||'—';
+  },
+
+  stop(){
+    this._running=false;
+    if(this._raf) cancelAnimationFrame(this._raf);
+    this._raf=null;
+    this._history.length=0;
+    this._cycles=0;this._score=0;
+    this._phase=null;
+    const score=document.getElementById('gp-hrv-score');
+    if(score) score.textContent='—';
+    // Final paint to clear
+    if(this._ctx){
+      const w=this._canvas.width=this._canvas.offsetWidth*devicePixelRatio;
+      const h=this._canvas.height=60*devicePixelRatio;
+      this._ctx.clearRect(0,0,w,h);
+    }
+  },
+
+  _loop(){
+    if(!this._running) return;
+    this._raf=requestAnimationFrame(()=>this._loop());
+    const now=performance.now();
+
+    // Map current breath phase to an amplitude offset that breathes the
+    // wave's vertical position: inhale climbs, exhale falls, holds plateau.
+    let target=0;
+    if(this._phase==='Inhale') target=1;
+    else if(this._phase==='Exhale') target=-1;
+    else if(this._phase==='Hold') target=0.8;
+    else if(this._phase==='Rest') target=-0.6;
+
+    // Smooth interpolation over the phase duration so the wave morphs
+    // continuously, not in steps. progress 0..1 within the current phase.
+    const progress=Math.min(1,(now-this._phaseStart)/this._phaseDur);
+    // ease-in-out
+    const ease=progress<0.5 ? 2*progress*progress : 1-Math.pow(-2*progress+2,2)/2;
+    const offset=target*ease;
+
+    // Add a small high-freq sine ripple so the wave looks living, not static
+    const t=now*0.001;
+    const ripple=Math.sin(t*6)*0.08 + Math.sin(t*11)*0.04;
+    this._history.push(offset+ripple);
+    if(this._history.length>600) this._history.shift();
+
+    this._render();
+  },
+
+  _render(){
+    const dpr=window.devicePixelRatio||1;
+    const w=this._canvas.width=this._canvas.offsetWidth*dpr;
+    const h=this._canvas.height=60*dpr;
+    const ctx=this._ctx;
+    ctx.clearRect(0,0,w,h);
+
+    // Center line
+    ctx.strokeStyle='rgba(201,168,76,0.10)';
+    ctx.lineWidth=1*dpr;
+    ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+
+    // Wave: rightmost is newest. Map history to x axis.
+    if(this._history.length<2) return;
+    const n=this._history.length;
+    const stepX=w/600; // we keep up to 600 samples spanning full canvas width
+    const amp=h*0.35;
+
+    // Glow underlay
+    ctx.strokeStyle='rgba(201,168,76,0.18)';
+    ctx.lineWidth=4*dpr;
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const x=w-((n-1-i)*stepX);
+      const y=h/2 - this._history[i]*amp;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // Primary line
+    ctx.strokeStyle='rgba(240,216,138,0.85)';
+    ctx.lineWidth=1.4*dpr;
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const x=w-((n-1-i)*stepX);
+      const y=h/2 - this._history[i]*amp;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+};
+
+// ═══════════════════════════ V3b · CINEMATIC FULLSCREEN MODE ═══════════════════════════
+// Entered on session start (toggleTimer when timerRunning goes true).
+// Exits on Esc, on session pause/reset/complete, or click on the exit hint.
+const CINEMATIC={
+  _active:false,
+  _escHandler:null,
+
+  enter(){
+    if(this._active) return;
+    this._active=true;
+    document.body.classList.add('gp-cinematic');
+    THREE_FIELD.setCinematic(true);
+    // Try fullscreen; may be blocked outside a user gesture but timer button click counts
+    try{ document.documentElement.requestFullscreen?.(); }catch(e){}
+    this._escHandler=(ev)=>{ if(ev.key==='Escape'){ ev.preventDefault(); this.exit(); } };
+    document.addEventListener('keydown',this._escHandler);
+  },
+
+  exit(){
+    if(!this._active) return;
+    this._active=false;
+    document.body.classList.remove('gp-cinematic');
+    THREE_FIELD.setCinematic(false);
+    try{ document.fullscreenElement && document.exitFullscreen?.(); }catch(e){}
+    if(this._escHandler){ document.removeEventListener('keydown',this._escHandler); this._escHandler=null; }
+  }
+};
+
+// ═══════════════════════════ V3a · THREE.JS PARTICLE FIELD ═══════════════════════════
+// A torus of ~5000 additive-blended points that reacts to:
+//   - Active Solfeggio frequency (sets color temperature + rotation speed)
+//   - Breath phase (expand on inhale, contract on exhale, hold = midway)
+//   - Cinematic mode (increases intensity + camera zoom)
+// Falls back gracefully if THREE failed to load (CDN/vendor missing): the
+// CSS starfield + SVG sacred geometry remain visible. Init returns false
+// in that case and nothing else hooks in.
+const THREE_FIELD={
+  _scene:null,_renderer:null,_camera:null,_points:null,_basePos:null,
+  _ready:false,
+  _state:{ breath:0, freqNorm:0.4, intensity:0.45, cinematic:false },
+  _hue:{ r:0.78, g:0.66, b:0.30 }, // gold default — matches --gold #c9a84c
+
+  init(){
+    if(typeof THREE==='undefined'){ console.warn('THREE not loaded — keeping CSS fallback'); return false; }
+    const canvas=document.getElementById('gp-three-canvas');
+    if(!canvas) return false;
+
+    this._renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:true,powerPreference:'low-power'});
+    this._renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    this._renderer.setClearColor(0x000000,0);
+
+    this._scene=new THREE.Scene();
+    this._camera=new THREE.PerspectiveCamera(60,1,0.1,1000);
+    this._camera.position.set(0,0,95);
+
+    // Build a torus point cloud — distinct from a simple sphere; the toroidal
+    // form matches Monroe's "resonant energy balloon" geometry conceptually.
+    const COUNT=5000, R=50, r=18;
+    const positions=new Float32Array(COUNT*3);
+    for(let i=0;i<COUNT;i++){
+      const u=Math.random()*Math.PI*2;
+      const v=Math.random()*Math.PI*2;
+      const jitter=0.85+Math.random()*0.3;
+      const rr=r*jitter;
+      const x=(R+rr*Math.cos(v))*Math.cos(u);
+      const y=(R+rr*Math.cos(v))*Math.sin(u);
+      const z=rr*Math.sin(v);
+      positions[i*3]=x; positions[i*3+1]=y; positions[i*3+2]=z;
+    }
+    this._basePos=positions.slice();
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+
+    const mat=new THREE.PointsMaterial({
+      size:0.6,
+      color:new THREE.Color(this._hue.r,this._hue.g,this._hue.b),
+      transparent:true,opacity:0.55,
+      blending:THREE.AdditiveBlending,
+      sizeAttenuation:true,
+      depthWrite:false
+    });
+    this._points=new THREE.Points(geo,mat);
+    this._scene.add(this._points);
+
+    // Tilt for depth
+    this._points.rotation.x=-0.5;
+
+    this._resize();
+    window.addEventListener('resize',()=>this._resize());
+
+    this._ready=true;
+    document.body.classList.add('gp-three-ready');
+    this._animate();
+    return true;
+  },
+
+  _resize(){
+    if(!this._renderer) return;
+    const w=window.innerWidth, h=window.innerHeight;
+    this._renderer.setSize(w,h,false);
+    if(this._camera){ this._camera.aspect=w/h; this._camera.updateProjectionMatrix(); }
+  },
+
+  _animate(){
+    if(!this._ready) return;
+    requestAnimationFrame(()=>this._animate());
+    const t=performance.now()*0.001;
+
+    // Hz-reactive rotation: low Hz=slow contemplative, high Hz=brisk
+    const rotSpeed=0.04+this._state.freqNorm*0.25;
+    this._points.rotation.y += 0.0015*rotSpeed;
+    this._points.rotation.x = -0.5 + Math.sin(t*0.08)*0.05;
+
+    // Breath: expand on inhale, contract on exhale. Smooth via lerp.
+    const targetScale=1 + this._state.breath*0.14 + (this._state.cinematic?0.06:0);
+    const cur=this._points.scale.x || 1;
+    const next=cur + (targetScale-cur)*0.08;
+    this._points.scale.setScalar(next);
+
+    // Camera dolly during cinematic mode (subtle)
+    if(this._state.cinematic) this._camera.position.z = 80 + Math.sin(t*0.12)*4;
+    else this._camera.position.z = 95;
+
+    // Color shift: low Hz = cool indigo, mid = gold, high = pale violet
+    const f=this._state.freqNorm;
+    // Curve from indigo (0) → gold (.5) → violet (1)
+    const r = f<0.5 ? 0.25+f*1.1 : 0.80-(f-0.5)*0.15;
+    const g = f<0.5 ? 0.30+f*0.7 : 0.65-(f-0.5)*0.5;
+    const b = f<0.5 ? 0.65-f*0.7 : 0.30+(f-0.5)*0.9;
+    this._points.material.color.setRGB(r,g,b);
+    this._points.material.opacity = 0.35 + this._state.intensity*0.55;
+
+    this._renderer.render(this._scene,this._camera);
+  },
+
+  // ── Public API (called from existing functions: reactGeometry, runPhase) ──
+  setFrequency(hz, active){
+    if(!this._ready) return;
+    if(!active){ this._state.freqNorm=0.4; this._state.intensity=0.35; return; }
+    const minHz=174,maxHz=963;
+    this._state.freqNorm=Math.max(0,Math.min(1,(hz-minHz)/(maxHz-minHz)));
+    this._state.intensity=0.75;
+  },
+  setBreath(phaseName){
+    if(!this._ready) return;
+    // phaseName: 'Inhale' | 'Hold' | 'Exhale' | 'Rest' | null
+    const map={Inhale:1,Hold:0.6,Exhale:-1,Rest:-0.4};
+    this._state.breath=map[phaseName]??0;
+  },
+  setCinematic(on){
+    if(!this._ready) return;
+    this._state.cinematic=!!on;
+    this._state.intensity=on?0.95:0.5;
+  },
+  resetBreath(){
+    if(!this._ready) return;
+    this._state.breath=0;
   }
 };
 
@@ -844,7 +1411,7 @@ const WEALTH_PROTOCOL={
 // ═══════════════════════════ PERSISTENCE ═══════════════════════════
 const DB={
   KEY:'gateway_protocol_v1',
-  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{}};},
+  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[]};},
   load(){
     try{const raw=localStorage.getItem(this.KEY);return raw?{...this.defaults(),...JSON.parse(raw)}:this.defaults();}
     catch(e){console.warn('DB load failed',e);return this.defaults();}
@@ -932,11 +1499,15 @@ const AMBIENT={
   _noiseGain:null,
   _solfGain:null,
   _solfOsc:null,
-  _binL:null,_binR:null,
+  // Binaural carrier pairs — extended in V3c to add harmonic overtones
+  // for a richer, more dimensional sound while preserving the entrainment
+  // beat at each octave. Each pair: { L: osc, R: osc, lPan, rPan }
+  _binPairs:[],
   _binGain:null,
   _merger:null,
   _masterGain:null,
   _running:false,
+  _workletReady:false,
   _currentSolfHz:528,
   _currentBeatHz:6,
   noiseVol:0.35,
@@ -949,8 +1520,25 @@ const AMBIENT={
     return this._ctx;
   },
 
-  // Paul Kellet pink noise algorithm
-  _buildNoise(ctx){
+  // V3c: load the AudioWorklet processor once per AudioContext lifetime.
+  // Failure (e.g. module 404, sandbox restriction) falls back to the legacy
+  // ScriptProcessor path so playback still works.
+  async _ensureWorklet(ctx){
+    if(this._workletReady) return true;
+    if(!ctx.audioWorklet){ console.warn('AudioWorklet unavailable, using ScriptProcessor'); return false; }
+    try{
+      await ctx.audioWorklet.addModule('audio-worklet.js');
+      this._workletReady=true;
+      return true;
+    }catch(e){
+      console.warn('AudioWorklet load failed:',e.message||e,'— using ScriptProcessor fallback');
+      return false;
+    }
+  },
+
+  // Legacy pink noise via ScriptProcessor (deprecated but still functional).
+  // Kept as a fallback for the rare case the AudioWorklet module fails to load.
+  _buildLegacyNoise(ctx){
     const bufferSize=4096;
     let b=[0,0,0,0,0,0,0];
     const node=ctx.createScriptProcessor(bufferSize,1,1);
@@ -971,7 +1559,27 @@ const AMBIENT={
     return node;
   },
 
-  start(solfHz,beatHz){
+  // V3c: build one binaural oscillator pair (L=carrier, R=carrier+beat),
+  // each routed through a hard stereo panner. Returned struct lets us
+  // schedule frequency changes during the descent curve.
+  _buildBinauralPair(ctx,carrier,beat,gain){
+    const L=ctx.createOscillator();
+    const R=ctx.createOscillator();
+    L.type='sine'; R.type='sine';
+    L.frequency.value=carrier;
+    R.frequency.value=carrier+beat;
+    const lPan=ctx.createStereoPanner();
+    const rPan=ctx.createStereoPanner();
+    lPan.pan.value=-1; rPan.pan.value=1;
+    const g=ctx.createGain();
+    g.gain.value=gain;
+    L.connect(lPan); lPan.connect(g);
+    R.connect(rPan); rPan.connect(g);
+    L.start(); R.start();
+    return { L, R, lPan, rPan, gain:g };
+  },
+
+  async start(solfHz,beatHz){
     this.stop();
     const ctx=this._ensureCtx();
     this._currentSolfHz=solfHz||528;
@@ -981,10 +1589,16 @@ const AMBIENT={
     this._masterGain.gain.linearRampToValueAtTime(1,ctx.currentTime+3);
     this._masterGain.connect(ctx.destination);
 
-    // Pink noise
+    // Pink noise — V3c: prefer AudioWorklet, fall back to ScriptProcessor
     this._noiseGain=ctx.createGain();
     this._noiseGain.gain.value=this.noiseVol*0.4;
-    this._noiseNode=this._buildNoise(ctx);
+    const workletOK=await this._ensureWorklet(ctx);
+    if(workletOK){
+      try{ this._noiseNode=new AudioWorkletNode(ctx,'gp-pink-noise',{outputChannelCount:[2]}); }
+      catch(e){ console.warn('Worklet node creation failed:',e); this._noiseNode=this._buildLegacyNoise(ctx); }
+    } else {
+      this._noiseNode=this._buildLegacyNoise(ctx);
+    }
     this._noiseNode.connect(this._noiseGain);
     this._noiseGain.connect(this._masterGain);
 
@@ -998,43 +1612,48 @@ const AMBIENT={
     this._solfGain.connect(this._masterGain);
     this._solfOsc.start();
 
-    // Binaural beat — carrier 200 Hz, beat = session target
-    this._merger=ctx.createChannelMerger(2);
-    this._merger.connect(this._masterGain);
-    const carrier=200;
-    this._binL=ctx.createOscillator();
-    this._binR=ctx.createOscillator();
+    // V3c: Binaural beat with harmonic overtones.
+    // Fundamental carrier at 200 Hz preserves Monroe's original choice.
+    // Octave (400 Hz) and sub-octave (100 Hz) add timbral richness while
+    // the beat frequency stays identical at each layer — entrainment is
+    // additive, not diluted.
     this._binGain=ctx.createGain();
     this._binGain.gain.value=this.binVol*0.12;
-    const lPan=ctx.createStereoPanner();
-    const rPan=ctx.createStereoPanner();
-    lPan.pan.value=-1;rPan.pan.value=1;
-    this._binL.frequency.value=carrier;
-    this._binR.frequency.value=carrier+this._currentBeatHz;
-    this._binL.type='sine';this._binR.type='sine';
-    this._binL.connect(lPan);lPan.connect(this._binGain);
-    this._binR.connect(rPan);rPan.connect(this._binGain);
     this._binGain.connect(this._masterGain);
-    this._binL.start();this._binR.start();
+    const beat=this._currentBeatHz;
+    const overtones=[
+      {carrier:200,gain:1.0},   // fundamental
+      {carrier:400,gain:0.45},  // octave up — adds brightness
+      {carrier:100,gain:0.55},  // octave down — adds depth
+    ];
+    this._binPairs=overtones.map(({carrier,gain})=>{
+      const pair=this._buildBinauralPair(ctx,carrier,beat,gain);
+      pair.gain.connect(this._binGain);
+      return pair;
+    });
 
     this._running=true;
     this._updateStateUI();
     reactGeometry&&reactGeometry(this._currentSolfHz,true);
   },
 
-  // Gradually descend binaural beat over session duration
+  // Gradually descend binaural beat over session duration.
+  // V3c: now schedules across ALL harmonic pairs so the beat stays
+  // coherent at every octave (fundamental, octave up, octave down).
   scheduleDescentCurve(totalSec){
-    if(!this._running||!this._binR)return;
+    if(!this._running||!this._binPairs.length) return;
     const ctx=this._ctx;
     const now=ctx.currentTime;
-    const carrier=200;
     // Beta (18Hz) → Alpha (10Hz) → Theta (6Hz) → Deep Theta (4Hz)
     const curve=[
       [0,18],[totalSec*0.1,14],[totalSec*0.25,10],
       [totalSec*0.45,7],[totalSec*0.65,6],[totalSec*0.85,4],[totalSec,4]
     ];
-    curve.forEach(([t,beat])=>{
-      this._binR.frequency.setValueAtTime(carrier+beat,now+t);
+    this._binPairs.forEach(pair=>{
+      const carrier=pair.L.frequency.value;
+      curve.forEach(([t,beat])=>{
+        pair.R.frequency.setValueAtTime(carrier+beat,now+t);
+      });
     });
   },
 
@@ -1061,12 +1680,16 @@ const AMBIENT={
         this._masterGain.gain.linearRampToValueAtTime(0,this._ctx.currentTime+2);
       }
       setTimeout(()=>{
-        [this._noiseNode,this._solfOsc,this._binL,this._binR].forEach(n=>{
+        // Tear down all sources: noise node + solfeggio osc + every harmonic pair
+        const sources=[this._noiseNode,this._solfOsc];
+        this._binPairs.forEach(p=>{ sources.push(p.L); sources.push(p.R); });
+        sources.forEach(n=>{
           try{if(n&&n.stop)n.stop();}catch(e){}
           try{if(n&&n.disconnect)n.disconnect();}catch(e){}
         });
+        this._binPairs=[];
         this._noiseNode=this._noiseGain=this._solfOsc=this._solfGain=null;
-        this._binL=this._binR=this._binGain=this._merger=this._masterGain=null;
+        this._binGain=this._merger=this._masterGain=null;
         this._running=false;
         this._updateStateUI();
       },2200);
@@ -1140,6 +1763,10 @@ let audioCtx=null,oscillator=null,gainNode=null;
 
 // ═══════════════════════════ INIT ═══════════════════════════
 function init(){
+  // V3a: initialize Three.js particle field FIRST. On success it sets
+  // body.gp-three-ready, which hides the legacy starfield + SVG via CSS.
+  // On failure (e.g. WebGL unavailable), the legacy visuals stay live.
+  THREE_FIELD.init();
   VOICE.init();
   QM.init();
   buildStars();
@@ -1158,6 +1785,12 @@ function init(){
   // buttons; request() fires an async Council call if cache stale or absent.
   PRESESSION.init();
   PRESESSION.request();
+  // V4e: today's code (deterministic, no API call)
+  CODE_OF_DAY.init();
+  // V4d: synchronicity log render
+  SYNC.init();
+  // V4f: load reminder settings into the panel
+  REMINDERS.init();
 }
 
 // ═══════════════════════════ STARS ═══════════════════════════
@@ -1288,6 +1921,8 @@ function buildAudioBars(){
 }
 
 function reactGeometry(hz,active){
+  // V3a: drive the Three.js field with frequency changes
+  THREE_FIELD.setFrequency(hz,active);
   const geo=document.getElementById('geo-bg');
   if(!geo)return;
   if(!active){
@@ -1804,6 +2439,7 @@ function toggleTimer(){
   timerRunning=!timerRunning;
   document.getElementById('timer-btn').textContent=timerRunning?'Pause':'Resume';
   if(timerRunning){
+    CINEMATIC.enter(); // V3b: enter cinematic mode on Begin/Resume
     scheduleCues(selectedSess,timerMax);
     AMBIENT.start(AMBIENT._currentSolfHz,AMBIENT._currentBeatHz);
     AMBIENT.scheduleDescentCurve(timerMax);
@@ -1817,6 +2453,7 @@ function toggleTimer(){
       renderTimer();
       if(timerSeconds>=timerMax){
         clearInterval(timerInterval);timerRunning=false;
+        CINEMATIC.exit(); // V3b: leave cinematic on session completion
         document.getElementById('timer-btn').textContent='Return';
         stats.sessions++;stats.minutes+=Math.round(timerMax/60);
         // Log session date for graph
@@ -1839,6 +2476,7 @@ function toggleTimer(){
     clearInterval(timerInterval);
     clearCues();
     AMBIENT.stop();
+    CINEMATIC.exit(); // V3b: leave cinematic on pause
   }
 }
 
@@ -1846,6 +2484,7 @@ function resetTimer(){
   clearInterval(timerInterval);
   clearCues();
   AMBIENT.stop();
+  CINEMATIC.exit(); // V3b: leave cinematic on reset
   timerRunning=false;timerSeconds=0;
   document.getElementById('timer-btn').textContent='Begin';
   document.getElementById('guidance-cue').textContent='';
@@ -1885,6 +2524,8 @@ function stopBreath(){
   document.getElementById('breath-orb-label').textContent='∞';
   document.getElementById('breath-instruction').textContent='Select a pattern and begin';
   document.getElementById('breath-count').textContent='';
+  THREE_FIELD.resetBreath(); // V3a: stop driving particles when breath stops
+  HRV.stop && HRV.stop();    // V3d: stop coherence visualizer
 }
 
 function runPhase(phase){
@@ -1903,9 +2544,15 @@ function runPhase(phase){
   const dur=durations[pi];
   orb.style.transition=`transform ${dur*.9}s ease-in-out`;
   orb.style.transform=`scale(${scales[pi]})`;
-  document.getElementById('breath-orb-label').textContent=labels[pi==='inhale'?0:pi==='hold'?1:pi==='exhale'?2:3]||['Inhale','Hold','Exhale','Rest'][pi];
+  const phaseLabel=['Inhale','Hold','Exhale','Rest'][pi];
+  document.getElementById('breath-orb-label').textContent=phaseLabel;
   document.getElementById('breath-instruction').textContent=instructions[pi];
   document.getElementById('breath-count').textContent=breathCycle>0?`Cycle ${breathCycle}`:'';
+
+  // V3a: drive the Three.js field with breath phase
+  THREE_FIELD.setBreath(phaseLabel);
+  // V3d: pulse the HRV coherence visualizer in sync
+  HRV.pulse && HRV.pulse(phaseLabel, dur);
 
   breathTimeout=setTimeout(()=>runPhase(pi+1),dur*1000);
 }
@@ -1939,11 +2586,19 @@ function buildProtocols(){
 function buildAffirmations(){
   renderCurrentAffirm();
   const allEl=document.getElementById('all-affirmations');
-  allEl.innerHTML=AFFIRMATIONS.map(a=>`
+  // V4b: merge built-in affirmations with user's Council-generated custom ones,
+  // marked with a small badge so they're visually distinct.
+  const custom=(DB.load().customAffirmations||[]);
+  const builtIn=AFFIRMATIONS.map(a=>({...a,_custom:false}));
+  const merged=[...builtIn,...custom.map(c=>({code:c.code,text:c.text,intent:c.intent,_custom:true}))];
+  allEl.innerHTML=merged.map(a=>`
   <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:.75rem 1rem">
-    <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;opacity:.7">${a.code}</div>
+    <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;opacity:.7;display:flex;justify-content:space-between">
+      <span>${a.code}</span>
+      ${a._custom?'<span style="color:var(--gold2);font-size:8px;letter-spacing:1.5px">◈ Council-generated</span>':''}
+    </div>
     <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--silver);line-height:1.7">${a.text}</div>
-    <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${a.intent}</div>
+    <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${a.intent||''}</div>
   </div>`).join('');
 }
 
@@ -2484,6 +3139,347 @@ const PRESESSION={
     toast('Council applied · Wave '+(rec.recommendedWave|0)+' · '+(rec.recommendedFreq|0)+' Hz');
   }
 };
+
+// ═══════════════════════════ V4e · CODE OF THE DAY ═══════════════════════════
+// Deterministic per-day rotation through the 9 codes. Same day = same code
+// for everyone (community sync). Cached per-day so picks are stable until
+// midnight even if the user reloads.
+const CODE_OF_DAY={
+  KEY:'gp_cotd',
+  CODES:[
+    {code:'1111',intent:'Alignment · Presence · Quantum Self',text:'Today belongs to the version of you who already lives in freedom. Move from that vibration, not toward it.'},
+    {code:'528 Hz',intent:'Healing · DNA Repair · Vitality',text:'Every cell is listening. Speak to your body today as if it were a beloved animal — with reverence, not management.'},
+    {code:'432 Hz',intent:'Peace · Groundedness · Natural Order',text:'Match the breath of the planet today. Slow down enough to feel the field carrying you.'},
+    {code:'888',intent:'Abundance · Receiving · Flow',text:'Practice receiving without flinching today. Notice what wants to come in that you reflexively decline.'},
+    {code:'369',intent:'Manifestation · Certainty · Creation',text:'Three times today, speak the future as already complete. Tesla\'s code is rhythm — not wishing.'},
+    {code:'55515',intent:'Wealth · Freedom · Life Upgrade',text:'Every change accelerating in your reality is in your favor — even the ones disguised as loss. Stay with it.'},
+    {code:'Focus 15',intent:'Liberation · Time Freedom · Authorship',text:'You exist beyond the limits of time. The past does not define the next hour. Choose now from the timeless self.'},
+    {code:'Shadow',intent:'Integration · Wholeness · Jung',text:'What you judged in someone yesterday is the doorway today. Walk in.'},
+    {code:'Gateway',intent:'Consciousness · OBE · Monroe',text:'Mind awake, body asleep — the doorway is always already open. You just have to let the body fall.'},
+  ],
+  init(){
+    const today=new Date().toISOString().slice(0,10);
+    let saved=null; try{ saved=JSON.parse(localStorage.getItem(this.KEY)||'null'); }catch(e){}
+    if(!saved || saved.date!==today){
+      // Deterministic hash from date so everyone on the planet sees the same code today
+      const h=[...today].reduce((a,c)=>((a<<5)-a+c.charCodeAt(0))|0,0);
+      const idx=Math.abs(h)%this.CODES.length;
+      saved={date:today,idx};
+      try{ localStorage.setItem(this.KEY,JSON.stringify(saved)); }catch(e){}
+    }
+    const c=this.CODES[saved.idx];
+    document.getElementById('gp-cotd-code').textContent=c.code;
+    document.getElementById('gp-cotd-intent').textContent=c.intent;
+    document.getElementById('gp-cotd-text').textContent='"'+c.text+'"';
+  }
+};
+
+// ═══════════════════════════ V4a · MONTHLY PATTERN RECOGNITION ═══════════════════════════
+const PATTERNS={
+  async analyze(){
+    const btn=document.getElementById('gp-pat-btn');
+    const results=document.getElementById('gp-pat-results');
+    // 30-day window
+    const cutoff=Date.now()-30*24*60*60*1000;
+    const entries=(DB.load().journal||[]).filter(j=>{
+      const t=new Date(j.date).getTime();
+      return !isNaN(t) && t>=cutoff;
+    });
+    if(entries.length<3){ toast('Need at least 3 journal entries in the last 30 days.'); return; }
+    btn.disabled=true; btn.textContent='Reading…';
+    results.classList.remove('visible');
+    try{
+      const payload=entries.map(e=>({
+        date:new Date(e.date).toLocaleDateString(),
+        data:e.data||[]
+      }));
+      const r=await GP_API.monthlyPatterns({entries:payload});
+      results.innerHTML=`
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Recurring Themes</div>
+          <ul>${(r.themes||[]).map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>
+        </div>
+        ${r.breakthroughs?.length?`<div class="gp-pat-block">
+          <div class="gp-pat-block-h">Breakthroughs</div>
+          <ul>${r.breakthroughs.map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>
+        </div>`:''}
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Unintegrated Shadows</div>
+          <ul>${(r.shadows||[]).map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>
+        </div>
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Coherence Arc</div>
+          <div class="gp-pat-arc">"${escapeHTML(r.coherenceArc||'')}"</div>
+        </div>
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Council's Suggestion</div>
+          <div style="color:var(--gold);font-size:13px;line-height:1.7">${escapeHTML(r.suggestion||'')}</div>
+        </div>
+      `;
+      results.classList.add('visible');
+    }catch(e){
+      toast('Patterns: '+(e.message||e));
+    }finally{
+      btn.disabled=false; btn.textContent='Analyze Last 30 Days';
+    }
+  }
+};
+
+// ═══════════════════════════ V4b · CUSTOM AFFIRMATION GENERATOR ═══════════════════════════
+const AFFIRM_GEN={
+  _last:null,
+  async generate(){
+    const intention=document.getElementById('gp-genaff-intention').value.trim();
+    const code=document.getElementById('gp-genaff-code').value;
+    if(!intention || !code){ toast('Pick a code and write an intention first.'); return; }
+    const resultEl=document.getElementById('gp-genaff-result');
+    resultEl.classList.remove('visible');
+    try{
+      const r=await GP_API.generateAffirmation({intention,code});
+      this._last={code,text:r.affirmation,intent:r.intent};
+      document.getElementById('gp-genaff-aff').textContent='"'+r.affirmation+'"';
+      document.getElementById('gp-genaff-intent2').textContent=r.intent||'';
+      resultEl.classList.add('visible');
+      document.getElementById('gp-genaff-save').disabled=false;
+    }catch(e){
+      toast('Affirmation: '+(e.message||e));
+    }
+  },
+  save(){
+    if(!this._last) return;
+    const d=DB.load();
+    d.customAffirmations=[...(d.customAffirmations||[]),{...this._last,date:new Date().toISOString()}];
+    DB.save(d);
+    toast('Saved to My Affirmations.');
+    if(typeof buildAffirmations==='function') buildAffirmations(); // re-render the wheel + list
+    document.getElementById('gp-genaff-save').disabled=true;
+  }
+};
+
+// ═══════════════════════════ V4c · SHADOW WORK DIALOGUE ═══════════════════════════
+const SHADOW={
+  _history:[],
+  _open:false,
+  _busy:false,
+
+  open(){
+    if(this._open) return;
+    this._open=true;
+    this._history=[];
+    document.getElementById('gp-shadow-modal').classList.add('visible');
+    document.getElementById('gp-shadow-log').innerHTML='';
+    // Auto-kick off — Jung speaks first
+    this._appendSystem('Jung is listening. Speak whatever is surfacing.');
+    setTimeout(()=>this.send(true),300);
+    // Esc to close
+    this._esc=(ev)=>{ if(ev.key==='Escape') this.close(); };
+    document.addEventListener('keydown',this._esc);
+    // Enter to send
+    const ta=document.getElementById('gp-shadow-input');
+    ta.value='';
+    ta.focus();
+    this._enter=(ev)=>{
+      if(ev.key==='Enter' && !ev.shiftKey){ ev.preventDefault(); this.send(); }
+    };
+    ta.addEventListener('keydown',this._enter);
+  },
+
+  close(){
+    if(!this._open) return;
+    this._open=false;
+    document.getElementById('gp-shadow-modal').classList.remove('visible');
+    if(this._esc){ document.removeEventListener('keydown',this._esc); this._esc=null; }
+    const ta=document.getElementById('gp-shadow-input');
+    if(this._enter){ ta.removeEventListener('keydown',this._enter); this._enter=null; }
+    // Save the dialogue as a journal entry under a "Shadow Dialogue" session
+    if(this._history.length>=2){
+      const entry={
+        id:Date.now(),
+        date:new Date().toISOString(),
+        session:'Shadow Dialogue',
+        data:this._history.map((m,i)=>({
+          prompt: m.role==='assistant' ? 'Jung' : 'Me',
+          response: m.content
+        }))
+      };
+      DB.addJournalEntry(entry);
+      if(typeof renderJournalHistory==='function') renderJournalHistory();
+      toast('Shadow dialogue saved to journal.');
+      PRESESSION.request(true); // new entry → re-read recommendations
+    }
+  },
+
+  async send(isOpening=false){
+    if(this._busy) return;
+    const ta=document.getElementById('gp-shadow-input');
+    const text=isOpening===true ? '' : ta.value.trim();
+    if(!isOpening && !text) return;
+    if(!isOpening){
+      this._appendMsg('user',text);
+      this._history.push({role:'user',content:text});
+      ta.value='';
+    }
+    this._busy=true;
+    this._appendThinking();
+    try{
+      const r=await GP_API.shadowDialogue({history:this._history,message:isOpening?'(beginning)':text});
+      this._removeThinking();
+      this._appendMsg('jung',r.reply);
+      this._history.push({role:'assistant',content:r.reply});
+      if(r.isComplete){
+        this._appendSystem('Integration reached. The dialogue closes naturally — but you can keep talking, or close to save.');
+      }
+    }catch(e){
+      this._removeThinking();
+      this._appendSystem('Council unreachable: '+(e.message||e));
+    }finally{
+      this._busy=false;
+    }
+  },
+
+  _appendMsg(who,text){
+    const log=document.getElementById('gp-shadow-log');
+    const d=document.createElement('div');
+    d.className='gp-shadow-msg '+(who==='jung'?'jung':'user');
+    d.textContent=text;
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  },
+  _appendSystem(text){
+    const log=document.getElementById('gp-shadow-log');
+    const d=document.createElement('div');
+    d.className='gp-shadow-msg system';
+    d.textContent='— '+text+' —';
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  },
+  _appendThinking(){
+    const log=document.getElementById('gp-shadow-log');
+    const d=document.createElement('div');
+    d.className='gp-shadow-thinking';
+    d.id='gp-shadow-thinking';
+    d.innerHTML='<span class="gp-dot"></span><span class="gp-dot"></span><span class="gp-dot"></span> Jung is considering…';
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  },
+  _removeThinking(){
+    const t=document.getElementById('gp-shadow-thinking');
+    if(t) t.remove();
+  }
+};
+
+// ═══════════════════════════ V4d · SYNCHRONICITY LOG + AI ANALYSIS ═══════════════════════════
+const SYNC={
+  init(){
+    this.render();
+  },
+  add(){
+    const ta=document.getElementById('gp-sync-text');
+    const text=ta.value.trim();
+    if(!text){ toast('Describe the synchronicity first.'); return; }
+    const d=DB.load();
+    d.synchronicities=[...(d.synchronicities||[]),{
+      id:Date.now(),
+      date:new Date().toISOString(),
+      text
+    }];
+    DB.save(d);
+    ta.value='';
+    this.render();
+    toast('Synchronicity anchored.');
+  },
+  remove(id){
+    const d=DB.load();
+    d.synchronicities=(d.synchronicities||[]).filter(s=>s.id!==id);
+    DB.save(d);
+    this.render();
+  },
+  render(){
+    const syncs=(DB.load().synchronicities||[]).slice().reverse();
+    document.getElementById('gp-sync-count').textContent=syncs.length;
+    const list=document.getElementById('gp-sync-list');
+    if(!syncs.length){
+      list.innerHTML='<div style="font-size:11px;color:var(--muted);font-style:italic;padding:1rem;text-align:center">No syncs yet. The field becomes visible the moment you start watching.</div>';
+      return;
+    }
+    list.innerHTML=syncs.map(s=>{
+      const dt=new Date(s.date);
+      const date=dt.toLocaleDateString('en',{month:'short',day:'numeric'});
+      const time=dt.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      return `<div class="gp-sync-item">
+        <div class="text">"${escapeHTML(s.text)}"</div>
+        <div class="meta">${date}<br>${time}<br><a href="#" onclick="SYNC.remove(${s.id});return false" style="color:var(--muted);text-decoration:none;font-size:8px">remove</a></div>
+      </div>`;
+    }).join('');
+  },
+  async analyze(){
+    const syncs=DB.load().synchronicities||[];
+    if(syncs.length<3){ toast('Need at least 3 synchronicities for field analysis.'); return; }
+    const out=document.getElementById('gp-sync-analysis');
+    out.innerHTML='<div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Council reading the field…</div>';
+    out.classList.add('visible');
+    try{
+      const payload=syncs.map(s=>({
+        date:new Date(s.date).toLocaleString(),
+        text:s.text
+      }));
+      const r=await GP_API.analyzeSynchronicities({syncs:payload});
+      out.innerHTML=`
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Recurring Symbols</div>
+          <ul>${(r.recurringSymbols||[]).map(t=>`<li>${escapeHTML(t)}</li>`).join('')||'<li style="color:var(--muted);font-style:italic">None yet — keep watching.</li>'}</ul>
+        </div>
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Time Clusters</div>
+          <div style="font-size:12px;color:var(--silver);line-height:1.7">${escapeHTML(r.timeClusters||'')}</div>
+        </div>
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">Themes</div>
+          <ul>${(r.themes||[]).map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>
+        </div>
+        <div class="gp-pat-block">
+          <div class="gp-pat-block-h">What the Field Is Showing You</div>
+          <div class="gp-pat-arc">"${escapeHTML(r.fieldMessage||'')}"</div>
+        </div>
+      `;
+    }catch(e){
+      out.innerHTML='<div style="color:#c04040;font-size:11px">Field reading failed: '+escapeHTML(e.message||String(e))+'</div>';
+    }
+  }
+};
+
+// ═══════════════════════════ V4f · PRACTICE REMINDERS ═══════════════════════════
+const REMINDERS={
+  async init(){
+    try{
+      const cfg=await GP_API.reminders.get();
+      document.getElementById('gp-rem-enabled').checked = !!cfg.enabled;
+      const t=cfg.times || {morning:'07:30',midday:'13:00',evening:'21:00'};
+      document.getElementById('gp-rem-morning').value=t.morning;
+      document.getElementById('gp-rem-midday').value=t.midday;
+      document.getElementById('gp-rem-evening').value=t.evening;
+    }catch(e){ /* no-op outside Electron */ }
+  },
+  async save(){
+    const cfg={
+      enabled: document.getElementById('gp-rem-enabled').checked,
+      times: {
+        morning: document.getElementById('gp-rem-morning').value || '07:30',
+        midday:  document.getElementById('gp-rem-midday').value  || '13:00',
+        evening: document.getElementById('gp-rem-evening').value || '21:00',
+      }
+    };
+    try{
+      await GP_API.reminders.set(cfg);
+      toast(cfg.enabled?'Reminders enabled':'Reminders disabled');
+    }catch(e){ toast('Reminder settings need the desktop app.'); }
+  }
+};
+
+// Tiny escape helper used by V4 panels
+function escapeHTML(s){
+  return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 // ═══════════════════════════ UTILITIES ═══════════════════════════
 function toast(msg){
