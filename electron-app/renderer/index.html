@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gateway Protocol — Consciousness Evolution System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#02020a;
+  --deep:#05050f;
+  --surface:#0a0a1a;
+  --card:#0f0f22;
+  --gold:#c9a84c;
+  --gold2:#f0d88a;
+  --silver:#a0a8c0;
+  --glow:rgba(201,168,76,0.12);
+  --glow2:rgba(201,168,76,0.25);
+  --border:rgba(201,168,76,0.15);
+  --border2:rgba(201,168,76,0.35);
+  --text:#ddd8cc;
+  --muted:#6a6458;
+  --danger:#c04040;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--text);
+  font-family:'Montserrat',sans-serif;
+  font-weight:300;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ═══ STARFIELD ═══ */
+#starfield{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--dur,4s) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:var(--lo,.1);transform:scale(1)}50%{opacity:var(--hi,.7);transform:scale(1.3)}}
+
+/* ═══ SACRED GEOMETRY BACKGROUND ═══ */
+#geo-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;pointer-events:none;z-index:0;opacity:0.04;animation:geo-spin 120s linear infinite}
+@keyframes geo-spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* ═══ LAYOUT ═══ */
+#app{position:relative;z-index:1;min-height:100vh;max-width:900px;margin:0 auto;padding:0 1rem 4rem}
+
+/* ═══ HERO ═══ */
+.hero{text-align:center;padding:3rem 1rem 2rem;position:relative}
+.hero-eye{width:80px;height:80px;margin:0 auto 1.5rem;position:relative}
+.hero-eye svg{width:100%;height:100%}
+.hero-tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,5vw,42px);font-weight:300;color:var(--gold2);letter-spacing:4px;line-height:1.2;margin-bottom:.5rem}
+.hero-tagline em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:2rem}
+.council-badge{display:inline-flex;align-items:center;gap:8px;border:0.5px solid var(--border);border-radius:20px;padding:6px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.council-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
+/* ═══ NAV ═══ */
+.nav{display:flex;overflow-x:auto;gap:4px;padding:0 0 1.5rem;scrollbar-width:none;justify-content:center;flex-wrap:wrap}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{background:none;border:0.5px solid var(--border);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.active{border-color:var(--gold);color:var(--gold);background:var(--glow)}
+
+/* ═══ SCREENS ═══ */
+.screen{display:none}.screen.active{display:block}
+
+/* ═══ SECTION TITLE ═══ */
+.section-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:.4rem}
+.section-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;line-height:1.6}
+
+/* ═══ DIVIDER ═══ */
+.divider{height:.5px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:1.5rem 0}
+
+/* ═══ WAVE CARDS ═══ */
+.wave-list{display:flex;flex-direction:column;gap:12px}
+.wave-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.wave-card:hover,.wave-card.open{border-color:var(--border2)}
+.wave-locked{cursor:not-allowed;opacity:.55}
+.wave-locked:hover{border-color:var(--border)!important}
+.wave-head{display:flex;align-items:center;gap:14px;padding:1rem 1.25rem}
+.wave-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);min-width:36px;text-align:center}
+.wave-info{flex:1}
+.wave-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:var(--gold2);letter-spacing:1px}
+.wave-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.wave-code{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);opacity:.6;letter-spacing:2px}
+.wave-chevron{font-size:18px;color:var(--muted);transition:transform .25s}
+.wave-card.open .wave-chevron{transform:rotate(180deg)}
+.wave-body{display:none;border-top:.5px solid var(--border);padding:1.25rem}
+.wave-card.open .wave-body{display:block}
+.wave-intent{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;opacity:.7}
+.phase-list{display:flex;flex-direction:column;gap:12px}
+.phase{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem}
+.phase-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem}
+.phase-name{font-size:12px;font-weight:500;color:var(--text);letter-spacing:.5px}
+.phase-freq{font-size:10px;color:var(--gold);opacity:.7;letter-spacing:1px;text-align:right}
+.phase-desc{font-size:12px;color:#8a8478;line-height:1.8}
+.phase-dur{display:inline-block;margin-top:.6rem;font-size:10px;color:var(--muted);letter-spacing:1.5px;border:.5px solid var(--border);padding:2px 8px;border-radius:10px}
+.wave-start-btn{width:100%;margin-top:1rem;background:none;border:.5px solid var(--border2);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;border-radius:2px;transition:all .2s}
+.wave-start-btn:hover{background:var(--glow2)}
+
+/* ═══ SOLFEGGIO ═══ */
+.solf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.solf-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.solf-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.08),transparent 70%);opacity:0;transition:opacity .3s}
+.solf-card:hover::before,.solf-card.active::before{opacity:1}
+.solf-card.active{border-color:var(--gold)}
+.solf-hz{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);margin-bottom:4px}
+.solf-name{font-size:11px;font-weight:500;color:var(--text);letter-spacing:1px;margin-bottom:6px}
+.solf-effect{font-size:10px;color:var(--muted);line-height:1.6}
+.solf-playing{font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:6px;min-height:14px}
+
+/* ═══ FREQUENCIES VISUALIZER ═══ */
+.freq-viz{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem}
+.freq-title{font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem}
+.freq-bands{display:flex;flex-direction:column;gap:10px}
+.band-row{display:flex;align-items:center;gap:12px}
+.band-name{font-size:10px;color:var(--muted);width:85px;letter-spacing:.5px}
+.band-track{flex:1;height:3px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden}
+.band-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.band-hz{font-size:10px;color:var(--gold);width:70px;text-align:right;letter-spacing:.5px}
+.band-state{font-size:10px;color:var(--muted);width:80px;text-align:right;font-style:italic}
+
+/* ═══ SESSIONS / TIMER ═══ */
+.session-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem}
+.sess-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s}
+.sess-card:hover,.sess-card.selected{border-color:var(--gold);background:rgba(201,168,76,.04)}
+.sess-icon{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold);margin-bottom:6px}
+.sess-name{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px}
+.sess-dur{font-size:10px;color:var(--muted)}
+.timer-wrap{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.timer-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.06),transparent 60%)}
+.timer-session{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem}
+.timer-phase-display{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);letter-spacing:2px;min-height:20px;margin-bottom:.5rem;font-style:italic}
+.timer-time{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;color:var(--gold2);letter-spacing:6px;position:relative;z-index:1}
+.timer-progress{margin:1.2rem auto;display:block}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.gp-btn{background:none;border:.5px solid var(--border);color:var(--silver);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:10px 20px;border-radius:2px;cursor:pointer;transition:all .2s}
+.gp-btn:hover{border-color:var(--gold);color:var(--gold)}
+.gp-btn.primary{border-color:var(--gold);color:var(--gold)}
+.gp-btn.primary:hover{background:var(--glow2)}
+
+/* ═══ BREATHWORK ═══ */
+.breath-patterns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
+.bp-btn{background:none;border:.5px solid var(--border);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;border-radius:2px;cursor:pointer;transition:all .2s}
+.bp-btn:hover,.bp-btn.active{border-color:var(--gold);color:var(--gold)}
+.breath-wrap{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin-bottom:1.5rem}
+#breath-orb{width:120px;height:120px;border-radius:50%;margin:0 auto 1.5rem;border:1px solid var(--gold);background:radial-gradient(circle,rgba(201,168,76,.15),transparent 70%);transition:transform 5s ease-in-out,opacity 5s ease-in-out;display:flex;align-items:center;justify-content:center;position:relative}
+#breath-orb::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:.5px solid rgba(201,168,76,.2);transition:transform 5s ease-in-out}
+#breath-orb-label{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+#breath-instruction{font-size:13px;color:var(--muted);letter-spacing:.5px;min-height:20px;font-family:'Cormorant Garamond',serif;font-style:italic}
+#breath-count{font-size:32px;font-family:'Cormorant Garamond',serif;color:var(--gold);margin:.5rem 0}
+.breath-science{background:rgba(201,168,76,.03);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-top:1rem}
+.breath-science p{font-size:11px;color:var(--muted);line-height:1.8}
+.breath-science strong{color:var(--silver);font-weight:500}
+
+/* ═══ PROTOCOL CARDS (Pain/Wealth) ═══ */
+.protocol-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem}
+.protocol-header{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.protocol-icon{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold)}
+.protocol-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold2);letter-spacing:1px}
+.protocol-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.step-list{display:flex;flex-direction:column;gap:10px}
+.step-item{display:flex;gap:12px;align-items:flex-start;padding:.75rem;background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);min-width:28px;opacity:.5}
+.step-content{}
+.step-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:11px;color:var(--muted);line-height:1.8}
+.step-time{font-size:10px;color:var(--gold);opacity:.6;margin-top:4px;letter-spacing:1px}
+
+/* ═══ AFFIRMATIONS ═══ */
+.affirm-wheel{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin-bottom:1.5rem;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.affirm-wheel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(201,168,76,.05),transparent 60%)}
+.affirm-code{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);letter-spacing:4px;margin-bottom:.75rem;position:relative;z-index:1}
+.affirm-text{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--text);line-height:1.8;max-width:500px;position:relative;z-index:1}
+.affirm-intent{font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:.75rem;position:relative;z-index:1}
+#affirm-counter{font-size:10px;color:var(--muted);margin-top:.75rem;letter-spacing:1px}
+.affirm-instruction{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem}
+.affirm-instruction p{font-size:11px;color:var(--muted);line-height:1.8}
+
+/* ═══ JOURNAL ═══ */
+.journal-grid{display:flex;flex-direction:column;gap:12px}
+.j-block{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem}
+.j-block label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.j-block textarea{background:transparent;border:none;width:100%;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:14px;line-height:1.8;resize:vertical;min-height:70px;outline:none}
+.j-block textarea::placeholder{color:#3a3428;font-style:italic}
+
+/* ═══ PROGRESS ═══ */
+.progress-header{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.5rem}
+.stat-block{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--gold)}
+.stat-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.streak-title{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem}
+.streak-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem}
+.s-dot{width:32px;height:32px;border-radius:2px;border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);cursor:pointer;transition:all .2s}
+.s-dot.done{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+.s-dot:hover{border-color:var(--border2)}
+.wave-progress{display:flex;flex-direction:column;gap:8px;margin-top:1rem}
+.wp-row{display:flex;align-items:center;gap:10px}
+.wp-name{font-size:10px;color:var(--muted);width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp-track{flex:1;height:2px;background:rgba(255,255,255,.04)}
+.wp-fill{height:100%;background:var(--gold);transition:width 1s ease}
+.wp-pct{font-size:10px;color:var(--gold);width:30px;text-align:right}
+
+/* ═══ COUNCIL AGENTS ═══ */
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.5rem}
+.agent-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center;cursor:pointer;transition:border-color .2s}
+.agent-card:hover{border-color:var(--border2)}
+.agent-symbol{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold);margin-bottom:.5rem}
+.agent-name{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px;letter-spacing:.5px}
+.agent-domain{font-size:10px;color:var(--muted);line-height:1.6}
+.insight-box{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:12px}
+.insight-agent{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;opacity:.7}
+.insight-text{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--silver);line-height:1.8}
+
+/* ═══ SCROLL FADE IN ═══ */
+.fade-in{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.fade-in.visible{opacity:1;transform:none}
+
+/* ═══ TOAST ═══ */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(10,10,26,.95);border:.5px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:2px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.show{opacity:1}
+
+/* ═══ AUDIO VIZ ═══ */
+.audio-bars{display:flex;align-items:flex-end;gap:2px;height:40px;justify-content:center;margin-top:1rem}
+.ab{width:4px;background:var(--gold);border-radius:2px 2px 0 0;animation:none;opacity:.3}
+.ab.playing{animation:bar-dance var(--d,0.5s) ease-in-out infinite alternate;opacity:.8}
+@keyframes bar-dance{from{height:4px}to{height:var(--h,20px)}}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:600px){
+  .hero-tagline{font-size:22px;letter-spacing:2px}
+  .timer-time{font-size:42px}
+  .solf-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- STARFIELD -->
+<div id="starfield"></div>
+
+<!-- SACRED GEOMETRY -->
+<svg id="geo-bg" viewBox="0 0 800 800" fill="none" stroke="rgba(201,168,76,1)" stroke-width="0.5">
+  <circle cx="400" cy="400" r="300"/>
+  <circle cx="400" cy="400" r="200"/>
+  <circle cx="400" cy="400" r="100"/>
+  <!-- Flower of Life circles -->
+  <circle cx="400" cy="300" r="100"/><circle cx="400" cy="500" r="100"/>
+  <circle cx="486" cy="350" r="100"/><circle cx="486" cy="450" r="100"/>
+  <circle cx="314" cy="350" r="100"/><circle cx="314" cy="450" r="100"/>
+  <!-- Star of David -->
+  <polygon points="400,180 520,380 280,380"/>
+  <polygon points="400,620 280,420 520,420"/>
+  <!-- Outer ring lines -->
+  <line x1="400" y1="100" x2="400" y2="700"/>
+  <line x1="100" y1="400" x2="700" y2="400"/>
+  <line x1="188" y1="188" x2="612" y2="612"/>
+  <line x1="612" y1="188" x2="188" y2="612"/>
+</svg>
+
+<div id="app">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eye">
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="40" cy="40" rx="35" ry="20" stroke="#c9a84c" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="40" cy="40" r="10" fill="rgba(201,168,76,0.15)" stroke="#c9a84c" stroke-width="0.8"/>
+        <circle cx="40" cy="40" r="4" fill="#c9a84c"/>
+        <circle cx="37" cy="37" r="1.5" fill="rgba(255,255,255,0.6)"/>
+        <ellipse cx="40" cy="40" rx="35" ry="20" stroke="#c9a84c" stroke-width="0.4" opacity="0.2" transform="rotate(30 40 40)"/>
+        <ellipse cx="40" cy="40" rx="35" ry="20" stroke="#c9a84c" stroke-width="0.4" opacity="0.2" transform="rotate(60 40 40)"/>
+      </svg>
+    </div>
+    <div class="hero-tagline">The <em>Gateway</em> Protocol</div>
+    <div class="hero-tagline" style="font-size:clamp(14px,2.5vw,20px);color:var(--silver);margin-top:4px">Consciousness · Healing · Abundance · Liberation</div>
+    <div class="hero-sub" style="margin-top:8px">Monroe · Dispenza · Lipton · Tesla · Jung — Unified System</div>
+    <div class="council-badge" style="margin:0 auto;margin-top:1rem">
+      <span class="council-dot"></span>
+      5-Agent Council Compiled Protocol
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <button class="nav-btn active" onclick="show('waves')">Waves I–VII</button>
+    <button class="nav-btn" onclick="show('solfeggio')">Solfeggio</button>
+    <button class="nav-btn" onclick="show('sessions')">Sessions</button>
+    <button class="nav-btn" onclick="show('breath')">Breathwork</button>
+    <button class="nav-btn" onclick="show('protocols')">Protocols</button>
+    <button class="nav-btn" onclick="show('affirmations')">Affirmations</button>
+    <button class="nav-btn" onclick="show('journal')">Journal</button>
+    <button class="nav-btn" onclick="show('progress')">Progress</button>
+    <button class="nav-btn" onclick="show('council')">Council</button>
+  </nav>
+
+  <!-- ════ SCREEN: WAVES ════ -->
+  <div id="screen-waves" class="screen active">
+    <div class="fade-in visible">
+      <div class="section-title">The Seven Waves</div>
+      <div class="section-sub">Monroe Institute's complete Gateway Experience — accurately rendered. Each wave builds on the last. Do not skip levels.</div>
+    </div>
+    <div class="wave-list" id="wave-list"></div>
+  </div>
+
+  <!-- ════ SCREEN: SOLFEGGIO ════ -->
+  <div id="screen-solfeggio" class="screen">
+    <div class="section-title">Solfeggio Frequencies</div>
+    <div class="section-sub">Ancient tonal medicine. Each frequency targets specific biological, emotional, and spiritual programs. Tap to activate.</div>
+    <div class="freq-viz">
+      <div class="freq-title">Brainwave State Guide</div>
+      <div class="freq-bands" id="freq-bands"></div>
+    </div>
+    <div class="solf-grid" id="solf-grid"></div>
+    <div class="audio-bars" id="audio-bars"></div>
+  </div>
+
+  <!-- ════ SCREEN: SESSIONS ════ -->
+  <div id="screen-sessions" class="screen">
+    <div class="section-title">Timed Sessions</div>
+    <div class="section-sub">Select a session and enter the protocol. Each session is calibrated to reach the target brainwave state.</div>
+    <div class="session-grid" id="session-grid"></div>
+    <!-- Pairing guide — shown when session selected -->
+    <div id="pairing-guide" style="display:none;background:var(--card);border:.5px solid var(--border2);border-radius:4px;padding:1.25rem;margin-bottom:1rem">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Optimal Audio Pairing</div>
+      <div id="pairing-text" style="font-size:12px;color:var(--silver);line-height:1.8;margin-bottom:.75rem"></div>
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Recommended track</div>
+      <div id="pairing-track" style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold2);font-style:italic;margin-bottom:.75rem"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a id="pairing-brainfm" href="#" target="_blank" onclick="return openPairingLink(event,this)"
+          style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--border2);padding:5px 10px;border-radius:2px;text-decoration:none">Open Brain.fm ↗</a>
+        <a id="pairing-youtube" href="#" target="_blank" onclick="return openPairingLink(event,this)"
+          style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border:.5px solid var(--border);padding:5px 10px;border-radius:2px;text-decoration:none">YouTube Alternative ↗</a>
+      </div>
+    </div>
+    <!-- Ambient engine controls -->
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
+        <span>Ambient Layer</span>
+        <span id="ambient-state" style="font-size:9px;color:var(--muted);letter-spacing:1px">Off</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:10px;color:var(--muted);width:80px">Pink Noise</label>
+          <input type="range" min="0" max="1" step="0.05" value="0.35" id="noise-vol"
+            oninput="AMBIENT.setNoise(+this.value)" style="flex:1">
+          <span id="noise-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">35%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:10px;color:var(--muted);width:80px">Solfeggio</label>
+          <input type="range" min="0" max="1" step="0.05" value="0.12" id="solf-vol"
+            oninput="AMBIENT.setSolfeggio(+this.value)" style="flex:1">
+          <span id="solf-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">12%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:10px;color:var(--muted);width:80px">Binaural</label>
+          <input type="range" min="0" max="1" step="0.05" value="0.18" id="bin-vol"
+            oninput="AMBIENT.setBinaural(+this.value)" style="flex:1">
+          <span id="bin-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">18%</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted);line-height:1.6;padding:.4rem .5rem;background:rgba(201,168,76,.03);border-radius:3px">
+          <span id="ambient-desc">Select a session to see the target brainwave state</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="gp-btn" onclick="AMBIENT.preview()" style="font-size:9px">▶ Preview</button>
+          <button class="gp-btn" onclick="AMBIENT.stop()" style="font-size:9px">■ Stop</button>
+        </div>
+      </div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-session" id="timer-session-name">Select a session above</div>
+      <div class="timer-phase-display" id="timer-phase">—</div>
+      <div class="timer-time" id="timer-display">00:00</div>
+      <svg class="timer-progress" width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(201,168,76,0.08)" stroke-width="1.5"/>
+        <circle id="timer-ring" cx="50" cy="50" r="44" fill="none" stroke="#c9a84c" stroke-width="1.5"
+          stroke-dasharray="276.5" stroke-dashoffset="276.5" stroke-linecap="round" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .5s linear"/>
+      </svg>
+      <!-- Live guidance cue -->
+      <div id="guidance-cue" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--silver);line-height:1.8;min-height:40px;max-width:420px;margin:.5rem auto 1rem;opacity:0;transition:opacity .8s ease;padding:0 1rem;position:relative;z-index:1"></div>
+      <div class="btn-row">
+        <button class="gp-btn primary" id="timer-btn" onclick="toggleTimer()">Begin</button>
+        <button class="gp-btn" onclick="resetTimer()">Reset</button>
+        <button class="gp-btn" id="voice-toggle" onclick="VOICE.toggle()" title="Toggle voiced guidance">Voice On</button>
+      </div>
+    </div>
+    <!-- Voice settings — built dynamically by VOICE._buildVoicePanel() -->
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1.5rem" id="voice-settings-panel">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1px">Initializing voice engine…</div>
+    </div>
+  </div>
+
+  <!-- ════ SCREEN: BREATHWORK ════ -->
+  <div id="screen-breath" class="screen">
+    <div class="section-title">Breathwork Protocols</div>
+    <div class="section-sub">Breath is the doorway. Each pattern is chosen for its effect on the autonomic nervous system and brainwave state.</div>
+    <div class="breath-patterns" id="breath-patterns"></div>
+    <div class="breath-wrap">
+      <div id="breath-orb"><div id="breath-orb-label">∞</div></div>
+      <div id="breath-instruction">Select a pattern and begin</div>
+      <div id="breath-count"></div>
+      <div class="btn-row">
+        <button class="gp-btn primary" id="breath-btn" onclick="toggleBreath()">Begin</button>
+        <button class="gp-btn" onclick="stopBreath()">Stop</button>
+      </div>
+    </div>
+    <div class="breath-science">
+      <p><strong>The Science:</strong> Slow rhythmic breathing (5–6 breaths/min) activates the parasympathetic nervous system, reduces cortisol by up to 30%, synchronizes the heart rate variability (HRV), and creates the coherent heart-brain signal required for Gateway entry. Dispenza uses this exact preparation before all quantum field work.</p>
+    </div>
+  </div>
+
+  <!-- ════ SCREEN: PROTOCOLS ════ -->
+  <div id="screen-protocols" class="screen">
+    <div class="section-title">Specialized Protocols</div>
+    <div class="section-sub">Targeted sequences from 5 council agents — Monroe, Dispenza, Lipton, Tesla, Jung.</div>
+    <div id="protocols-content"></div>
+  </div>
+
+  <!-- ════ SCREEN: AFFIRMATIONS ════ -->
+  <div id="screen-affirmations" class="screen">
+    <div class="section-title">Code Imprinting</div>
+    <div class="section-sub">Affirmations work only in theta or alpha state. Do breathwork first. Then imprint below.</div>
+    <div class="affirm-instruction">
+      <p><strong style="color:var(--silver)">Lipton's Protocol:</strong> The subconscious mind accepts programs most easily in the theta state (just before sleep, just after waking, or induced through breathwork). Read each affirmation slowly, feel the emotion behind the words, and repeat 3x. The feeling is the frequency that transmits to the field.</p>
+    </div>
+    <div class="affirm-wheel" id="affirm-display"></div>
+    <div style="text-align:center" id="affirm-counter"></div>
+    <div class="btn-row" style="margin-top:1rem">
+      <button class="gp-btn" onclick="prevAffirm()">← Previous</button>
+      <button class="gp-btn primary" onclick="nextAffirm()">Next →</button>
+    </div>
+    <div id="all-affirmations" style="margin-top:1.5rem;display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- ════ SCREEN: JOURNAL ════ -->
+  <div id="screen-journal" class="screen">
+    <div class="section-title">Integration Journal</div>
+    <div class="section-sub">Jung: consciousness not brought to awareness becomes fate. What you track, you integrate. What you integrate, you embody.</div>
+    <div class="journal-grid" id="journal-grid"></div>
+    <div class="btn-row" style="margin-top:1rem">
+      <button class="gp-btn primary" onclick="saveJournal()">Anchor Entry</button>
+      <button class="gp-btn primary" id="mirror-btn" onclick="invokeQuantumMirror()" style="border-color:rgba(201,168,76,.6)">◈ Consult the Council</button>
+    </div>
+    <div id="journal-confirm" style="text-align:center;font-size:10px;color:var(--gold);letter-spacing:2px;min-height:18px;margin-top:.5rem"></div>
+
+    <!-- Quantum Mirror API key + output -->
+    <div id="mirror-key-block" style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-top:1rem">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Quantum Mirror — Anthropic API Key</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:.6rem">Required once. Get free key at <strong style="color:var(--silver)">console.anthropic.com</strong> → API Keys.</div>
+      <input type="password" id="anthropic-key-input" placeholder="sk-ant-..."
+        style="width:100%;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:6px 8px;border-radius:2px;outline:none"
+        oninput="QM.saveKey(this.value)">
+    </div>
+
+    <!-- Mirror output panel — hidden until response arrives -->
+    <div id="mirror-output" style="display:none;margin-top:1rem">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:1rem;opacity:.7">Council Transmission</div>
+
+      <div style="background:var(--card);border:.5px solid var(--border2);border-radius:4px;padding:1.25rem;margin-bottom:10px">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Current State</div>
+        <div id="m-state" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text);line-height:1.8;font-style:italic"></div>
+      </div>
+
+      <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:10px">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Shadow Observation — Jung</div>
+        <div id="m-shadow" style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--silver);line-height:1.8;font-style:italic"></div>
+      </div>
+
+      <div style="background:rgba(201,168,76,.06);border:.5px solid var(--border2);border-radius:4px;padding:1.5rem;margin-bottom:10px;text-align:center">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;opacity:.7">Transmission</div>
+        <div id="m-transmission" style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold2);line-height:1.9;font-style:italic"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px">
+        <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Wave</div>
+          <div id="m-wave" style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);line-height:1.7"></div>
+        </div>
+        <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Frequency</div>
+          <div id="m-freq" style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);line-height:1.7"></div>
+        </div>
+        <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Code</div>
+          <div id="m-code" style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);line-height:1.7"></div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:10px">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Next 24 Hours</div>
+        <div id="m-practice" style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--text);line-height:1.8"></div>
+      </div>
+
+      <div class="btn-row" style="margin-top:.5rem">
+        <button class="gp-btn" id="mirror-speak-btn" onclick="QM.toggleSpeak()" style="font-size:9px">▶ Hear Transmission</button>
+        <button class="gp-btn" onclick="document.getElementById('mirror-output').style.display='none'" style="font-size:9px">Dismiss</button>
+      </div>
+    </div>
+
+    <div id="mirror-loading" style="display:none;text-align:center;padding:2rem">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);letter-spacing:2px;font-style:italic">The Council is reading your entry…</div>
+      <div id="mirror-dots" style="font-size:20px;color:var(--gold);margin-top:.5rem;letter-spacing:4px">◈</div>
+    </div>
+
+    <div class="divider" style="margin-top:1.5rem"></div>
+    <div class="section-title" style="margin-top:1rem">Past Entries</div>
+    <div class="section-sub">Every session, every insight — permanently anchored.</div>
+    <div id="journal-history"></div>
+  </div>
+
+  <!-- ════ SCREEN: PROGRESS ════ -->
+  <div id="screen-progress" class="screen">
+    <div class="section-title">Your Trajectory</div>
+    <div class="section-sub">Consistency is the protocol. The field responds to commitment.</div>
+
+    <!-- Tier badge -->
+    <div id="tier-display" style="text-align:center;margin-bottom:1.5rem"></div>
+
+    <!-- Stats -->
+    <div class="progress-header" id="stats-grid"></div>
+
+    <!-- 30-day session graph -->
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1.5rem">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">30-Day Practice</div>
+      <canvas id="session-graph" height="60" style="width:100%;display:block"></canvas>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span style="font-size:9px;color:var(--muted)">30 days ago</span>
+        <span style="font-size:9px;color:var(--muted)">Today</span>
+      </div>
+    </div>
+
+    <!-- Streak -->
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">21-Day Activation</div>
+    <div class="streak-grid" id="streak-grid"></div>
+
+    <!-- Wave completion -->
+    <div class="divider"></div>
+    <div class="section-title" style="margin-top:1rem">Wave Mastery</div>
+    <div class="wave-progress" id="wave-progress"></div>
+
+    <!-- 369 Tesla Tracker -->
+    <div class="divider" style="margin-top:1.5rem"></div>
+    <div class="section-title" style="margin-top:1rem">369 Tesla Tracker</div>
+    <div class="section-sub">33-day manifestation protocol. 3× morning · 6× midday · 9× evening.</div>
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem">
+      <label style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem">Your Desire Statement</label>
+      <textarea id="tesla-desire" placeholder="I am generating $X per month doing work I love with complete ease and joy..."
+        style="width:100%;background:transparent;border:.5px solid var(--border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:13px;padding:.5rem;border-radius:2px;resize:vertical;min-height:54px;outline:none"
+        oninput="TT.saveDesire(this.value)"></textarea>
+    </div>
+    <div id="tesla-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-bottom:1rem"></div>
+    <div class="btn-row">
+      <button class="gp-btn primary" onclick="markDay()">Mark Today ✓</button>
+      <button class="gp-btn" onclick="confirmReset()" style="border-color:rgba(192,64,64,.4);color:#c04040">Reset All Data</button>
+    </div>
+  </div>
+
+  <!-- ════ SCREEN: COUNCIL ════ -->
+  <div id="screen-council" class="screen">
+    <div class="section-title">The Council of Five</div>
+    <div class="section-sub">Five of the greatest minds ever assembled on consciousness, healing, and human potential. Their unified insights are the foundation of this protocol.</div>
+    <div class="agents-grid" id="agents-grid"></div>
+    <div class="divider"></div>
+    <div class="section-title" style="margin-top:1rem">Key Transmissions</div>
+    <div id="insights-list"></div>
+  </div>
+</div>
+
+<div id="toast">Entry anchored ✓</div>
+
+<script>
+// ═══════════════════════════ V2 ELECTRON BRIDGE ═══════════════════════════
+// In Electron, calls route through window.gp.* (IPC → main.js → HTTPS).
+// In a plain browser (V1 mode), calls fall back to the proxy at localhost:5050.
+// This file works in BOTH environments — feature-detection on window.gp.
+const GP_ELECTRON = (typeof window !== 'undefined') && !!window.gp;
+const GP_API = {
+  isElectron: GP_ELECTRON,
+  async elevenlabsTTS(opts){
+    if(GP_ELECTRON){
+      const buf=await window.gp.elevenlabsTTS(opts);
+      return new Blob([buf],{type:'audio/mpeg'});
+    }
+    const res=await fetch('http://localhost:5050/tts',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
+    });
+    if(!res.ok) throw new Error('Proxy returned '+res.status);
+    return await res.blob();
+  },
+  async openaiTTS(opts){
+    if(GP_ELECTRON){
+      const buf=await window.gp.openaiTTS(opts);
+      return new Blob([buf],{type:'audio/mpeg'});
+    }
+    const res=await fetch('http://localhost:5050/oai-tts',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
+    });
+    if(!res.ok) throw new Error('Proxy returned '+res.status);
+    return await res.blob();
+  },
+  async mirror(opts){
+    if(GP_ELECTRON){
+      return await window.gp.mirror(opts);
+    }
+    const res=await fetch('http://localhost:5050/mirror',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
+    });
+    const data=await res.json();
+    if(!res.ok || data.error) throw new Error(data.error?.message||data.error||'Council unreachable');
+    return data;
+  },
+  // Mirror key writes to electron-store (encrypted at rest). Fire-and-forget.
+  saveKey(name, value){
+    if(GP_ELECTRON && window.gp.keys){
+      window.gp.keys.set(name, value || '').catch(()=>{});
+    }
+  },
+  // On boot, copy any key in electron-store back into localStorage so a
+  // fresh install (cleared localStorage) recovers from the encrypted backup.
+  async hydrateKeys(){
+    if(!GP_ELECTRON || !window.gp.keys) return;
+    try{
+      const [el,oai,ant]=await Promise.all([
+        window.gp.keys.get('elevenlabs'),
+        window.gp.keys.get('openai'),
+        window.gp.keys.get('anthropic'),
+      ]);
+      const v=JSON.parse(localStorage.getItem('gp_voice')||'{}');
+      let voiceDirty=false;
+      if(el  && !v.elKey ){ v.elKey =el;  voiceDirty=true; }
+      if(oai && !v.oaiKey){ v.oaiKey=oai; voiceDirty=true; }
+      if(voiceDirty) localStorage.setItem('gp_voice',JSON.stringify(v));
+      if(ant && !localStorage.getItem('gp_anthropic_key')){
+        localStorage.setItem('gp_anthropic_key',ant);
+      }
+    }catch(e){ console.warn('Key hydration failed:',e); }
+  }
+};
+
+// ═══════════════════════════ DATA ═══════════════════════════
+const WAVES=[
+  {id:1,name:"Wave I — Discovery",subtitle:"Resonant Tuning · Focus 10",color:"#7060d0",
+    phases:[
+      {name:"Resonant Tuning",freq:"Alpha 8–12 Hz",dur:"5 min",
+       desc:"Hum at a comfortable pitch, feel the vibration move through your skull and chest. Monroe discovered the body has a natural resonant frequency (~7.8 Hz, matching the Schumann Resonance). This phase synchronizes your biofield with Earth's electromagnetic cavity."},
+      {name:"Focus 10",freq:"Theta 4–8 Hz",dur:"15 min",
+       desc:"Mind Awake / Body Asleep. The first true Gateway state. The body enters a state resembling sleep paralysis while consciousness remains completely alert. This paradoxical state is the prerequisite for all deeper work. You access it through progressive relaxation from feet upward while maintaining mental wakefulness."}
+    ],code:"1111",intent:"Presence · Body Release · First Entry"},
+  {id:2,name:"Wave II — Threshold",subtitle:"Energy Balloon · Focus 12",color:"#5050c0",
+    phases:[
+      {name:"Resonant Energy Balloon",freq:"Theta 4–8 Hz",dur:"10 min",
+       desc:"Construct a torus-shaped energy field around your body using focused visualization. Monroe Institute researchers observed measurable changes in bioelectric readings during this exercise. The field serves as both protection and amplifier for subsequent states. Visualize it as golden or white light emanating from your heart center."},
+      {name:"Focus 12",freq:"Deep Theta 4–6 Hz",dur:"20 min",
+       desc:"Expanded Awareness. Awareness expands beyond the boundaries of physical form. Perception begins to include subtle energy fields, emotional atmospheres, and non-local information. Monroe described this as the 'first genuine expansion beyond consensus reality.' Thoughts become clearer, less verbal, more direct."}
+    ],code:"55515",intent:"Expansion · Field Protection · Non-Local Perception"},
+  {id:3,name:"Wave III — Freedom",subtitle:"Focus 15 · No-Time State",color:"#3060b0",
+    phases:[
+      {name:"Focus 15",freq:"Deep Theta 3–5 Hz",dur:"25 min",
+       desc:"No Time. You enter a state outside of linear time. The subconscious mind — which operates atemporally, storing all memories simultaneously — becomes directly accessible. This is where Lipton's 'subconscious reprogramming' occurs most naturally. Early childhood programs, ancestral patterns, and core identity beliefs can be examined and rewritten here."},
+      {name:"Focus 21",freq:"Delta/Theta border 2–4 Hz",dur:"30 min",
+       desc:"Other Energy Systems. Awareness expands to encompass what Monroe called 'non-physical energy systems.' Creativity, breakthrough insight, and quantum downloads emerge at this level. Many who reach Focus 21 report contact with what Jung called the Collective Unconscious — the universal field of human knowledge and experience."}
+    ],code:"888",intent:"Time Dissolution · Subconscious Access · Collective Field"},
+  {id:4,name:"Wave IV — Adventure",subtitle:"H+ State · Belief Territories",color:"#207090",
+    phases:[
+      {name:"H+ State",freq:"Gamma + Delta blend 40Hz + 1Hz",dur:"30 min",
+       desc:"Human Plus. Monroe's designation for the expanded human operating state. Simultaneous gamma (peak cognitive performance, 40 Hz) and delta (deep healing, 0–4 Hz) create the paradoxical state that characterizes OBEs and quantum healing. Dispenza's meditators show measurable gamma bursts during spontaneous healing events."},
+      {name:"Focus 23–27",freq:"Variable",dur:"35 min",
+       desc:"Belief System Territories. Monroe mapped specific non-physical 'locations' corresponding to dominant belief architectures. Focus 23 contains unintegrated trauma. Focus 25 holds religious/cultural programs. Focus 27 is what Monroe called the Reception Center — a state of pure creative potential. Jung would call these the activated archetypes of the collective unconscious."}
+    ],code:"369",intent:"Identity Architecture · Belief Liberation · OBE Access"},
+  {id:5,name:"Wave V — Healing",subtitle:"Cellular Reprogramming",color:"#208050",
+    phases:[
+      {name:"528 Hz Cellular Immersion",freq:"528 Hz + Theta 4–7 Hz",dur:"20 min",
+       desc:"Lipton's research: 95% of all biological activity is controlled by the subconscious. In theta, you access the subconscious operating layer and can directly reprogram cellular behavior through visualization and intention. 528 Hz has been associated with DNA repair in several studies. Pair with a clear image of healed, vital cells flooding your body."},
+      {name:"Future Body Memory",freq:"432 Hz + Delta 1–3 Hz",dur:"25 min",
+       desc:"Dispenza's protocol: the body cannot distinguish between a vividly imagined experience and a real one. Create a complete sensory memory of yourself in a fully healed, pain-free, vital state — 6 months from now. Feel the emotion of it (gratitude, joy, relief) BEFORE physical evidence. The subconscious accepts emotionally charged future memories as present reality and reorganizes biology accordingly."}
+    ],code:"528",intent:"Cellular Healing · Pain Dissolution · Regeneration"},
+  {id:6,name:"Wave VI — Manifestation",subtitle:"Quantum Field Engineering",color:"#806010",
+    phases:[
+      {name:"Quantum Observer State",freq:"40 Hz Gamma",dur:"15 min",
+       desc:"Tesla's principle: thought is an electromagnetic signal broadcast into the field. At 40 Hz gamma, you become the quantum observer — the point of consciousness that collapses probability waves into physical reality. This is not metaphor. Quantum mechanics demonstrates that observation affects physical outcomes. Your coherent intention at this frequency is a literal force."},
+      {name:"Future Self Download",freq:"Theta 4–7 Hz",dur:"25 min",
+       desc:"In the no-time state of deep theta, meet your 5-year future self who has already achieved the life you desire. This is not visualization — it is a memory of a future that exists in the field. Ask: 'What decision changed everything?' The answer that arrives is not imagined — it is accessed from the quantum field of possibilities that Tesla called the Ether."}
+    ],code:"888",intent:"Reality Engineering · Wealth Programming · Future Self"},
+  {id:7,name:"Wave VII — Integration",subtitle:"Shadow Work · Anchoring",color:"#806030",
+    phases:[
+      {name:"Shadow Integration",freq:"Alpha 8–10 Hz",dur:"15 min",
+       desc:"Jung: 'Until you make the unconscious conscious, it will direct your life and you will call it fate.' The wealth, health, love, or freedom you most strongly reject, judge, or envy in others points to the disowned part of yourself that blocks you. In this phase: identify your strongest judgment of another person. Recognize it as a disowned aspect of your own potential. Integrate it."},
+      {name:"Somatic Anchoring",freq:"Beta return 12–15 Hz",dur:"10 min",
+       desc:"Create a physical anchor at the peak state: gently touch your thumb and index finger together while holding maximum coherence (gratitude + expanded awareness + physical sensation of the desired state). Repeat 3x. This encodes the neurological state into a retrievable somatic cue. In waking life, touching this anchor re-activates the coherent state in 3–5 seconds."}
+    ],code:"1111",intent:"Shadow Integration · Embodiment · Somatic Anchoring"}
+];
+
+const SOLFEGGIO=[
+  {hz:174,name:"Foundation",effect:"Pain relief, security, grounding. Reduces physical and emotional pain at the cellular level. The body's deepest safety signal.",col:"#c04040"},
+  {hz:285,name:"Quantum Field",effect:"Influences energy fields directly. Repairs and rejuvenates tissues. Leaves the body feeling restructured and energized.",col:"#c06030"},
+  {hz:396,name:"Liberation",effect:"Liberates guilt and fear — the two primary blocks to abundance and healing. Converts grief into joy. Root chakra reset.",col:"#c08020"},
+  {hz:417,name:"Transmutation",effect:"Facilitates change. Clears traumatic experiences from cellular memory. Enables situations to undo and rewrite themselves.",col:"#80a030"},
+  {hz:432,name:"Natural Resonance",effect:"Universal harmonic aligned with nature's oscillation. Calms the nervous system. Synchronizes brain hemispheres organically.",col:"#40a040"},
+  {hz:528,name:"DNA Repair",effect:"Love frequency. Associated with DNA repair. The center of the Solfeggio scale. Produces emotional transformation and miracles.",col:"#3090a0"},
+  {hz:639,name:"Connection",effect:"Harmonizes relationships, enhances communication, tolerance, and love. Heals broken connections between people and between self-aspects.",col:"#3060c0"},
+  {hz:741,name:"Awakening",effect:"Cleanses cells of toxins and electromagnetic radiation. Awakens intuition. Enhances problem-solving and self-expression.",col:"#5040b0"},
+  {hz:852,name:"Spiritual Order",effect:"Returns consciousness to spiritual order. Awakens the third eye. Activates intuition. Dissolves illusions of separation.",col:"#7030a0"},
+  {hz:963,name:"Divine Connection",effect:"Activates the pineal gland. Creates unity with the universal field. Monroe's Focus 27 state. Crown activation.",col:"#a020a0"}
+];
+
+const SESSIONS=[
+  {name:"Morning Activation",dur:10,icon:"☀",phases:["Resonant Tuning","Focus 3 entry","Code imprinting"]},
+  {name:"Focus 10 Entry",dur:20,icon:"◎",phases:["Resonant Tuning","Body release","Focus 10 hold"]},
+  {name:"Deep Coherence",dur:30,icon:"∞",phases:["Breathwork","Focus 12","Expanded awareness"]},
+  {name:"Gateway Immersion",dur:60,icon:"◈",phases:["Tuning","Focus 10","Focus 12","Focus 15"]},
+  {name:"Pain Dissolution",dur:25,icon:"✦",phases:["174 Hz breath","Cellular dialogue","528 Hz flood","Future body"]},
+  {name:"Wealth State",dur:35,icon:"◉",phases:["Shadow scan","369 encoding","888 loop","Future self meeting"]},
+  {name:"Sleep Programming",dur:40,icon:"☽",phases:["4-7-8 breath","Focus 10","Affirmation loop","Theta drift"]},
+  {name:"Full Integration",dur:90,icon:"⊕",phases:["Wave I","Wave II","Wave III","Wave VII"]}
+];
+
+const BREATH_PATTERNS=[
+  {name:"Coherence 5-5",i:5,h:0,e:5,science:"Heart-brain coherence. HRV synchronization. Activates vagal tone.",target:"Alpha–Theta bridge"},
+  {name:"Gateway 5-5-5",i:5,h:5,e:5,science:"Monroe's preparation pattern. The hold phase amplifies bioelectric field charge.",target:"Focus 10 entry"},
+  {name:"Box 4-4-4-4",i:4,h:4,e:4,hold2:4,science:"Military protocol. Balances sympathetic/parasympathetic. Rapid cortisol reduction.",target:"Nervous system reset"},
+  {name:"Dispenza 4-0-8",i:4,h:0,e:8,science:"Extended exhale doubles vagal activation. Used before Dispenza's quantum field work.",target:"Deep theta access"},
+  {name:"Tesla 3-6-9",i:3,h:6,e:9,science:"Tesla's numerological encoding. Ratio creates phi-harmonic breathing cycle.",target:"369 code activation"},
+  {name:"Pranayama 4-7-8",i:4,h:7,e:8,science:"Dr. Weil's protocol. 4-7-8 ratio produces powerful parasympathetic dominance in under 60 seconds.",target:"Rapid relaxation"}
+];
+
+const AFFIRMATIONS=[
+  {code:"55515",text:"I am being upgraded. Every change accelerating in my reality is in my favor. My life is expanding into its highest and most luminous form right now.",intent:"Wealth · Freedom · Life Upgrade"},
+  {code:"528 Hz",text:"Every cell in my body is healing, harmonizing, and returning to its original blueprint of perfection. I vibrate at the frequency of love and wholeness.",intent:"Healing · DNA Repair · Vitality"},
+  {code:"888",text:"I am a clear and open channel for infinite abundance. Wealth flows to me through pathways I have not yet imagined, from directions I cannot predict.",intent:"Abundance · Receiving · Flow"},
+  {code:"369",text:"I create my reality with focused intention. My desires already exist in the quantum field. I simply allow them to materialize into physical form.",intent:"Manifestation · Certainty · Creation"},
+  {code:"1111",text:"I choose the thoughts of my most expanded self. I am fully aligned with the version of me who already lives in freedom, health, and abundance.",intent:"Alignment · Presence · Quantum Self"},
+  {code:"432 Hz",text:"I am in resonance with the living universe. My nervous system is calm, my mind is clear, and every cell in my body trusts the intelligence that created it.",intent:"Peace · Groundedness · Natural Order"},
+  {code:"Focus 15",text:"I exist beyond the limits of time. The past does not define me. The future I choose is as real as this moment. I am the author of my experience.",intent:"Liberation · Time Freedom · Authorship"},
+  {code:"Shadow",text:"Every quality I see and judge in others is a reflection of my own unintegrated potential. I reclaim all of myself. I am complete. I am whole.",intent:"Shadow Integration · Wholeness · Jung"},
+  {code:"Gateway",text:"My consciousness is vast, unlimited, and free. I expand beyond every conditioned thought. I access states of knowing that exist beyond ordinary awareness.",intent:"Consciousness · OBE · Monroe"}
+];
+
+const JOURNAL_PROMPTS=[
+  {label:"Dominant State Today",ph:"What frequency are you operating from right now?"},
+  {label:"What Shifted",ph:"What changed, lifted, or became clearer in today's session?"},
+  {label:"Downloads & Insights",ph:"What arrived during stillness? Record it without judgment."},
+  {label:"Resistance Encountered",ph:"What came up — fear, doubt, contraction? Name it precisely."},
+  {label:"Shadow Observation",ph:"What triggered you today? What disowned quality does it point to?"},
+  {label:"Intention for Next Session",ph:"What do you want to access, release, or anchor next time?"}
+];
+
+const AGENTS=[
+  {symbol:"◎",name:"Robert Monroe",domain:"Consciousness Explorer · OBE Pioneer · Hemi-Sync Creator"},
+  {symbol:"⊗",name:"Dr. Bruce Lipton",domain:"Cell Biologist · Epigenetics · Biology of Belief"},
+  {symbol:"⊕",name:"Dr. Joe Dispenza",domain:"Neuroscientist · Quantum Healing · Brain Rewiring"},
+  {symbol:"⚡",name:"Nikola Tesla",domain:"Electromagnetic Theory · 3-6-9 · Resonance Engineer"},
+  {symbol:"⊖",name:"Carl Gustav Jung",domain:"Depth Psychology · Shadow Work · Collective Unconscious"}
+];
+
+const INSIGHTS=[
+  {agent:"Robert Monroe",text:"The Gateway is not a destination. It is a doorway. Every human being already possesses the capability — the techniques simply remove the noise that obscures what is already there."},
+  {agent:"Dr. Bruce Lipton",text:"Your subconscious mind is running 95% of your life from programs you downloaded before the age of seven. The Gateway state is one of the only natural portals to rewrite those programs while conscious."},
+  {agent:"Dr. Joe Dispenza",text:"The quantum field doesn't respond to what you want. It responds to who you are being. When you can feel the emotion of your desired life before the evidence arrives — that is when the field reorganizes around you."},
+  {agent:"Nikola Tesla",text:"If you want to find the secrets of the universe, think in terms of energy, frequency, and vibration. Everything you call solid reality is simply standing wave patterns in the electromagnetic field. You are a transmitter."},
+  {agent:"Carl Gustav Jung",text:"Until you make the unconscious conscious, it will direct your life and you will call it fate. The wealth, freedom, and love you most strongly deny in yourself are the precise coordinates of your next evolution."}
+];
+
+const PAIN_PROTOCOL={
+  title:"Pain Dissolution Protocol",
+  subtitle:"Monroe · Lipton · Dispenza Synthesis",
+  steps:[
+    {num:1,name:"Locate & Witness",time:"3 min",desc:"In Focus 10, locate the pain. Give it a geometric shape, a color, and a texture. Do not fight it. Observe it with scientific curiosity, as if you are a researcher studying a fascinating phenomenon. The act of observation without resistance begins to change it."},
+    {num:2,name:"174 Hz Breath",time:"5 min",desc:"174 Hz is the Solfeggio frequency most associated with pain relief. Breathe slowly (5 sec in, 5 sec out). On each exhale, visualize the pain's color becoming lighter. From red → orange → yellow → white. Note what changes."},
+    {num:3,name:"Dialogue",time:"5 min",desc:"Ask the pain: 'What are you protecting me from? What do you want me to know?' Pain is often compressed emotion, stored trauma, or a communication from the body. Listen without judgment. The answer that arises may be surprising."},
+    {num:4,name:"528 Hz Flood",time:"8 min",desc:"Visualize golden-green 528 Hz light entering through the crown of your head. Watch it flow down to the site of pain. See it at the cellular level — DNA strands repairing, inflammation dissolving, healthy cells multiplying. The body cannot distinguish vivid visualization from physical experience."},
+    {num:5,name:"Future Body Memory",time:"5 min",desc:"Project yourself 6 months forward into a body that is fully healed and vital. Create a complete sensory memory — what you see, feel, hear, the ease of movement. Generate genuine gratitude for this healed state as if it is already done. Hold that emotional signal for at least 90 seconds. This is Dispenza's protocol for cellular reprogramming."}
+  ]
+};
+
+const WEALTH_PROTOCOL={
+  title:"Wealth State Programming",
+  subtitle:"Tesla · Monroe · Dispenza · Jung Synthesis",
+  steps:[
+    {num:1,name:"Shadow Scan",time:"5 min",desc:"In Focus 15, identify your three strongest judgments about wealthy people or money. These judgments are the exact programs blocking your abundance. Write them down after the session. Then ask: 'If this quality I'm judging were actually a strength — what would it look like?' This is Jung's shadow integration applied to wealth."},
+    {num:2,name:"Frequency Clear",time:"5 min",desc:"In theta state, visualize all inherited poverty programs leaving your body as gray smoke on each exhale. These are the beliefs you absorbed before age 7: 'money doesn't grow on trees,' 'rich people are greedy,' 'we can't afford that.' Watch them dissolve. You are not your programming."},
+    {num:3,name:"369 Code Encoding",time:"7 min",desc:"While in alpha/theta, internally speak your specific wealth statement 3 times with full emotional presence. Make it specific, present tense, emotionally charged. 'I am generating [$X] per month doing work I love with complete ease and joy.' Feel the reality of it as you say it. Later: write it 3x morning, 6x midday, 9x night for 33 days."},
+    {num:4,name:"55515 Activation",time:"7 min",desc:"Visualize the code 55515 in luminous gold before your inner eye. Each 5 = an accelerating change in your financial reality. The central 1 = the new timeline anchoring now. Feel a wave of energy moving through your body as you hold this. Tesla: 'You are a receiver as much as a transmitter — tune yourself to the frequency of what you desire.'"},
+    {num:5,name:"Future Self Download",time:"10 min",desc:"In Focus 21, meet the version of you 5 years from now who is fully financially free. They are walking, talking, and living in the reality you desire. Ask them: 'What single decision changed everything?' 'What did you stop believing?' 'What did you start doing?' Listen without filtering. The answers come from the quantum field of your own highest potential."}
+  ]
+};
+
+// ═══════════════════════════ PERSISTENCE ═══════════════════════════
+const DB={
+  KEY:'gateway_protocol_v1',
+  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{}};},
+  load(){
+    try{const raw=localStorage.getItem(this.KEY);return raw?{...this.defaults(),...JSON.parse(raw)}:this.defaults();}
+    catch(e){console.warn('DB load failed',e);return this.defaults();}
+  },
+  save(data){
+    try{localStorage.setItem(this.KEY,JSON.stringify(data));}
+    catch(e){console.warn('DB save failed',e);}
+  },
+  update(patch){
+    const d={...this.load(),...patch};
+    this.save(d);
+    return d;
+  },
+  addJournalEntry(entry){
+    const d=this.load();
+    d.journal=[...(d.journal||[]),entry];
+    this.save(d);
+    return d;
+  },
+  clear(){localStorage.removeItem(this.KEY);}
+};
+
+// ═══════════════════════════ PAIRING GUIDE DATA ═══════════════════════════
+const PAIRINGS={
+  'Morning Activation':{
+    text:'Start with alpha-wave audio (8–12 Hz beat) to ease from waking beta into focused presence. Keep volume low — this session is about arrival, not depth.',
+    track:'Alpha Waves — 10 Hz Binaural Beat for Morning Focus',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=10hz+alpha+binaural+beat+morning+focus'
+  },
+  'Focus 10 Entry':{
+    text:'Focus 10 requires crossing from alpha into theta. Use a track that starts at 10 Hz and drifts to 7 Hz over 20 minutes. Stereo headphones are required for entrainment to work.',
+    track:'Alpha to Theta Descent — 10 Hz → 7 Hz Binaural',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=alpha+theta+binaural+descent+meditation'
+  },
+  'Deep Coherence':{
+    text:'Target theta (6–7 Hz) for expanded awareness. A stable theta carrier with a pink noise bed is ideal. Brain.fm\'s meditation mode is calibrated for this state.',
+    track:'Theta Meditation — 6 Hz Binaural Beat, 40 min',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=6hz+theta+binaural+beat+deep+meditation+40+minutes'
+  },
+  'Gateway Immersion':{
+    text:'The full Gateway requires a slow descent: beta (18 Hz) → alpha (10 Hz) → theta (6 Hz) → deep theta (4 Hz). Use the longest binaural track you can find — minimum 60 minutes.',
+    track:'Gateway Descent — Beta to Deep Theta, 60 min',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=gateway+consciousness+binaural+beat+60+minutes+theta'
+  },
+  'Pain Dissolution':{
+    text:'174 Hz is the Solfeggio frequency most associated with pain relief. Layer it under a 6 Hz theta binaural to reach the subconscious level where cellular reprogramming occurs.',
+    track:'174 Hz Solfeggio + Theta Binaural — Pain Relief',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=174hz+solfeggio+theta+binaural+pain+relief+healing'
+  },
+  'Wealth State':{
+    text:'528 Hz (transformation) combined with theta binaural creates the optimal state for subconscious reprogramming. Your nervous system needs to be calm before new programs land.',
+    track:'528 Hz Solfeggio + 7 Hz Theta — Abundance Programming',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=528hz+theta+binaural+abundance+manifestation+meditation'
+  },
+  'Sleep Programming':{
+    text:'Delta waves (1–3 Hz) carry programming into the deepest layers of the subconscious during sleep. Use a delta track that fades naturally — don\'t use a timer that cuts it off.',
+    track:'Delta Sleep Programming — 2 Hz Binaural, 8 Hours',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=delta+binaural+beat+sleep+programming+subconscious+8+hours'
+  },
+  'Full Integration':{
+    text:'The complete journey through all four Waves. Use a professionally produced Monroe-style Hemi-Sync track. The Monroe Institute\'s own recordings are available on YouTube and Insight Timer.',
+    track:'Monroe Hemi-Sync Style — Complete Gateway Journey, 90 min',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=hemi+sync+gateway+experience+monroe+institute+90+minutes'
+  },
+  _default:{
+    text:'Use stereo headphones with a theta binaural beat (6–8 Hz) for any Gateway session. Keep external audio at 30–40% volume so the voice guidance remains clear.',
+    track:'Theta Binaural Beat — 7 Hz, 30 min',
+    brainfm:'https://brain.fm',
+    youtube:'https://www.youtube.com/results?search_query=7hz+theta+binaural+beat+meditation+30+minutes'
+  }
+};
+
+// ═══════════════════════════ AMBIENT AUDIO ENGINE ═══════════════════════════
+const AMBIENT={
+  _ctx:null,
+  _noiseNode:null,
+  _noiseGain:null,
+  _solfGain:null,
+  _solfOsc:null,
+  _binL:null,_binR:null,
+  _binGain:null,
+  _merger:null,
+  _masterGain:null,
+  _running:false,
+  _currentSolfHz:528,
+  _currentBeatHz:6,
+  noiseVol:0.35,
+  solfVol:0.12,
+  binVol:0.18,
+
+  _ensureCtx(){
+    if(!this._ctx)this._ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(this._ctx.state==='suspended')this._ctx.resume();
+    return this._ctx;
+  },
+
+  // Paul Kellet pink noise algorithm
+  _buildNoise(ctx){
+    const bufferSize=4096;
+    let b=[0,0,0,0,0,0,0];
+    const node=ctx.createScriptProcessor(bufferSize,1,1);
+    node.onaudioprocess=e=>{
+      const out=e.outputBuffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++){
+        const w=Math.random()*2-1;
+        b[0]=0.99886*b[0]+w*0.0555179;
+        b[1]=0.99332*b[1]+w*0.0750759;
+        b[2]=0.96900*b[2]+w*0.1538520;
+        b[3]=0.86650*b[3]+w*0.3104856;
+        b[4]=0.55000*b[4]+w*0.5329522;
+        b[5]=-0.7616*b[5]-w*0.0168980;
+        out[i]=(b[0]+b[1]+b[2]+b[3]+b[4]+b[5]+b[6]+w*0.5362)*0.11;
+        b[6]=w*0.115926;
+      }
+    };
+    return node;
+  },
+
+  start(solfHz,beatHz){
+    this.stop();
+    const ctx=this._ensureCtx();
+    this._currentSolfHz=solfHz||528;
+    this._currentBeatHz=beatHz||6;
+    this._masterGain=ctx.createGain();
+    this._masterGain.gain.setValueAtTime(0,ctx.currentTime);
+    this._masterGain.gain.linearRampToValueAtTime(1,ctx.currentTime+3);
+    this._masterGain.connect(ctx.destination);
+
+    // Pink noise
+    this._noiseGain=ctx.createGain();
+    this._noiseGain.gain.value=this.noiseVol*0.4;
+    this._noiseNode=this._buildNoise(ctx);
+    this._noiseNode.connect(this._noiseGain);
+    this._noiseGain.connect(this._masterGain);
+
+    // Solfeggio tone (sine, very soft)
+    this._solfOsc=ctx.createOscillator();
+    this._solfGain=ctx.createGain();
+    this._solfOsc.frequency.value=this._currentSolfHz;
+    this._solfOsc.type='sine';
+    this._solfGain.gain.value=this.solfVol*0.06;
+    this._solfOsc.connect(this._solfGain);
+    this._solfGain.connect(this._masterGain);
+    this._solfOsc.start();
+
+    // Binaural beat — carrier 200 Hz, beat = session target
+    this._merger=ctx.createChannelMerger(2);
+    this._merger.connect(this._masterGain);
+    const carrier=200;
+    this._binL=ctx.createOscillator();
+    this._binR=ctx.createOscillator();
+    this._binGain=ctx.createGain();
+    this._binGain.gain.value=this.binVol*0.12;
+    const lPan=ctx.createStereoPanner();
+    const rPan=ctx.createStereoPanner();
+    lPan.pan.value=-1;rPan.pan.value=1;
+    this._binL.frequency.value=carrier;
+    this._binR.frequency.value=carrier+this._currentBeatHz;
+    this._binL.type='sine';this._binR.type='sine';
+    this._binL.connect(lPan);lPan.connect(this._binGain);
+    this._binR.connect(rPan);rPan.connect(this._binGain);
+    this._binGain.connect(this._masterGain);
+    this._binL.start();this._binR.start();
+
+    this._running=true;
+    this._updateStateUI();
+    reactGeometry&&reactGeometry(this._currentSolfHz,true);
+  },
+
+  // Gradually descend binaural beat over session duration
+  scheduleDescentCurve(totalSec){
+    if(!this._running||!this._binR)return;
+    const ctx=this._ctx;
+    const now=ctx.currentTime;
+    const carrier=200;
+    // Beta (18Hz) → Alpha (10Hz) → Theta (6Hz) → Deep Theta (4Hz)
+    const curve=[
+      [0,18],[totalSec*0.1,14],[totalSec*0.25,10],
+      [totalSec*0.45,7],[totalSec*0.65,6],[totalSec*0.85,4],[totalSec,4]
+    ];
+    curve.forEach(([t,beat])=>{
+      this._binR.frequency.setValueAtTime(carrier+beat,now+t);
+    });
+  },
+
+  setNoise(v){
+    this.noiseVol=v;
+    document.getElementById('noise-val').textContent=Math.round(v*100)+'%';
+    if(this._noiseGain)this._noiseGain.gain.setTargetAtTime(v*0.4,this._ctx.currentTime,0.1);
+  },
+  setSolfeggio(v){
+    this.solfVol=v;
+    document.getElementById('solf-val').textContent=Math.round(v*100)+'%';
+    if(this._solfGain)this._solfGain.gain.setTargetAtTime(v*0.06,this._ctx.currentTime,0.1);
+  },
+  setBinaural(v){
+    this.binVol=v;
+    document.getElementById('bin-val').textContent=Math.round(v*100)+'%';
+    if(this._binGain)this._binGain.gain.setTargetAtTime(v*0.12,this._ctx.currentTime,0.1);
+  },
+
+  stop(){
+    if(!this._ctx)return;
+    try{
+      if(this._masterGain){
+        this._masterGain.gain.linearRampToValueAtTime(0,this._ctx.currentTime+2);
+      }
+      setTimeout(()=>{
+        [this._noiseNode,this._solfOsc,this._binL,this._binR].forEach(n=>{
+          try{if(n&&n.stop)n.stop();}catch(e){}
+          try{if(n&&n.disconnect)n.disconnect();}catch(e){}
+        });
+        this._noiseNode=this._noiseGain=this._solfOsc=this._solfGain=null;
+        this._binL=this._binR=this._binGain=this._merger=this._masterGain=null;
+        this._running=false;
+        this._updateStateUI();
+      },2200);
+    }catch(e){}
+  },
+
+  preview(){
+    this.start(this._currentSolfHz||528,this._currentBeatHz||6);
+    toast('Ambient layer running — use headphones for binaural effect');
+  },
+
+  _updateStateUI(){
+    const el=document.getElementById('ambient-state');
+    if(el)el.textContent=this._running?'Active':'Off';
+    el&&(el.style.color=this._running?'var(--gold)':'var(--muted)');
+  },
+
+  updateDesc(session){
+    const el=document.getElementById('ambient-desc');
+    if(!el)return;
+    const beatMap={
+      'Morning Activation':'Alpha 10 Hz → relaxed presence',
+      'Focus 10 Entry':'Alpha→Theta descent 10→7 Hz',
+      'Deep Coherence':'Theta 6 Hz → expanded awareness',
+      'Gateway Immersion':'Beta→Deep Theta descent 18→4 Hz',
+      'Pain Dissolution':'Theta 6 Hz + 174 Hz Solfeggio',
+      'Wealth State':'Theta 6 Hz + 528 Hz Solfeggio',
+      'Sleep Programming':'Delta 2 Hz → deep subconscious',
+      'Full Integration':'Beta→Deep Theta full descent'
+    };
+    const solfMap={
+      'Pain Dissolution':174,'Wealth State':528,'Sleep Programming':396,
+      'Morning Activation':432,'Full Integration':528
+    };
+    const beatHz={
+      'Morning Activation':10,'Focus 10 Entry':7,'Deep Coherence':6,
+      'Gateway Immersion':6,'Pain Dissolution':6,'Wealth State':6,
+      'Sleep Programming':2,'Full Integration':6
+    };
+    this._currentSolfHz=solfMap[session.name]||528;
+    this._currentBeatHz=beatHz[session.name]||6;
+    el.textContent=beatMap[session.name]||'Theta 6 Hz · 528 Hz Solfeggio';
+  }
+};
+
+function openPairingLink(e,a){
+  e.preventDefault();
+  window.open(a.href,'_blank');
+  return false;
+}
+
+function showPairingGuide(session){
+  const guide=document.getElementById('pairing-guide');
+  if(!guide)return;
+  const p=PAIRINGS[session.name]||PAIRINGS._default;
+  document.getElementById('pairing-text').textContent=p.text;
+  document.getElementById('pairing-track').textContent='🎧 '+p.track;
+  document.getElementById('pairing-brainfm').href=p.brainfm;
+  document.getElementById('pairing-youtube').href=p.youtube;
+  guide.style.display='block';
+  AMBIENT.updateDesc(session);
+}
+
+// ═══════════════════════════ STATE ═══════════════════════════
+let timerRunning=false,timerInterval=null,timerSeconds=0,timerMax=600,selectedSess=null;
+let breathRunning=false,breathTimeout=null,breathPattern=BREATH_PATTERNS[1],breathCycle=0;
+let currentAffirm=0;
+let activeSolf=null;
+let stats=DB.load();
+let audioCtx=null,oscillator=null,gainNode=null;
+
+// ═══════════════════════════ INIT ═══════════════════════════
+function init(){
+  VOICE.init();
+  QM.init();
+  buildStars();
+  buildWaves();
+  buildSolfeggio();
+  buildFreqBands();
+  buildSessions();
+  buildBreath();
+  buildProtocols();
+  buildAffirmations();
+  buildJournal();
+  buildProgress();
+  buildCouncil();
+  observeFadeIns();
+}
+
+// ═══════════════════════════ STARS ═══════════════════════════
+function buildStars(){
+  const sf=document.getElementById('starfield');
+  for(let i=0;i<200;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*1.5+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${3+Math.random()*5}s;--lo:${0.05+Math.random()*0.1};--hi:${0.4+Math.random()*0.6};animation-delay:${Math.random()*5}s`;
+    sf.appendChild(s);
+  }
+}
+
+// ═══════════════════════════ NAVIGATION ═══════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════ WAVES ═══════════════════════════
+// Wave unlock requirements — completions of previous wave needed
+const WAVE_REQS=[0,3,5,7,5,5,3];
+
+function isWaveUnlocked(i){
+  if(i===0)return true;
+  const {waveCompletions=[]}=DB.load();
+  return(waveCompletions[i-1]||0)>=WAVE_REQS[i];
+}
+
+function getWaveTier(i){
+  const {waveCompletions=[]}=DB.load();
+  return waveCompletions[i]||0;
+}
+
+function buildWaves(){
+  const list=document.getElementById('wave-list');
+  list.innerHTML=WAVES.map((w,i)=>{
+    const unlocked=isWaveUnlocked(i);
+    const done=getWaveTier(i>0?i-1:0);
+    const needed=WAVE_REQS[i];
+    const lockMsg=i>0&&!unlocked?`Complete Wave ${i} × ${needed} to unlock (${i>0?(DB.load().waveCompletions||[])[i-1]||0:0}\/${needed} done)`:'';
+    return`
+  <div class="wave-card fade-in${unlocked?'':' wave-locked'}" id="wave-${i}" onclick="toggleWave(${i},${unlocked})">
+    <div class="wave-head">
+      <div class="wave-num" style="opacity:${unlocked?1:0.3}">${w.id}</div>
+      <div class="wave-info">
+        <div class="wave-name" style="opacity:${unlocked?1:0.45}">${w.name}</div>
+        <div class="wave-sub">${unlocked?w.subtitle:lockMsg}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        ${unlocked?`<div class="wave-code">${w.code}</div><div class="wave-chevron">⌞</div>`:`<div style="font-size:16px;opacity:.25">&#128274;</div>`}
+      </div>
+    </div>
+    ${unlocked?`
+    <div class="wave-body">
+      <div class="wave-intent">${w.intent}</div>
+      <div class="phase-list">
+        ${w.phases.map(p=>`
+        <div class="phase">
+          <div class="phase-head">
+            <div class="phase-name">${p.name}</div>
+            <div class="phase-freq">${p.freq}</div>
+          </div>
+          <div class="phase-desc">${p.desc}</div>
+          <div class="phase-dur">⏱ ${p.dur}</div>
+        </div>`).join('')}
+      </div>
+      <button class="wave-start-btn" onclick="event.stopPropagation();startWave(${i})">Enter Wave ${w.id} →</button>
+    </div>`:''}
+  </div>`;
+  }).join('');
+}
+
+function toggleWave(i,unlocked){
+  if(!unlocked){toast('Complete the previous Wave the required number of times to unlock this level.');return;}
+  const el=document.getElementById('wave-'+i);
+  const isOpen=el.classList.contains('open');
+  document.querySelectorAll('.wave-card').forEach(c=>c.classList.remove('open'));
+  if(!isOpen)el.classList.add('open');
+}
+
+function startWave(i){
+  const w=WAVES[i];
+  const totalMin=w.phases.reduce((a,p)=>a+parseInt(p.dur),0);
+  const sess={name:w.name,dur:totalMin,icon:'◈',phases:w.phases.map(p=>p.name),waveIndex:i};
+  selectSession(sess);
+  show('sessions');
+  document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b,j)=>{if(j!==2)b.classList.remove('active')});
+  toast('Wave '+(i+1)+' loaded → Session tab');
+}
+
+function recordWaveCompletion(waveIndex){
+  const d=DB.load();
+  if(!d.waveCompletions)d.waveCompletions=[0,0,0,0,0,0,0];
+  d.waveCompletions[waveIndex]=(d.waveCompletions[waveIndex]||0)+1;
+  DB.save(d);
+  stats=d;
+  buildWaves();
+  updateStats();
+  checkTierUnlock();
+  toast('Wave '+(waveIndex+1)+' complete ✔ ('+(d.waveCompletions[waveIndex])+'x)');
+}
+
+// ═══════════════════════════ SOLFEGGIO ═══════════════════════════
+function buildSolfeggio(){
+  const g=document.getElementById('solf-grid');
+  g.innerHTML=SOLFEGGIO.map((s,i)=>`
+  <div class="solf-card fade-in" id="solf-${i}" onclick="toggleSolf(${i},${s.hz})">
+    <div class="solf-hz">${s.hz}</div>
+    <div class="solf-name">${s.name}</div>
+    <div class="solf-effect">${s.effect}</div>
+    <div class="solf-playing" id="solf-play-${i}"></div>
+  </div>`).join('');
+  buildAudioBars();
+}
+
+function buildAudioBars(){
+  const ab=document.getElementById('audio-bars');
+  if(!ab)return;
+  ab.innerHTML=Array.from({length:20},(_,i)=>
+    `<div class="ab" id="ab-${i}" style="--d:${0.3+Math.random()*0.4}s;--h:${8+Math.random()*28}px;height:4px;animation-delay:${i*0.05}s"></div>`
+  ).join('');
+}
+
+function reactGeometry(hz,active){
+  const geo=document.getElementById('geo-bg');
+  if(!geo)return;
+  if(!active){
+    geo.style.animationDuration='120s';
+    geo.style.opacity='0.04';
+    geo.style.transform='translate(-50%,-50%) scale(1)';
+    return;
+  }
+  // Map Hz to rotation speed: 174Hz=slow/grounding, 963Hz=fast/transcendent
+  const minHz=174,maxHz=963;
+  const norm=(hz-minHz)/(maxHz-minHz);
+  const speed=Math.round(120-(norm*95)); // 120s → 25s
+  const opacity=0.04+(norm*0.07);
+  const scale=1+(norm*0.08);
+  geo.style.animationDuration=speed+'s';
+  geo.style.opacity=opacity;
+  geo.style.transform=`translate(-50%,-50%) scale(${scale})`;
+  // Pulse on activation
+  geo.style.transition='opacity 2s ease, transform 2s ease';
+}
+
+function toggleSolf(i,hz){
+  if(activeSolf===i){stopSolf();reactGeometry(hz,false);return;}
+  stopSolf();
+  activeSolf=i;
+  document.getElementById('solf-'+i).classList.add('active');
+  document.getElementById('solf-play-'+i).textContent='♦ Playing';
+  document.querySelectorAll('.ab').forEach(b=>b.classList.add('playing'));
+  reactGeometry(hz,true);
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  oscillator=audioCtx.createOscillator();
+  gainNode=audioCtx.createGain();
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  oscillator.frequency.setValueAtTime(hz,audioCtx.currentTime);
+  oscillator.type='sine';
+  gainNode.gain.setValueAtTime(0,audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.15,audioCtx.currentTime+2);
+  oscillator.start();
+}
+
+function stopSolf(){
+  if(oscillator){
+    gainNode.gain.linearRampToValueAtTime(0,audioCtx.currentTime+1);
+    setTimeout(()=>{ try{oscillator.stop();}catch(e){} },1100);
+    oscillator=null;
+  }
+  if(activeSolf!==null){
+    document.getElementById('solf-'+activeSolf).classList.remove('active');
+    document.getElementById('solf-play-'+activeSolf).textContent='';
+    activeSolf=null;
+  }
+  document.querySelectorAll('.ab').forEach(b=>b.classList.remove('playing'));
+}
+
+function buildFreqBands(){
+  const bands=[
+    {name:"Delta  0–4 Hz",state:"Deep healing · OBE",pct:15},
+    {name:"Theta  4–8 Hz",state:"Gateway states",pct:30},
+    {name:"Alpha  8–12 Hz",state:"Relaxed focus",pct:55},
+    {name:"Beta  12–30 Hz",state:"Normal waking",pct:78},
+    {name:"Gamma  30–100 Hz",state:"Peak performance",pct:95}
+  ];
+  const el=document.getElementById('freq-bands');
+  el.innerHTML=bands.map(b=>`
+  <div class="band-row">
+    <div class="band-name">${b.name.split(' ')[0]}<br><span style="color:#3a3428;font-size:9px">${b.name.split(' ').slice(1).join(' ')}</span></div>
+    <div class="band-track"><div class="band-fill" style="width:0%" data-w="${b.pct}%"></div></div>
+    <div class="band-state" style="font-size:9px">${b.state}</div>
+  </div>`).join('');
+  setTimeout(()=>document.querySelectorAll('.band-fill').forEach(f=>f.style.width=f.dataset.w),400);
+}
+
+// ═══════════════════════════ SESSIONS ═══════════════════════════
+function buildSessions(){
+  const g=document.getElementById('session-grid');
+  g.innerHTML=SESSIONS.map((s,i)=>`
+  <div class="sess-card fade-in" id="sess-${i}" onclick="selectSessionByIndex(${i})">
+    <div class="sess-icon">${s.icon}</div>
+    <div class="sess-name">${s.name}</div>
+    <div class="sess-dur">${s.dur} min</div>
+  </div>`).join('');
+}
+
+function selectSessionByIndex(i){
+  selectSession(SESSIONS[i]);
+  document.querySelectorAll('.sess-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('sess-'+i).classList.add('selected');
+}
+
+// ═══════════════════════════ VOICE GUIDANCE ENGINE ═══════════════════════════
+// ── ElevenLabs voice catalogue — curated for meditation/guidance ──
+// ── Voice catalogues ──
+const EL_VOICES=[
+  {id:'pNInz6obpgDQGcFmaJgB',name:'Adam',desc:'Deep · Authoritative · Male'},
+  {id:'21m00Tcm4TlvDq8ikWAM',name:'Rachel',desc:'Calm · Warm · Female'},
+  {id:'EXAVITQu4vr4xnSDxMaL',name:'Bella',desc:'Soft · Soothing · Female'},
+  {id:'ErXwobaYiN019PkySvjV',name:'Antoni',desc:'Smooth · Grounded · Male'},
+  {id:'TxGEqnHWrfWFTfGW9XjX',name:'Josh',desc:'Warm · Deep · Male'},
+  {id:'g5CIjZEefAph4nQFvHAz',name:'Matilda',desc:'Nurturing · Serene · Female'},
+  {id:'onwK4e9ZLuTAKqWW03F9',name:'Daniel',desc:'Refined · British · Male'},
+  {id:'XB0fDUnXU5powFXDhCwa',name:'Charlotte',desc:'Gentle · Clear · Female'},
+];
+const OAI_VOICES=[
+  {id:'onyx',name:'Onyx',desc:'Deep · Resonant · Male'},
+  {id:'nova',name:'Nova',desc:'Warm · Engaging · Female'},
+  {id:'echo',name:'Echo',desc:'Smooth · Calm · Male'},
+  {id:'shimmer',name:'Shimmer',desc:'Soft · Clear · Female'},
+  {id:'alloy',name:'Alloy',desc:'Balanced · Neutral'},
+  {id:'fable',name:'Fable',desc:'Rich · Storytelling · Male'},
+];
+
+const VOICE={
+  enabled:true,
+  engine:'openai',   // 'elevenlabs' | 'openai' | 'webspeech'
+  // ElevenLabs
+  elKey:'',
+  elVoiceId:EL_VOICES[1].id,
+  elModel:'eleven_multilingual_v2',
+  elStability:0.72,
+  elSimilarity:0.82,
+  // OpenAI
+  oaiKey:'',
+  oaiVoice:'nova',
+  oaiModel:'tts-1-hd',
+  oaiSpeed:0.78,
+  // Web Speech
+  wsVoice:null,
+  wsRate:0.80,
+  wsPitch:0.88,
+  // Internal
+  _cueFade:null,
+  _currentAudio:null,
+
+  init(){
+    // Load saved keys from localStorage
+    try{
+      const saved=JSON.parse(localStorage.getItem('gp_voice')||'{}');
+      if(saved.elKey)this.elKey=saved.elKey;
+      if(saved.oaiKey)this.oaiKey=saved.oaiKey;
+      // Only restore engine/voice if user explicitly chose something other than old defaults
+      if(saved.engine&&saved.engine!=='webspeech')this.engine=saved.engine;
+      if(saved.elVoiceId)this.elVoiceId=saved.elVoiceId;
+      if(saved.oaiVoice&&saved.oaiVoice!=='onyx')this.oaiVoice=saved.oaiVoice;
+    }catch(e){}
+    // Init Web Speech fallback
+    if('speechSynthesis' in window){
+      const load=()=>{
+        const vv=speechSynthesis.getVoices();
+        const preferred=['Daniel','Karen','Samantha','Alex','Google UK English Male','Google UK English Female','Microsoft David','Microsoft Zira'];
+        this.wsVoice=preferred.reduce((f,n)=>f||vv.find(v=>v.name.includes(n)),null)||vv.find(v=>v.lang.startsWith('en'))||vv[0]||null;
+      };
+      speechSynthesis.onvoiceschanged=load;
+      load();
+    }
+    this._buildVoicePanel();
+  },
+
+  _save(){
+    try{localStorage.setItem('gp_voice',JSON.stringify({elKey:this.elKey,oaiKey:this.oaiKey,engine:this.engine,elVoiceId:this.elVoiceId,oaiVoice:this.oaiVoice}));}catch(e){}
+    // Mirror keys to electron-store (encrypted backup, no-op in plain browser)
+    GP_API.saveKey('elevenlabs', this.elKey);
+    GP_API.saveKey('openai',     this.oaiKey);
+  },
+
+  _buildVoicePanel(){
+    const panel=document.getElementById('voice-settings-panel');
+    if(!panel)return;
+    panel.innerHTML=`
+<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
+  <span>Voice Engine</span>
+  <span id="engine-badge" style="font-size:9px;padding:2px 8px;border-radius:10px;border:.5px solid var(--border);color:var(--gold)">Browser Voice</span>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
+  <button class="gp-btn" id="btn-eng-ws"   onclick="VOICE._setEngine('webspeech')"  style="font-size:9px">Browser</button>
+  <button class="gp-btn" id="btn-eng-el"   onclick="VOICE._setEngine('elevenlabs')" style="font-size:9px">ElevenLabs</button>
+  <button class="gp-btn" id="btn-eng-oai"  onclick="VOICE._setEngine('openai')"     style="font-size:9px">OpenAI</button>
+</div>
+
+<div id="panel-webspeech" style="display:flex;flex-direction:column;gap:10px">
+  <div style="font-size:11px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(201,168,76,.04);border:.5px solid var(--border);border-radius:4px">
+    Built-in browser voice. Works instantly — no key needed. Quality varies by OS.<br>
+    <strong style="color:var(--silver)">Tip:</strong> On macOS/iOS, enable <em>Siri Voices</em> in System Settings → Accessibility → Spoken Content for much better quality.
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <label style="font-size:10px;color:var(--muted);width:55px">Speed</label>
+    <input type="range" min="0.5" max="1.1" step="0.05" value="${this.wsRate}" oninput="VOICE.wsRate=+this.value;document.getElementById('ws-rate-val').textContent=this.value" style="flex:1">
+    <span id="ws-rate-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">${this.wsRate}</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <label style="font-size:10px;color:var(--muted);width:55px">Pitch</label>
+    <input type="range" min="0.6" max="1.1" step="0.05" value="${this.wsPitch}" oninput="VOICE.wsPitch=+this.value;document.getElementById('ws-pitch-val').textContent=this.value" style="flex:1">
+    <span id="ws-pitch-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">${this.wsPitch}</span>
+  </div>
+</div>
+
+<div id="panel-elevenlabs" style="display:none;flex-direction:column;gap:10px">
+  <div style="font-size:11px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(192,64,64,.06);border:.5px solid rgba(192,64,64,.25);border-radius:4px">
+    <strong style="color:#e08080">ElevenLabs blocks direct browser calls</strong> (no CORS). To use it, run the included <code style="font-size:10px;color:var(--gold)">proxy.js</code> on your machine — it takes 10 seconds. Or use <strong style="color:var(--silver)">OpenAI TTS</strong> instead, which works directly in the browser.
+  </div>
+  <div style="font-size:10px;color:var(--muted);line-height:1.8;padding:.5rem;background:rgba(201,168,76,.04);border:.5px solid var(--border);border-radius:4px">
+    <strong style="color:var(--silver)">To run the proxy (handles both ElevenLabs + OpenAI):</strong><br>
+    1. Make sure Node.js is installed<br>
+    2. Open terminal in the same folder as this file<br>
+    3. Run: <code style="color:var(--gold)">node proxy.js</code><br>
+    4. Leave that terminal open — both voice engines will work
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="font-size:10px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
+    <input type="password" id="el-key-input" placeholder="sk-..." value="${this.elKey}"
+      style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:5px 8px;border-radius:2px;outline:none"
+      oninput="VOICE.elKey=this.value;VOICE._save()">
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="font-size:10px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
+    <select id="el-voice-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:11px;padding:5px 8px;border-radius:2px;outline:none">
+      ${EL_VOICES.map(v=>`<option value="${v.id}" ${v.id===this.elVoiceId?'selected':''}>${v.name} — ${v.desc}</option>`).join('')}
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <label style="font-size:10px;color:var(--muted);width:55px">Stability</label>
+    <input type="range" min="0.3" max="1" step="0.05" value="${this.elStability}" oninput="VOICE.elStability=+this.value;document.getElementById('el-stab-val').textContent=this.value" style="flex:1">
+    <span id="el-stab-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">${this.elStability}</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <label style="font-size:10px;color:var(--muted);width:55px">Clarity</label>
+    <input type="range" min="0.3" max="1" step="0.05" value="${this.elSimilarity}" oninput="VOICE.elSimilarity=+this.value;document.getElementById('el-sim-val').textContent=this.value" style="flex:1">
+    <span id="el-sim-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">${this.elSimilarity}</span>
+  </div>
+</div>
+
+<div id="panel-openai" style="display:none;flex-direction:column;gap:10px">
+  <div style="font-size:11px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(192,64,64,.06);border:.5px solid rgba(192,64,64,.25);border-radius:4px">
+    <strong style="color:#e08080">OpenAI also blocks direct browser calls</strong> (same CORS issue). Run <code style="font-size:10px;color:var(--gold)">node proxy.js</code> — it handles both ElevenLabs and OpenAI in one command.
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="font-size:10px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
+    <input type="password" id="oai-key-input" placeholder="sk-..." value="${this.oaiKey}"
+      style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:5px 8px;border-radius:2px;outline:none"
+      oninput="VOICE.oaiKey=this.value;VOICE._save()">
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="font-size:10px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
+    <select id="oai-voice-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:11px;padding:5px 8px;border-radius:2px;outline:none">
+      ${OAI_VOICES.map(v=>`<option value="${v.id}" ${v.id===this.oaiVoice?'selected':''}>${v.name} — ${v.desc}</option>`).join('')}
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <label style="font-size:10px;color:var(--muted);width:55px">Speed</label>
+    <input type="range" min="0.5" max="1.0" step="0.02" value="${this.oaiSpeed}" oninput="VOICE.oaiSpeed=+this.value;document.getElementById('oai-speed-val').textContent=this.value" style="flex:1">
+    <span id="oai-speed-val" style="font-size:10px;color:var(--gold);width:28px;text-align:right">${this.oaiSpeed}</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="font-size:10px;color:var(--muted);width:55px;flex-shrink:0">Model</label>
+    <select id="oai-model-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:11px;padding:5px 8px;border-radius:2px;outline:none">
+      <option value="tts-1" ${this.oaiModel==='tts-1'?'selected':''}>tts-1 — Fast · Low latency</option>
+      <option value="tts-1-hd" ${this.oaiModel==='tts-1-hd'?'selected':''}>tts-1-hd — Studio quality</option>
+    </select>
+  </div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.75rem">
+  <button class="gp-btn primary" onclick="VOICE._testSpeak()" style="font-size:9px">▶ Test Voice</button>
+  <button class="gp-btn" onclick="VOICE.stop()" style="font-size:9px">■ Stop</button>
+</div>`;
+
+    // Wire selects
+    document.getElementById('el-voice-select').onchange=e=>{this.elVoiceId=e.target.value;this._save();};
+    document.getElementById('oai-voice-select').onchange=e=>{this.oaiVoice=e.target.value;this._save();};
+    document.getElementById('oai-model-select').onchange=e=>{this.oaiModel=e.target.value;this._save();};
+    this._setEngine(this.engine,true);
+  },
+
+  _setEngine(eng,silent=false){
+    this.engine=eng;
+    this._save();
+    // Show/hide panels
+    ['webspeech','elevenlabs','openai'].forEach(e=>{
+      const p=document.getElementById('panel-'+e);
+      if(p)p.style.display=e===eng?'flex':'none';
+      const b=document.getElementById('btn-eng-'+e.replace('webspeech','ws').replace('elevenlabs','el').replace('openai','oai'));
+      if(b){b.style.borderColor=e===eng?'var(--gold)':'var(--border)';b.style.color=e===eng?'var(--gold)':'var(--muted)';}
+    });
+    const badge=document.getElementById('engine-badge');
+    if(badge)badge.textContent=eng==='elevenlabs'?'ElevenLabs AI':eng==='openai'?'OpenAI TTS':'Browser Voice';
+    if(!silent)toast(eng==='elevenlabs'?'ElevenLabs — add your API key below':'openai'===eng?'OpenAI TTS — add your API key below':'Browser voice active');
+  },
+
+  _testSpeak(){
+    this.speak('You are entering a state of deep relaxation. Mind awake. Body asleep. The Gateway is open.');
+  },
+
+  speak(text,opts={}){
+    if(!this.enabled||!text)return;
+    this._showCue(text);
+    if(this.engine==='openai'&&this.oaiKey)      this._speakOpenAI(text);
+    else if(this.engine==='elevenlabs'&&this.elKey) this._speakElevenLabsProxy(text);
+    else                                            this._speakWebSpeech(text,opts);
+  },
+
+  async _speakElevenLabsProxy(text){
+    // In Electron: routes through window.gp.elevenlabsTTS over IPC, main.js
+    // makes the HTTPS call. In a plain browser: falls back to the V1 proxy
+    // on port 5050. Either way fails silent → Web Speech fallback.
+    this._stopAudio();
+    try{
+      const blob=await GP_API.elevenlabsTTS({text,voiceId:this.elVoiceId,model:this.elModel,stability:this.elStability,similarity:this.elSimilarity,key:this.elKey});
+      const url=URL.createObjectURL(blob);
+      const audio=new Audio(url);
+      audio.volume=0.9;
+      this._currentAudio=audio;
+      audio.onended=()=>URL.revokeObjectURL(url);
+      await audio.play();
+    }catch(err){
+      // Proxy not running — silently fall back
+      this._speakWebSpeech(text,{});
+    }
+  },
+
+  async _speakOpenAI(text){
+    this._stopAudio();
+    try{
+      const blob=await GP_API.openaiTTS({text,voice:this.oaiVoice,model:this.oaiModel,speed:this.oaiSpeed,key:this.oaiKey});
+      const url=URL.createObjectURL(blob);
+      const audio=new Audio(url);
+      audio.volume=0.9;
+      this._currentAudio=audio;
+      audio.onended=()=>URL.revokeObjectURL(url);
+      await audio.play();
+    }catch(err){
+      // Proxy not running — silently fall back
+      this._speakWebSpeech(text,{});
+    }
+  },
+
+  _speakWebSpeech(text,opts={}){
+    if(!('speechSynthesis' in window))return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=opts.rate||this.wsRate;
+    u.pitch=opts.pitch||this.wsPitch;
+    u.volume=0.9;
+    if(this.wsVoice)u.voice=this.wsVoice;
+    speechSynthesis.speak(u);
+  },
+
+  _showCue(text){
+    const el=document.getElementById('guidance-cue');
+    if(!el)return;
+    el.textContent=text;el.style.opacity='1';
+    clearTimeout(this._cueFade);
+    this._cueFade=setTimeout(()=>{el.style.opacity='0';},8000);
+  },
+
+  _stopAudio(){
+    if(this._currentAudio){try{this._currentAudio.pause();this._currentAudio.currentTime=0;}catch(e){}}
+    this._currentAudio=null;
+  },
+
+  stop(){
+    this._stopAudio();
+    if('speechSynthesis' in window)speechSynthesis.cancel();
+    const el=document.getElementById('guidance-cue');
+    if(el)el.style.opacity='0';
+  },
+
+  toggle(){
+    this.enabled=!this.enabled;
+    const b=document.getElementById('voice-toggle');
+    if(b)b.textContent=this.enabled?'Voice On':'Voice Off';
+    if(!this.enabled)this.stop();
+  }
+};
+
+// ── Monroe-accurate cue scripts keyed to session name + phase ──
+const GUIDANCE_SCRIPTS={
+  // Cues fired at session START (seconds=0)
+  _start:{
+    'Morning Activation':'Close your eyes. Let your body become still. You are beginning your morning activation. There is nothing to do but be present.',
+    'Focus 10 Entry':'Find a comfortable position. We will move together into the state Monroe called Focus Ten — mind awake, body asleep. Trust the process.',
+    'Deep Coherence':'This session will take you into expanded awareness. Breathe naturally. Allow your mind to become quiet. The field does the work.',
+    'Gateway Immersion':'You are entering the Gateway. This is the most complete session. Give yourself fully to it. Surrender is the practice.',
+    'Pain Dissolution':'Bring gentle awareness to any area of discomfort. We are not fighting it. We are entering into dialogue with it. Healing begins with presence.',
+    'Wealth State':'Become aware of any tension around the idea of money, success, or freedom. Notice it without judgment. We will move through it together.',
+    'Sleep Programming':'Allow your body to sink completely into the surface beneath you. Let the weight go. This session will continue working as you sleep.',
+    'Full Integration':'This is the complete journey through the Gateway Waves. Take three slow breaths before we begin.',
+    _default:'Close your eyes. Become still. Allow the session to unfold.'
+  },
+
+  // Cues fired when each named phase begins
+  _phase:{
+    'Resonant Tuning':'Begin humming softly. Feel the vibration move through your skull, your chest, your spine. You are synchronizing with the Schumann Resonance — seven point eight cycles per second — the heartbeat of the Earth.',
+    'Focus 3 entry':'Bring your awareness to the space behind your closed eyes. Let thoughts pass like clouds. You are not your thoughts. You are the awareness watching them.',
+    'Body release':'Starting from your feet, let go. Your feet. Your calves. Your thighs. Your pelvis. Your abdomen. Your chest. Your hands. Your arms. Your shoulders. Your neck. Your face. Let everything go.',
+    'Focus 10 hold':'You have entered Focus Ten. Your body is now asleep. Your mind remains awake. Rest here in this paradox. This is the foundation of the Gateway.',
+    'Focus 10':'Your body is releasing into deep relaxation. Your mind is clear and alert. This is Focus Ten. Mind awake. Body asleep. Rest here.',
+    'Focus 12':'Your awareness is expanding beyond the boundaries of your physical body. You may notice a sense of spaciousness. This is Focus Twelve. Allow it.',
+    'Expanded awareness':'Let your awareness extend in all directions simultaneously. Up. Down. Left. Right. Forward. Back. You are not contained. You are vast.',
+    'Focus 15':'You are entering Focus Fifteen — the state outside of time. Past and future dissolve. Only this moment exists. In this state, your subconscious is directly accessible.',
+    'Focus 21 / OBE':'You are at the threshold of other energy systems. Monroe called this Focus Twenty-One. You may perceive light, sound, or presence. Remain calm. Remain curious.',
+    'Breathwork':'Breathe in slowly for five counts. Hold for five. Release for five. Each cycle takes you deeper. Let the breath lead.',
+    '174 Hz breath':'Breathe with the frequency of healing. With each inhale, draw golden light into any area of discomfort. With each exhale, release what is ready to leave.',
+    'Cellular dialogue':'Bring your awareness to the cellular level. Each cell is a conscious unit of intelligence. Ask your body: what do you need right now? Listen without expectation.',
+    '528 Hz flood':'Visualize a golden-green light — the color of new leaves, of spring — flooding your entire body. See it reaching into every cell. DNA strands straightening, repairing, remembering their original blueprint.',
+    'Future body':'Jump forward in time. Six months from now. You are fully healed. Feel the ease of movement. The absence of pain. The gratitude in your body. Hold this memory. It is real.',
+    'Shadow scan':'Bring to mind someone who triggers strong judgment in you. The quality you most strongly reject is the quality you most need to integrate. It is not theirs. It is yours — waiting to be claimed.',
+    '369 encoding':'Your desire already exists as potential in the quantum field. Speaking it three times is not repetition. It is activation. Feel the reality of your words as you say them.',
+    '888 loop':'Wealth is not a destination. It is a frequency. Visualize an infinity symbol of golden light flowing through you. You are not blocking it. You are becoming it.',
+    'Future self meeting':'In the stillness of Focus Fifteen, call forward the version of you who has already lived the life you desire. They are standing before you now. Ask them: what changed everything? Listen.',
+    'Affirmation loop':'Receive each affirmation as truth, not aspiration. Your subconscious does not know the difference between an imagined reality and a real one. Feel the words landing.',
+    'Theta drift':'Allow yourself to drift toward sleep. The affirmations continue beneath your awareness. Your subconscious is awake and receiving even as your conscious mind rests.',
+    'Wave I':'Entering Wave One — Discovery. Resonant Tuning. Feel the hum of your own field.',
+    'Wave II':'Entering Wave Two — Threshold. You will construct your Resonant Energy Balloon. Visualize it now as a sphere of warm light surrounding your entire body.',
+    'Wave III':'Entering Wave Three — Freedom. We move into Focus Fifteen. The state of no-time. Surrender your grip on linear sequence.',
+    'Wave VII':'Entering Wave Seven — Integration. This is where the journey lands in the body. In the cells. In the choices you make tomorrow.',
+    'Code imprinting':'You are now in the optimal state for subconscious imprinting. The codes you receive now bypass the critical conscious mind. Allow them in.',
+    'Tuning':'Begin your resonant tuning. Hum. Feel it. Synchronize.',
+    _default:null // no cue for unrecognized phases
+  },
+
+  // Return ceremony — timed sequence from session end
+  _return:[
+    [0,  'Your session is now complete. Begin your return.'],
+    [6,  'Become aware of your physical body. Feel its weight. Its warmth.'],
+    [14, 'Feel the surface beneath you. The air on your skin. The sounds in the room.'],
+    [24, 'Take three slow, deep breaths. With each exhale, return a little more fully.'],
+    [38, 'When you are ready, gently begin to move your fingers and toes.'],
+    [52, 'Take your time. There is no rush. The insights you received are yours.'],
+    [65, 'Slowly open your eyes. Welcome back. Take a moment to write in your journal.']
+  ]
+};
+
+// ── Timed cue scheduler ──
+let _cueTimeouts=[];
+function scheduleCues(sess,totalSec){
+  _cueTimeouts.forEach(t=>clearTimeout(t));
+  _cueTimeouts=[];
+  if(!VOICE.enabled)return;
+
+  // Opening cue at t=2s
+  const openingKey=Object.keys(GUIDANCE_SCRIPTS._start).find(k=>sess.name.includes(k.split(' ')[0]))||'_default';
+  const opening=GUIDANCE_SCRIPTS._start[openingKey]||GUIDANCE_SCRIPTS._start._default;
+  _cueTimeouts.push(setTimeout(()=>VOICE.speak(opening,{rate:0.78}),2000));
+
+  // Phase transition cues
+  if(sess.phases&&sess.phases.length){
+    sess.phases.forEach((phase,i)=>{
+      if(i===0)return; // opening covers first phase
+      const triggerSec=Math.round((i/sess.phases.length)*totalSec);
+      const script=GUIDANCE_SCRIPTS._phase[phase]||GUIDANCE_SCRIPTS._phase._default;
+      if(script){
+        _cueTimeouts.push(setTimeout(()=>{
+          if(!timerRunning)return;
+          VOICE.speak(script,{rate:0.80});
+        },triggerSec*1000));
+      }
+    });
+  }
+}
+
+function clearCues(){
+  _cueTimeouts.forEach(t=>clearTimeout(t));
+  _cueTimeouts=[];
+  VOICE.stop();
+}
+
+function triggerReturnCeremony(){
+  GUIDANCE_SCRIPTS._return.forEach(([delay,text])=>{
+    _cueTimeouts.push(setTimeout(()=>VOICE.speak(text,{rate:0.76}),delay*1000));
+  });
+  // Auto-open journal after ceremony ends
+  _cueTimeouts.push(setTimeout(()=>{
+    show_tab('journal');
+    toast('Journey complete — your journal awaits.');
+  },80000));
+}
+
+function show_tab(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const s=document.getElementById('screen-'+id);
+  const b=Array.from(document.querySelectorAll('.nav-btn')).find(b=>b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"));
+  if(s)s.classList.add('active');
+  if(b)b.classList.add('active');
+}
+
+// ═══════════════════════════ SESSION FUNCTIONS ═══════════════════════════
+function selectSession(s){
+  selectedSess=s;
+  timerMax=s.dur*60;
+  timerSeconds=0;
+  timerRunning=false;
+  clearInterval(timerInterval);
+  clearCues();
+  document.getElementById('timer-session-name').textContent=s.name;
+  document.getElementById('timer-phase').textContent=s.phases?s.phases[0]:'';
+  document.getElementById('guidance-cue').textContent='';
+  document.getElementById('timer-btn').textContent='Begin';
+  renderTimer();
+  showPairingGuide(s);
+}
+
+function renderTimer(){
+  const m=Math.floor(timerSeconds/60).toString().padStart(2,'0');
+  const s=(timerSeconds%60).toString().padStart(2,'0');
+  document.getElementById('timer-display').textContent=m+':'+s;
+  const pct=timerMax>0?timerSeconds/timerMax:0;
+  const circ=276.5;
+  document.getElementById('timer-ring').style.strokeDashoffset=circ-(circ*pct);
+}
+
+function toggleTimer(){
+  if(!selectedSess){toast('Select a session first');return;}
+  timerRunning=!timerRunning;
+  document.getElementById('timer-btn').textContent=timerRunning?'Pause':'Resume';
+  if(timerRunning){
+    scheduleCues(selectedSess,timerMax);
+    AMBIENT.start(AMBIENT._currentSolfHz,AMBIENT._currentBeatHz);
+    AMBIENT.scheduleDescentCurve(timerMax);
+    timerInterval=setInterval(()=>{
+      timerSeconds++;
+      if(selectedSess.phases){
+        const phaseIdx=Math.floor((timerSeconds/timerMax)*selectedSess.phases.length);
+        const ph=selectedSess.phases[Math.min(phaseIdx,selectedSess.phases.length-1)];
+        document.getElementById('timer-phase').textContent=ph||'';
+      }
+      renderTimer();
+      if(timerSeconds>=timerMax){
+        clearInterval(timerInterval);timerRunning=false;
+        document.getElementById('timer-btn').textContent='Return';
+        stats.sessions++;stats.minutes+=Math.round(timerMax/60);
+        // Log session date for graph
+        const d=DB.load();
+        if(!d.sessionLog)d.sessionLog=[];
+        d.sessionLog.push({date:new Date().toISOString().slice(0,10),minutes:Math.round(timerMax/60)});
+        d.sessions=stats.sessions;d.minutes=stats.minutes;
+        DB.save(d);stats=d;
+        // Track wave completion if this was a wave session
+        if(selectedSess&&selectedSess.waveIndex!==undefined){
+          recordWaveCompletion(selectedSess.waveIndex);
+        }
+        updateStats();
+        clearCues();
+        AMBIENT.stop();
+        triggerReturnCeremony();
+      }
+    },1000);
+  } else {
+    clearInterval(timerInterval);
+    clearCues();
+    AMBIENT.stop();
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  clearCues();
+  AMBIENT.stop();
+  timerRunning=false;timerSeconds=0;
+  document.getElementById('timer-btn').textContent='Begin';
+  document.getElementById('guidance-cue').textContent='';
+  renderTimer();
+}
+
+// ═══════════════════════════ BREATHWORK ═══════════════════════════
+function buildBreath(){
+  const bp=document.getElementById('breath-patterns');
+  bp.innerHTML=BREATH_PATTERNS.map((p,i)=>`
+  <button class="bp-btn ${i===1?'active':''}" id="bp-${i}" onclick="setBreath(${i})">${p.name}</button>`).join('');
+}
+
+function setBreath(i){
+  breathPattern=BREATH_PATTERNS[i];
+  document.querySelectorAll('.bp-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bp-'+i).classList.add('active');
+  if(breathRunning)stopBreath(),startBreath();
+}
+
+function toggleBreath(){
+  if(breathRunning)stopBreath();
+  else startBreath();
+}
+
+function startBreath(){
+  breathRunning=true;breathCycle=0;
+  document.getElementById('breath-btn').textContent='Pause';
+  runPhase(0);
+}
+
+function stopBreath(){
+  breathRunning=false;clearTimeout(breathTimeout);
+  document.getElementById('breath-btn').textContent='Begin';
+  const orb=document.getElementById('breath-orb');
+  orb.style.transform='scale(1)';
+  document.getElementById('breath-orb-label').textContent='∞';
+  document.getElementById('breath-instruction').textContent='Select a pattern and begin';
+  document.getElementById('breath-count').textContent='';
+}
+
+function runPhase(phase){
+  if(!breathRunning)return;
+  const {i:inhale,h:hold=0,e:exhale,hold2=0}=breathPattern;
+  const phases=['inhale','hold','exhale','hold2'].filter((_,pi)=>[inhale,hold,exhale,hold2][pi]>0);
+  const durations=[inhale,hold,exhale,hold2].filter(d=>d>0);
+  const labels=['Inhale','Hold','Exhale','Rest'];
+  const instructions=[`Breathe in slowly... ${inhale}s`,hold?`Hold gently... ${hold}s`:'',`Release slowly... ${exhale}s`,hold2?`Rest... ${hold2}s`:''].filter((_,pi)=>[inhale,hold,exhale,hold2][pi]>0);
+  const scales=['1.4','1.4','1','1'].filter((_,pi)=>[inhale,hold,exhale,hold2][pi]>0);
+
+  const pi=phase%phases.length;
+  if(pi===0)breathCycle++;
+
+  const orb=document.getElementById('breath-orb');
+  const dur=durations[pi];
+  orb.style.transition=`transform ${dur*.9}s ease-in-out`;
+  orb.style.transform=`scale(${scales[pi]})`;
+  document.getElementById('breath-orb-label').textContent=labels[pi==='inhale'?0:pi==='hold'?1:pi==='exhale'?2:3]||['Inhale','Hold','Exhale','Rest'][pi];
+  document.getElementById('breath-instruction').textContent=instructions[pi];
+  document.getElementById('breath-count').textContent=breathCycle>0?`Cycle ${breathCycle}`:'';
+
+  breathTimeout=setTimeout(()=>runPhase(pi+1),dur*1000);
+}
+
+// ═══════════════════════════ PROTOCOLS ═══════════════════════════
+function buildProtocols(){
+  const c=document.getElementById('protocols-content');
+  function renderProtocol(p){
+    return`<div class="protocol-card fade-in">
+      <div class="protocol-header">
+        <div class="protocol-icon">${p===PAIN_PROTOCOL?'✦':'◉'}</div>
+        <div><div class="protocol-title">${p.title}</div><div class="protocol-sub">${p.subtitle}</div></div>
+      </div>
+      <div class="step-list">
+        ${p.steps.map(s=>`
+        <div class="step-item">
+          <div class="step-num">${s.num}</div>
+          <div class="step-content">
+            <div class="step-name">${s.name}</div>
+            <div class="step-desc">${s.desc}</div>
+            <div class="step-time">⏱ ${s.time}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  c.innerHTML=renderProtocol(PAIN_PROTOCOL)+`<div class="divider"></div>`+renderProtocol(WEALTH_PROTOCOL);
+}
+
+// ═══════════════════════════ AFFIRMATIONS ═══════════════════════════
+function buildAffirmations(){
+  renderCurrentAffirm();
+  const allEl=document.getElementById('all-affirmations');
+  allEl.innerHTML=AFFIRMATIONS.map(a=>`
+  <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:.75rem 1rem">
+    <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;opacity:.7">${a.code}</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--silver);line-height:1.7">${a.text}</div>
+    <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${a.intent}</div>
+  </div>`).join('');
+}
+
+function renderCurrentAffirm(){
+  const a=AFFIRMATIONS[currentAffirm];
+  document.getElementById('affirm-display').innerHTML=`
+    <div class="affirm-code">${a.code}</div>
+    <div class="affirm-text">${a.text}</div>
+    <div class="affirm-intent">${a.intent}</div>`;
+  document.getElementById('affirm-counter').textContent=`${currentAffirm+1} / ${AFFIRMATIONS.length}`;
+}
+
+function nextAffirm(){currentAffirm=(currentAffirm+1)%AFFIRMATIONS.length;renderCurrentAffirm();}
+function prevAffirm(){currentAffirm=(currentAffirm-1+AFFIRMATIONS.length)%AFFIRMATIONS.length;renderCurrentAffirm();}
+
+// ═══════════════════════════ JOURNAL ═══════════════════════════
+function buildJournal(){
+  const g=document.getElementById('journal-grid');
+  g.innerHTML=JOURNAL_PROMPTS.map(p=>`
+  <div class="j-block">
+    <label>${p.label}</label>
+    <textarea placeholder="${p.ph}"></textarea>
+  </div>`).join('');
+  renderJournalHistory();
+}
+
+// ═══════════════════════════ QUANTUM MIRROR ═══════════════════════════
+const QM={
+  _key:'',
+  _lastTransmission:null,
+  _dotsInterval:null,
+
+  init(){
+    try{
+      const saved=localStorage.getItem('gp_anthropic_key');
+      if(saved){this._key=saved;const el=document.getElementById('anthropic-key-input');if(el)el.value=saved;}
+    }catch(e){}
+  },
+
+  saveKey(k){
+    this._key=k.trim();
+    try{localStorage.setItem('gp_anthropic_key',this._key);}catch(e){}
+    GP_API.saveKey('anthropic', this._key); // encrypted backup in Electron
+  },
+
+  _buildEntry(){
+    // Pull from saved journal entries first, then live textarea values
+    const fields=document.querySelectorAll('#journal-grid textarea');
+    const live=Array.from(fields).map((f,i)=>({
+      prompt:JOURNAL_PROMPTS[i]?.label||'',
+      response:f.value.trim()
+    })).filter(e=>e.response);
+
+    // Also include most recent saved entry
+    const {journal=[]}=DB.load();
+    const recent=journal.length?journal[journal.length-1].data:[];
+
+    const combined=live.length?live:recent;
+    if(!combined.length)return null;
+
+    return combined.map(e=>`${e.prompt}:\n${e.response}`).join('\n\n');
+  },
+
+  async invoke(){
+    if(!this._key){
+      toast('Add your Anthropic API key in the Journal tab');
+      // Scroll to key input
+      document.getElementById('anthropic-key-input')?.scrollIntoView({behavior:'smooth'});
+      return;
+    }
+
+    const entry=this._buildEntry();
+    if(!entry){
+      toast('Write something in your journal first, then consult the Council.');
+      return;
+    }
+
+    // Show loading
+    document.getElementById('mirror-output').style.display='none';
+    document.getElementById('mirror-loading').style.display='block';
+    document.getElementById('mirror-btn').disabled=true;
+    this._animateDots();
+
+    try{
+      const data=await GP_API.mirror({entry,key:this._key});
+
+      // Extract text from Anthropic response
+      const raw=data.content?.[0]?.text||'';
+      let parsed;
+      try{
+        // Strip any accidental markdown fences
+        const clean=raw.replace(/```json|```/g,'').trim();
+        parsed=JSON.parse(clean);
+      }catch(e){
+        throw new Error('Council response could not be parsed — try again');
+      }
+
+      this._lastTransmission=parsed;
+      this._render(parsed);
+
+    }catch(err){
+      toast('Mirror: '+err.message);
+      console.warn('Quantum Mirror error:',err);
+    }finally{
+      document.getElementById('mirror-loading').style.display='none';
+      document.getElementById('mirror-btn').disabled=false;
+      clearInterval(this._dotsInterval);
+    }
+  },
+
+  _render(t){
+    document.getElementById('m-state').textContent=t.stateAssessment||'';
+    document.getElementById('m-shadow').textContent=t.shadowObservation||'';
+    document.getElementById('m-transmission').textContent=t.transmission||'';
+    document.getElementById('m-wave').textContent=t.wave||'';
+    document.getElementById('m-freq').textContent=t.frequency||'';
+    document.getElementById('m-code').textContent=t.code||'';
+    document.getElementById('m-practice').textContent=t.practice||'';
+    document.getElementById('mirror-output').style.display='block';
+    document.getElementById('mirror-output').scrollIntoView({behavior:'smooth',block:'start'});
+  },
+
+  speak(){
+    if(!this._lastTransmission)return;
+    VOICE.stop();
+    const t=this._lastTransmission;
+    const text=`${t.transmission} Your practice for the next 24 hours: ${t.practice}`;
+    VOICE.speak(text,{rate:0.75});
+    const btn=document.getElementById('mirror-speak-btn');
+    if(btn){btn.textContent='■ Stop';btn.onclick=()=>QM.stopSpeak();}
+  },
+
+  stopSpeak(){
+    VOICE.stop();
+    const btn=document.getElementById('mirror-speak-btn');
+    if(btn){btn.textContent='▶ Hear Transmission';btn.onclick=()=>QM.toggleSpeak();}
+  },
+
+  toggleSpeak(){
+    const btn=document.getElementById('mirror-speak-btn');
+    if(btn&&btn.textContent.includes('Stop')){this.stopSpeak();}
+    else{this.speak();}
+  },
+
+  _animateDots(){
+    const el=document.getElementById('mirror-dots');
+    if(!el)return;
+    const frames=['◈','◈ ◈','◈ ◈ ◈','◈ ◈','◈'];
+    let i=0;
+    this._dotsInterval=setInterval(()=>{el.textContent=frames[i++%frames.length];},400);
+  }
+};
+
+function invokeQuantumMirror(){QM.invoke();}
+
+// ═══════════════════════════ JOURNAL ═══════════════════════════
+function saveJournal(){
+  const fields=document.querySelectorAll('#journal-grid textarea');
+  const responses=Array.from(fields).map(f=>f.value.trim());
+  if(!responses.some(r=>r)){toast('Nothing to anchor — write something first.');return;}
+  const entry={
+    id:Date.now(),
+    date:new Date().toISOString(),
+    session:selectedSess?selectedSess.name:null,
+    data:JOURNAL_PROMPTS.map((p,i)=>({prompt:p.label,response:responses[i]||''})).filter(e=>e.response)
+  };
+  stats=DB.addJournalEntry(entry);
+  fields.forEach(f=>f.value='');
+  const el=document.getElementById('journal-confirm');
+  el.textContent='Entry anchored ✓';
+  setTimeout(()=>el.textContent='',3000);
+  renderJournalHistory();
+  toast('Entry anchored to your record.');
+}
+
+function renderJournalHistory(){
+  const {journal=[]}=DB.load();
+  const el=document.getElementById('journal-history');
+  if(!el)return;
+  if(!journal.length){el.innerHTML='<p style="font-size:11px;color:var(--muted);text-align:center;padding:1rem 0;font-style:italic">No entries yet. Your first entry will appear here.</p>';return;}
+  el.innerHTML=journal.slice().reverse().map(e=>{
+    const d=new Date(e.date);
+    const dateStr=d.toLocaleDateString('en',{weekday:'long',month:'short',day:'numeric'});
+    const timeStr=d.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+    return`<div style="background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;flex-wrap:wrap;gap:4px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold)">${dateStr}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px">${timeStr}${e.session?' · '+e.session:''}</div>
+      </div>
+      ${e.data.map(item=>`
+        <div style="margin-bottom:.5rem">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${item.prompt}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--silver);line-height:1.7;font-style:italic">${item.response}</div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════ PROGRESS ═══════════════════════════
+function buildProgress(){updateStats();}
+
+// ═══════════════════════════ TIER SYSTEM ═══════════════════════════
+const TIERS=[
+  {name:'Initiate',   min:0,   symbol:'◌', desc:'Beginning the journey',       color:'#6a6458'},
+  {name:'Practitioner',min:5,  symbol:'◎', desc:'Establishing the practice',   color:'#a0a8c0'},
+  {name:'Adept',      min:15,  symbol:'◈', desc:'Waves opening',               color:'#c9a84c'},
+  {name:'Master',     min:35,  symbol:'⊕', desc:'Deep field access',           color:'#f0d88a'},
+  {name:'Sovereign',  min:75,  symbol:'✦', desc:'Consciousness liberated',     color:'#fff'},
+];
+
+function getCurrentTier(sessions){
+  let tier=TIERS[0];
+  for(const t of TIERS){if(sessions>=t.min)tier=t;}
+  return tier;
+}
+
+function getNextTier(sessions){
+  for(const t of TIERS){if(sessions<t.min)return t;}
+  return null;
+}
+
+function checkTierUnlock(){
+  const d=DB.load();
+  const prev=d.tier||0;
+  const curr=TIERS.findIndex(t=>t===getCurrentTier(d.sessions));
+  if(curr>prev){
+    d.tier=curr;DB.save(d);stats=d;
+    toast(TIERS[curr].symbol+' '+TIERS[curr].name+' — unlocked');
+  }
+}
+
+function renderTierDisplay(){
+  const el=document.getElementById('tier-display');
+  if(!el)return;
+  const d=DB.load();
+  const tier=getCurrentTier(d.sessions||0);
+  const next=getNextTier(d.sessions||0);
+  const pct=next?Math.min(100,Math.round(((d.sessions||0)-tier.min)/(next.min-tier.min)*100)):100;
+  el.innerHTML=`
+    <div style="display:inline-block;text-align:center;padding:1rem 2rem;background:var(--card);border:.5px solid var(--border2);border-radius:4px;min-width:200px">
+      <div style="font-size:32px;color:${tier.color};margin-bottom:4px">${tier.symbol}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:${tier.color};letter-spacing:2px">${tier.name}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px">${tier.desc}</div>
+      ${next?`
+      <div style="margin-top:.75rem">
+        <div style="height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${tier.color};transition:width 1s ease"></div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px">${d.sessions||0} / ${next.min} sessions → ${next.name}</div>
+      </div>`:'<div style="font-size:10px;color:var(--gold);margin-top:.5rem">Maximum attainment</div>'}
+    </div>`;
+}
+
+// ═══════════════════════════ SESSION GRAPH ═══════════════════════════
+function renderSessionGraph(){
+  const canvas=document.getElementById('session-graph');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||600;
+  const H=60;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const {sessionLog=[]}=DB.load();
+  const today=new Date();
+  const days=Array.from({length:30},(_,i)=>{
+    const d=new Date(today);d.setDate(d.getDate()-(29-i));
+    return d.toISOString().slice(0,10);
+  });
+  const counts=days.map(day=>sessionLog.filter(s=>s.date===day).reduce((a,s)=>a+s.minutes,0));
+  const maxVal=Math.max(...counts,1);
+  const barW=Math.floor(W/30)-2;
+
+  days.forEach((day,i)=>{
+    const val=counts[i];
+    const barH=Math.round((val/maxVal)*(H-8));
+    const x=i*(barW+2);
+    const y=H-barH;
+    ctx.fillStyle=val>0?'rgba(201,168,76,0.7)':'rgba(255,255,255,0.04)';
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(x,y,barW,barH,2):ctx.rect(x,y,barW,barH);
+    ctx.fill();
+  });
+}
+
+// ═══════════════════════════ TESLA 369 TRACKER ═══════════════════════════
+const TT={
+  saveDesire(v){
+    const d=DB.load();
+    if(!d.teslaTracker)d.teslaTracker={};
+    d.teslaTracker.desire=v;
+    DB.save(d);
+  },
+
+  markSlot(day,slot){
+    const d=DB.load();
+    if(!d.teslaTracker)d.teslaTracker={};
+    const key=`${day}-${slot}`;
+    if(d.teslaTracker[key])delete d.teslaTracker[key];
+    else d.teslaTracker[key]=true;
+    DB.save(d);stats=d;
+    this.render();
+  },
+
+  render(){
+    const el=document.getElementById('tesla-grid');
+    const desire=document.getElementById('tesla-desire');
+    if(!el)return;
+    const d=DB.load();
+    const tt=d.teslaTracker||{};
+    if(desire&&tt.desire)desire.value=tt.desire;
+
+    el.innerHTML=Array.from({length:33},(_,day)=>{
+      const slots=['M','N','E']; // Morning, Noon, Evening
+      const counts=[3,6,9];
+      const allDone=slots.every(s=>tt[`${day}-${s}`]);
+      return`<div style="background:var(--card);border:.5px solid ${allDone?'var(--gold)':'var(--border)'};border-radius:4px;padding:6px;text-align:center;cursor:pointer">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px">Day ${day+1}</div>
+        <div style="display:flex;gap:3px;justify-content:center">
+          ${slots.map((s,si)=>`<div onclick="event.stopPropagation();TT.markSlot(${day},'${s}')"
+            style="width:18px;height:18px;border-radius:50%;border:.5px solid ${tt[`${day}-${s}`]?'var(--gold)':'var(--border)'};
+            background:${tt[`${day}-${s}`]?'rgba(201,168,76,.25)':'transparent'};
+            font-size:8px;display:flex;align-items:center;justify-content:center;color:${tt[`${day}-${s}`]?'var(--gold)':'var(--muted)'};
+            cursor:pointer" title="${s==='M'?'Morning × 3':s==='N'?'Midday × 6':'Evening × 9'}">${tt[`${day}-${s}`]?'✓':counts[si]}</div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+};
+
+function updateStats(){
+  const d=DB.load();
+  const sg=document.getElementById('stats-grid');
+  if(sg)sg.innerHTML=[
+    {n:d.sessions||0,l:'Sessions'},
+    {n:d.minutes||0,l:'Minutes'},
+    {n:(d.streak||[]).length,l:'Day Streak'},
+    {n:(d.waveCompletions||[]).reduce((a,b)=>a+b,0),l:'Wave Completions'}
+  ].map(s=>`<div class="stat-block"><div class="stat-num">${s.n}</div><div class="stat-label">${s.l}</div></div>`).join('');
+
+  const sg2=document.getElementById('streak-grid');
+  if(sg2)sg2.innerHTML=Array.from({length:21},(_,i)=>{
+    const done=(d.streak||[]).includes(i);
+    return`<div class="s-dot ${done?'done':''}" onclick="toggleDay(${i})">${done?'✓':i+1}</div>`;
+  }).join('');
+
+  const wp=document.getElementById('wave-progress');
+  if(wp)wp.innerHTML=WAVES.map((w,i)=>{
+    const comp=(d.waveCompletions||[])[i]||0;
+    const needed=WAVE_REQS[i+1]||3;
+    const pct=Math.min(100,Math.round((comp/needed)*100));
+    return`<div class="wp-row">
+      <div class="wp-name">${w.name.replace('Wave ','W')}</div>
+      <div class="wp-track"><div class="wp-fill" style="width:${pct}%"></div></div>
+      <div class="wp-pct" style="font-size:9px;color:var(--muted)">${comp}×</div>
+    </div>`;
+  }).join('');
+
+  renderTierDisplay();
+  renderSessionGraph();
+  TT.render();
+  checkTierUnlock();
+}
+
+function toggleDay(i){
+  if(stats.streak.includes(i))stats.streak=stats.streak.filter(d=>d!==i);
+  else stats.streak.push(i);
+  DB.save(stats);
+  updateStats();
+}
+
+function markDay(){
+  const d=stats.streak.length;
+  if(!stats.streak.includes(d))stats.streak.push(d);
+  stats.sessions++;stats.minutes+=20;
+  DB.save(stats);
+  updateStats();toast('Day '+(d+1)+' marked. You are consistent.');
+}
+
+// ═══════════════════════════ COUNCIL ═══════════════════════════
+function buildCouncil(){
+  document.getElementById('agents-grid').innerHTML=AGENTS.map(a=>`
+  <div class="agent-card fade-in">
+    <div class="agent-symbol">${a.symbol}</div>
+    <div class="agent-name">${a.name}</div>
+    <div class="agent-domain">${a.domain}</div>
+  </div>`).join('');
+
+  document.getElementById('insights-list').innerHTML=INSIGHTS.map(ins=>`
+  <div class="insight-box fade-in">
+    <div class="insight-agent">${ins.agent}</div>
+    <div class="insight-text">"${ins.text}"</div>
+  </div>`).join('');
+}
+
+// ═══════════════════════════ UTILITIES ═══════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function observeFadeIns(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+  },{threshold:.1});
+  document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+}
+
+function confirmReset(){
+  if(confirm('Reset all progress, streak, and journal data? This cannot be undone.')){
+    DB.clear();
+    stats=DB.load();
+    updateStats();
+    renderJournalHistory();
+    toast('Data cleared. New journey begins.');
+  }
+}
+
+// ═══════════════════════════ START ═══════════════════════════
+// In Electron, restore encrypted keys back into localStorage first so that
+// VOICE.init() and QM.init() find them. No-op when running in a browser.
+(async()=>{
+  try{ await GP_API.hydrateKeys(); }catch(e){ console.warn('Boot hydration:',e); }
+  init();
+})();
+</script>
+</body>
+</html>

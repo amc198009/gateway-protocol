@@ -1,0 +1,40 @@
+/**
+ * Gateway Protocol V2 — Preload bridge
+ * ───────────────────────────────────────────────────────────────
+ * Exposes a narrow window.gp API to the renderer via contextBridge.
+ * The renderer cannot reach Node, https, or fs — only these methods.
+ *
+ * Renderer usage (drop-in for the V1 fetch() calls):
+ *
+ *   const audioBuf = await window.gp.elevenlabsTTS({text, voiceId, ...});
+ *   const blob = new Blob([audioBuf], { type: 'audio/mpeg' });
+ *
+ *   const data = await window.gp.mirror({ entry });
+ *
+ *   await window.gp.keys.set('anthropic', key);
+ *   const has = await window.gp.keys.has('anthropic');
+ * ───────────────────────────────────────────────────────────────
+ */
+
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('gp', {
+  // Feature flag the HTML uses to pick Electron path vs proxy fallback
+  isElectron: true,
+  platform: process.platform,
+  versions: { electron: process.versions.electron, chrome: process.versions.chrome, node: process.versions.node },
+
+  // TTS — both return ArrayBuffer of audio/mpeg bytes
+  elevenlabsTTS: (opts) => ipcRenderer.invoke('gp:elevenlabs-tts', opts),
+  openaiTTS:     (opts) => ipcRenderer.invoke('gp:openai-tts', opts),
+
+  // Quantum Mirror — returns parsed Anthropic JSON
+  mirror: (opts) => ipcRenderer.invoke('gp:mirror', opts),
+
+  // Encrypted API key storage (electron-store backed)
+  keys: {
+    get: (name)        => ipcRenderer.invoke('gp:key-get', name),
+    set: (name, value) => ipcRenderer.invoke('gp:key-set', name, value),
+    has: (name)        => ipcRenderer.invoke('gp:key-has', name),
+  },
+});
