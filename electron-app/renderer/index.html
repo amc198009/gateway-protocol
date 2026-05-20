@@ -330,8 +330,21 @@ body{
 .gp-hrv-score{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:2px;line-height:1}
 .gp-hrv-score-label{font-size:8px;letter-spacing:2px;color:var(--muted)}
 #gp-hrv-canvas{width:100%;height:60px;display:block;border-radius:2px}
-/* When cinematic, the HRV bar floats at the bottom subtly */
-body.gp-cinematic .gp-hrv-wrap{position:fixed;bottom:6.5rem;left:50%;transform:translateX(-50%);width:min(640px,80vw);z-index:55;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:flex!important}
+/* V6c: HRV bar belongs in breathwork (where it has live phase data),
+   not in cinematic session mode. In cinematic we use a decorative pulse
+   ring around the timer instead — see .gp-pulse-ring below. */
+body.gp-cinematic .gp-hrv-wrap{display:none!important}
+/* Decorative pulse ring around the timer SVG in cinematic mode.
+   A slow ~6-second breathing animation that suggests living presence
+   without claiming to measure anything. Sits behind the timer numbers. */
+.gp-pulse-ring{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:240px;height:240px;border-radius:50%;border:.5px solid rgba(201,168,76,.18);pointer-events:none;z-index:0}
+body.gp-cinematic .gp-pulse-ring{display:block;animation:gpPulseRing 6s ease-in-out infinite}
+@keyframes gpPulseRing{
+  0%,100%{transform:translate(-50%,-50%) scale(1);   opacity:.25;border-color:rgba(201,168,76,.18)}
+  50%   {transform:translate(-50%,-50%) scale(1.35); opacity:.55;border-color:rgba(240,216,138,.4)}
+}
+/* Second concentric ring on a slight delay creates the breathing-aurora effect */
+.gp-pulse-ring::after{content:'';position:absolute;inset:-30px;border-radius:50%;border:.5px solid rgba(201,168,76,.12);animation:inherit;animation-delay:-3s}
 
 /* ═══ V3b · CINEMATIC FULLSCREEN MODE ═══ */
 /* When body.gp-cinematic is set, hide every non-essential element and
@@ -459,6 +472,7 @@ body.gp-three-ready #geo-bg{display:none}
     <button class="nav-btn" onclick="show('progress')">Progress</button>
     <button class="nav-btn" onclick="show('synchronicity')">Synchronicity</button>
     <button class="nav-btn" onclick="show('council')">Council</button>
+    <button class="nav-btn" onclick="show('settings')">Settings</button>
   </nav>
 
   <!-- ════ SCREEN: WAVES ════ -->
@@ -562,7 +576,9 @@ body.gp-three-ready #geo-bg{display:none}
         </div>
       </div>
     </div>
-    <div class="timer-wrap">
+    <div class="timer-wrap" style="position:relative">
+      <!-- V6c: decorative pulse ring, only visible in cinematic mode -->
+      <div class="gp-pulse-ring" aria-hidden="true"></div>
       <div class="timer-session" id="timer-session-name">Select a session above</div>
       <!-- V5c: only visible in cinematic mode for wave-derived sessions -->
       <div id="cinematic-wave-context"></div>
@@ -770,25 +786,9 @@ body.gp-three-ready #geo-bg{display:none}
       <div class="gp-patterns-results" id="gp-pat-results"></div>
     </div>
 
-    <!-- V4f · Practice Reminder Settings -->
-    <div class="gp-reminders">
-      <div class="gp-reminders-title">◈ Practice Reminders · Native Notifications</div>
-      <div class="gp-reminders-row">
-        <label><input type="checkbox" id="gp-rem-enabled" onchange="REMINDERS.save()"> Enable daily reminders</label>
-      </div>
-      <div class="gp-reminders-row">
-        <span>Morning Activation</span>
-        <input type="time" id="gp-rem-morning" value="07:30" onchange="REMINDERS.save()">
-      </div>
-      <div class="gp-reminders-row">
-        <span>Midday Reset</span>
-        <input type="time" id="gp-rem-midday" value="13:00" onchange="REMINDERS.save()">
-      </div>
-      <div class="gp-reminders-row">
-        <span>Evening Integration</span>
-        <input type="time" id="gp-rem-evening" value="21:00" onchange="REMINDERS.save()">
-      </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:.6rem;line-height:1.6">Reminders fire as native OS notifications. They're scheduled by the app and persist across restarts.</div>
+    <!-- V6d: Reminders moved to the Settings screen -->
+    <div style="font-size:10px;color:var(--muted);text-align:center;letter-spacing:1.5px;margin-top:1rem">
+      Practice reminders + data management have moved to <a href="#" onclick="showScreen('settings');return false" style="color:var(--gold)">Settings</a>.
     </div>
 
     <!-- Streak -->
@@ -813,9 +813,7 @@ body.gp-three-ready #geo-bg{display:none}
     <div id="tesla-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-bottom:1rem"></div>
     <div class="btn-row">
       <button class="gp-btn primary" onclick="markDay()">Mark Today ✓</button>
-      <!-- V5e: full backup as JSON download -->
-      <button class="gp-btn" onclick="EXPORT.download()">Export All Data ↓</button>
-      <button class="gp-btn" onclick="confirmReset()" style="border-color:rgba(192,64,64,.4);color:#c04040">Reset All Data</button>
+      <!-- V6d: Export/Reset moved to Settings -->
     </div>
   </div>
 
@@ -840,6 +838,59 @@ body.gp-three-ready #geo-bg{display:none}
 
     <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">Log · <span id="gp-sync-count">0</span></div>
     <div class="gp-sync-list" id="gp-sync-list"></div>
+  </div>
+
+  <!-- ════ SCREEN: SETTINGS (V6d) ════ -->
+  <div id="screen-settings" class="screen">
+    <div class="section-title">Settings</div>
+    <div class="section-sub">Reminders, data management, and app info. Voice + ambient settings stay on the Sessions screen — they're context-coupled to the timer.</div>
+
+    <!-- V4f · Practice Reminders -->
+    <div class="gp-reminders">
+      <div class="gp-reminders-title">◈ Practice Reminders · Native Notifications</div>
+      <div class="gp-reminders-row">
+        <label><input type="checkbox" id="gp-rem-enabled" onchange="REMINDERS.save()"> Enable daily reminders</label>
+      </div>
+      <div class="gp-reminders-row">
+        <span>Morning Activation</span>
+        <input type="time" id="gp-rem-morning" value="07:30" onchange="REMINDERS.save()">
+      </div>
+      <div class="gp-reminders-row">
+        <span>Midday Reset</span>
+        <input type="time" id="gp-rem-midday" value="13:00" onchange="REMINDERS.save()">
+      </div>
+      <div class="gp-reminders-row">
+        <span>Evening Integration</span>
+        <input type="time" id="gp-rem-evening" value="21:00" onchange="REMINDERS.save()">
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:.6rem;line-height:1.6">
+        Reminders fire as native OS notifications. They're scheduled by the app and persist while the app is running.
+        For OS-persistent reminders (firing even when the app is closed), use Calendar or a launchd agent.
+      </div>
+    </div>
+
+    <!-- Data management -->
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ Data Management</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:1rem">
+        Your data lives locally on this machine — in IndexedDB (primary) and localStorage (mirror). No cloud, no sync.
+        Export anytime as portable JSON. Reset wipes everything irreversibly.
+      </div>
+      <div class="btn-row">
+        <button class="gp-btn primary" onclick="EXPORT.download()">Export All Data ↓</button>
+        <button class="gp-btn" onclick="confirmReset()" style="border-color:rgba(192,64,64,.4);color:#c04040">Reset All Data</button>
+      </div>
+    </div>
+
+    <!-- App info -->
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ About</div>
+      <div style="font-size:12px;color:var(--silver);line-height:1.8">
+        <div><strong style="color:var(--gold)">Gateway Protocol</strong> · V2.0.0 · Owned, not subscribed.</div>
+        <div style="margin-top:.5rem">Source: <a href="https://github.com/amc198009/gateway-protocol" target="_blank" style="color:var(--gold2)">github.com/amc198009/gateway-protocol</a></div>
+        <div style="margin-top:.5rem;font-style:italic;color:var(--muted)">All API keys stored encrypted via electron-store. Never leave your machine.</div>
+      </div>
+    </div>
   </div>
 
   <!-- ════ SCREEN: COUNCIL ════ -->
@@ -1917,6 +1968,16 @@ function show(id){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   event.target.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+// V6d: programmatic version for use outside click handlers (e.g. inline links).
+// Same effect as show() but matches the nav button by its onclick attribute.
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  const btn=Array.from(document.querySelectorAll('.nav-btn')).find(b=>(b.getAttribute('onclick')||'').includes("'"+id+"'"));
+  if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 

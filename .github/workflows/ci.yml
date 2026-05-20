@@ -1,0 +1,67 @@
+name: CI
+
+# Runs on every push to main and on every PR. Lightweight by design:
+# we just verify the code parses and dependencies install. Full Electron
+# .dmg builds happen locally / via Releases; CI doesn't need to spend
+# 5 minutes packaging on every push.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  parse-check:
+    name: Parse + install check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron-app/package-lock.json
+
+      - name: Syntax-check main, preload, audio-worklet, proxy
+        run: |
+          node --check electron-app/main.js
+          node --check electron-app/preload.js
+          node --check electron-app/renderer/audio-worklet.js
+          node --check proxy.js
+
+      - name: Syntax-check renderer inline scripts
+        run: |
+          node -e "
+            const fs = require('fs');
+            const html = fs.readFileSync('electron-app/renderer/index.html', 'utf8');
+            const matches = [...html.matchAll(/<script(?:[^>]*?)>([\s\S]*?)<\/script>/g)];
+            let n = 0;
+            for (const m of matches) {
+              if (m[0].includes('src=')) continue;
+              n++;
+              try { new Function(m[1]); }
+              catch (e) { console.error('Renderer script #'+n+': '+e.message); process.exit(1); }
+            }
+            console.log('OK · '+n+' inline script(s) parsed');
+          "
+
+      - name: Verify no secrets accidentally committed
+        run: |
+          # Look for anything that looks like an API key in tracked files
+          if git grep -InE 'sk-(proj|ant|live)-[A-Za-z0-9_-]{20,}|gh[opsu]_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}'; then
+            echo "::error::Possible secret detected in tracked files"
+            exit 1
+          fi
+          echo "OK · no exposed keys"
+
+      - name: npm install (electron-app)
+        working-directory: electron-app
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify Forge config loads
+        working-directory: electron-app
+        run: node -e "require('./forge.config.js'); console.log('forge.config.js loads')"
