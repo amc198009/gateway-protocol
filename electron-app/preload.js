@@ -31,6 +31,10 @@ contextBridge.exposeInMainWorld('gp', {
   // Quantum Mirror — returns parsed Anthropic JSON
   mirror: (opts) => ipcRenderer.invoke('gp:mirror', opts),
 
+  // Adaptive Session Engine — Council reads last 7 journal entries,
+  // returns { recommendedWave, recommendedFreq, recommendedBreath, intention, rationale }
+  preSession: (opts) => ipcRenderer.invoke('gp:pre-session', opts),
+
   // Encrypted API key storage (electron-store backed)
   keys: {
     get: (name)        => ipcRenderer.invoke('gp:key-get', name),

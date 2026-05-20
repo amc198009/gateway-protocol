@@ -73,6 +73,30 @@ body{
 /* ═══ DIVIDER ═══ */
 .divider{height:.5px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:1.5rem 0}
 
+/* ═══ COUNCIL RECOMMENDATION BANNER (V2 #2) ═══ */
+.gp-rec{display:none;background:linear-gradient(180deg,rgba(201,168,76,.05) 0%,rgba(201,168,76,.01) 100%);border:.5px solid rgba(201,168,76,.25);border-radius:4px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.gp-rec.visible{display:block;animation:gpRecFade .6s ease-out}
+@keyframes gpRecFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.gp-rec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.75}
+.gp-rec-when{color:var(--muted);font-size:9px;letter-spacing:1.5px}
+.gp-rec-x{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;transition:color .2s}
+.gp-rec-x:hover{color:var(--gold)}
+.gp-rec-intention{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;font-style:italic;color:var(--gold2);line-height:1.4;letter-spacing:.5px;margin-bottom:1rem}
+.gp-rec-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.gp-rec-chip{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:.5px solid rgba(201,168,76,.3);padding:5px 11px;border-radius:14px;background:rgba(201,168,76,.04)}
+.gp-rec-chip-label{color:var(--muted);font-size:9px}
+.gp-rec-rationale{font-size:12px;color:#8a8478;line-height:1.8;margin-bottom:1rem}
+.gp-rec-apply{background:none;border:.5px solid var(--gold);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:9px 20px;cursor:pointer;border-radius:2px;transition:all .2s}
+.gp-rec-apply:hover{background:rgba(201,168,76,.1);color:var(--gold2)}
+.gp-rec-loading{display:none;align-items:center;gap:10px;color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:1.25rem 1.5rem;margin-bottom:1.5rem;border:.5px solid var(--border);border-radius:4px}
+.gp-rec-loading.visible{display:flex}
+.gp-rec-loading .gp-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite}
+.gp-rec-loading .gp-dot:nth-child(2){animation-delay:.2s}
+.gp-rec-loading .gp-dot:nth-child(3){animation-delay:.4s}
+/* Recommendation highlight on cards (set by Apply, cleared after 8s) */
+.solf-card.gp-recommended,.wave-card.gp-recommended,.bp-btn.gp-recommended{box-shadow:0 0 0 1px var(--gold),0 0 18px rgba(201,168,76,.3);animation:gpPulse 2s ease-in-out 2}
+@keyframes gpPulse{0%,100%{box-shadow:0 0 0 1px var(--gold),0 0 18px rgba(201,168,76,.3)}50%{box-shadow:0 0 0 1px var(--gold2),0 0 28px rgba(240,216,138,.5)}}
+
 /* ═══ WAVE CARDS ═══ */
 .wave-list{display:flex;flex-direction:column;gap:12px}
 .wave-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .2s}
@@ -301,6 +325,26 @@ body{
       <div class="section-title">The Seven Waves</div>
       <div class="section-sub">Monroe Institute's complete Gateway Experience — accurately rendered. Each wave builds on the last. Do not skip levels.</div>
     </div>
+
+    <!-- V2 #2: Council pre-session recommendation. Hidden until QM.requestPreSession resolves. -->
+    <div class="gp-rec-loading" id="gp-rec-loading">
+      <span class="gp-dot"></span><span class="gp-dot"></span><span class="gp-dot"></span>
+      Council reading your last entries…
+    </div>
+    <div class="gp-rec" id="gp-rec" role="region" aria-label="Council recommendation">
+      <div class="gp-rec-head">
+        <span>◈ Council Recommendation</span>
+        <span style="display:flex;align-items:center;gap:10px">
+          <span class="gp-rec-when" id="gp-rec-when"></span>
+          <button class="gp-rec-x" id="gp-rec-x" title="Dismiss" aria-label="Dismiss recommendation">×</button>
+        </span>
+      </div>
+      <div class="gp-rec-intention" id="gp-rec-intention"></div>
+      <div class="gp-rec-chips" id="gp-rec-chips"></div>
+      <div class="gp-rec-rationale" id="gp-rec-rationale"></div>
+      <button class="gp-rec-apply" id="gp-rec-apply">Apply → Prepare Session</button>
+    </div>
+
     <div class="wave-list" id="wave-list"></div>
   </div>
 
@@ -604,6 +648,18 @@ const GP_API = {
       return await window.gp.mirror(opts);
     }
     const res=await fetch('http://localhost:5050/mirror',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
+    });
+    const data=await res.json();
+    if(!res.ok || data.error) throw new Error(data.error?.message||data.error||'Council unreachable');
+    return data;
+  },
+  // V2 #2 — Adaptive Session Engine
+  async preSession(opts){
+    if(GP_ELECTRON){
+      return await window.gp.preSession(opts); // already-parsed recommendation
+    }
+    const res=await fetch('http://localhost:5050/pre-session',{
       method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
     });
     const data=await res.json();
@@ -1098,6 +1154,10 @@ function init(){
   buildProgress();
   buildCouncil();
   observeFadeIns();
+  // V2 #2: wire up the adaptive session engine. init() reads cache + binds
+  // buttons; request() fires an async Council call if cache stale or absent.
+  PRESESSION.init();
+  PRESESSION.request();
 }
 
 // ═══════════════════════════ STARS ═══════════════════════════
@@ -2057,6 +2117,8 @@ function saveJournal(){
   setTimeout(()=>el.textContent='',3000);
   renderJournalHistory();
   toast('Entry anchored to your record.');
+  // V2 #2: re-request Council pre-session recommendation on every journal save
+  PRESESSION.request(true);
 }
 
 function renderJournalHistory(){
@@ -2278,6 +2340,150 @@ function buildCouncil(){
     <div class="insight-text">"${ins.text}"</div>
   </div>`).join('');
 }
+
+// ═══════════════════════════ V2 #2 · ADAPTIVE SESSION ENGINE ═══════════════════════════
+// The Council reads the last ≤7 journal entries and recommends a Wave +
+// Frequency + Breath + intention for the next session. Result cached for
+// 30 min so we don't burn tokens on every tab switch.
+const PRESESSION={
+  CACHE_KEY:'gp_presession_cache',
+  CACHE_TTL_MS:30*60*1000,
+  MIN_ENTRIES:2,
+  MAX_ENTRIES:7,
+  _inflight:null,
+  _lastRec:null,
+
+  init(){
+    document.getElementById('gp-rec-x').addEventListener('click',()=>this._hide());
+    document.getElementById('gp-rec-apply').addEventListener('click',()=>this._apply());
+    // Restore last recommendation instantly if cached, even before any API call
+    const cached=this._readCache();
+    if(cached) this._render(cached.rec,cached.when);
+  },
+
+  // Called on boot + after every journal save
+  async request(force=false){
+    const entries=this._collectEntries();
+    if(entries.length<this.MIN_ENTRIES){ this._hide(); this._hideLoading(); return; }
+    if(!force){
+      const cached=this._readCache();
+      if(cached && Date.now()-cached.when < this.CACHE_TTL_MS){ this._render(cached.rec,cached.when); return; }
+    }
+    const hasKey=(localStorage.getItem('gp_anthropic_key')||'').trim();
+    if(!hasKey) return; // silently skip — banner stays hidden until they set a key
+    if(this._inflight) return this._inflight;
+    this._showLoading();
+    this._inflight=(async()=>{
+      try{
+        const rec=await GP_API.preSession({entries,key:hasKey});
+        const when=Date.now();
+        this._writeCache(rec,when);
+        this._render(rec,when);
+      }catch(e){
+        console.warn('Pre-session failed:',e.message||e);
+        // Don't show an error toast — recommendation is a nice-to-have, not a blocker
+      }finally{
+        this._hideLoading();
+        this._inflight=null;
+      }
+    })();
+    return this._inflight;
+  },
+
+  _collectEntries(){
+    const journal=(DB.load().journal||[]).slice(-this.MAX_ENTRIES);
+    return journal.map(j=>({
+      date:new Date(j.date).toLocaleDateString(),
+      session:j.session||null,
+      data:Array.isArray(j.data)?j.data:[]
+    }));
+  },
+
+  _readCache(){
+    try{
+      const raw=JSON.parse(localStorage.getItem(this.CACHE_KEY)||'null');
+      if(raw&&raw.rec&&raw.when) return raw;
+    }catch(e){}
+    return null;
+  },
+  _writeCache(rec,when){
+    try{ localStorage.setItem(this.CACHE_KEY,JSON.stringify({rec,when})); }catch(e){}
+  },
+
+  _showLoading(){
+    document.getElementById('gp-rec-loading').classList.add('visible');
+    document.getElementById('gp-rec').classList.remove('visible');
+  },
+  _hideLoading(){
+    document.getElementById('gp-rec-loading').classList.remove('visible');
+  },
+  _hide(){
+    document.getElementById('gp-rec').classList.remove('visible');
+  },
+
+  _render(rec,when){
+    this._lastRec=rec;
+    document.getElementById('gp-rec-intention').textContent='"'+(rec.intention||'')+'"';
+    document.getElementById('gp-rec-rationale').textContent=rec.rationale||'';
+
+    const waveRoman=['I','II','III','IV','V','VI','VII'][((rec.recommendedWave|0)-1)]||'I';
+    const chips=[
+      {label:'Wave',     value:'Wave '+waveRoman},
+      {label:'Frequency',value:(rec.recommendedFreq||432)+' Hz'},
+      {label:'Breath',   value:rec.recommendedBreath||'Coherence 5-5'}
+    ];
+    document.getElementById('gp-rec-chips').innerHTML=chips.map(c=>
+      `<span class="gp-rec-chip"><span class="gp-rec-chip-label">${c.label}</span> ${c.value}</span>`
+    ).join('');
+
+    const ageMin=Math.round((Date.now()-when)/60000);
+    document.getElementById('gp-rec-when').textContent=
+      ageMin<1?'just now':ageMin===1?'1 min ago':ageMin+' min ago';
+
+    document.getElementById('gp-rec').classList.add('visible');
+  },
+
+  _apply(){
+    const rec=this._lastRec;
+    if(!rec){ toast('No recommendation to apply.'); return; }
+
+    // 1. Wave — open the card and pulse it (only if unlocked)
+    const waveIdx=Math.max(0,Math.min(6,(rec.recommendedWave|0)-1));
+    document.querySelectorAll('.wave-card').forEach(c=>{ c.classList.remove('gp-recommended','open'); });
+    const waveEl=document.getElementById('wave-'+waveIdx);
+    if(waveEl){
+      if(!waveEl.classList.contains('wave-locked')) waveEl.classList.add('open');
+      waveEl.classList.add('gp-recommended');
+      setTimeout(()=>waveEl.classList.remove('gp-recommended'),8000);
+    }
+
+    // 2. Frequency — visual highlight only, don't auto-start the oscillator
+    const freqIdx=SOLFEGGIO.findIndex(s=>s.hz===(rec.recommendedFreq|0));
+    if(freqIdx>=0){
+      document.querySelectorAll('.solf-card').forEach(c=>c.classList.remove('gp-recommended'));
+      const fEl=document.getElementById('solf-'+freqIdx);
+      if(fEl){ fEl.classList.add('gp-recommended'); setTimeout(()=>fEl.classList.remove('gp-recommended'),8000); }
+    }
+
+    // 3. Breath — setBreath is safe (no auto-start), then visually pulse
+    const breathIdx=BREATH_PATTERNS.findIndex(p=>p.name===rec.recommendedBreath);
+    if(breathIdx>=0){
+      setBreath(breathIdx);
+      const bEl=document.getElementById('bp-'+breathIdx);
+      if(bEl){ bEl.classList.add('gp-recommended'); setTimeout(()=>bEl.classList.remove('gp-recommended'),8000); }
+    }
+
+    // 4. Switch to Sessions screen + scroll top. show() needs event.target so we bypass.
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('screen-sessions').classList.add('active');
+    const navBtn=Array.from(document.querySelectorAll('.nav-btn')).find(b=>(b.getAttribute('onclick')||'').includes("'sessions'"));
+    if(navBtn) navBtn.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+
+    toast('Council applied · Wave '+(rec.recommendedWave|0)+' · '+(rec.recommendedFreq|0)+' Hz');
+  }
+};
 
 // ═══════════════════════════ UTILITIES ═══════════════════════════
 function toast(msg){

@@ -218,6 +218,89 @@ ipcMain.handle('gp:mirror', async (_evt, { entry }) => {
   return json;
 });
 
+// ── IPC: Adaptive Session Engine ───────────────────────────────
+// The Council reads the last ≤7 journal entries and recommends a wave,
+// frequency, breath, and intention for the next session. Different from
+// gp:mirror — that responds to ONE entry's state. This one finds patterns
+// ACROSS entries (recurring shadow themes, energetic arc, what's been
+// over- or under-practiced) and returns actionable guidance.
+const PRE_SESSION_SYSTEM_PROMPT = `You are the Council of Five — Monroe, Lipton, Dispenza, Tesla, Jung — preparing a practitioner for their next Gateway Protocol session.
+
+You are given their last journal entries in chronological order (oldest first, most recent last). Read for patterns ACROSS entries, not just the most recent one:
+- What state are they cycling through?
+- What shadow theme keeps resurfacing?
+- What have they been over-practicing or avoiding?
+- What is the next true edge — the practice that would meet them where they actually are, not where they want to be?
+
+Then return a JSON object with EXACTLY these fields:
+
+{
+  "recommendedWave": <integer 1-7>,         // Gateway Wave: I=Discovery/Focus10, II=Threshold/Focus12, III=Freedom/Focus15, IV=Colleagues, V=Stations, VI=Patterns, VII=23-27
+  "recommendedFreq": <integer Hz>,           // ONE of: 174, 285, 396, 417, 432, 528, 639, 741, 852, 963
+  "recommendedBreath": <string>,             // ONE of: "Coherence 5-5", "Gateway 5-5-5", "Box 4-4-4-4", "Dispenza 4-0-8", "Tesla 3-6-9", "Pranayama 4-7-8"
+  "intention": <string>,                      // 1 sentence in second person. The seed for this session. Speak directly to them.
+  "rationale": <string>                       // 2-3 sentences. Why THIS wave + freq + breath for THIS person right now, based on the pattern you read across their entries.
+}
+
+Return ONLY valid JSON. No preamble. No markdown fences. No text outside the JSON object.`;
+
+ipcMain.handle('gp:pre-session', async (_evt, { entries }) => {
+  const key = store.get('anthropic');
+  if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
+  if (!Array.isArray(entries) || entries.length < 2) {
+    throw new Error('Need at least 2 journal entries for the Council to read patterns');
+  }
+
+  // Format entries as a chronological dossier the Council can scan
+  const dossier = entries.map((e, i) => {
+    const num = i + 1;
+    const when = e.date || 'unknown date';
+    const ctx = e.session ? ` (during ${e.session})` : '';
+    const body = (e.data || []).map(d => `  ${d.prompt}: ${d.response}`).join('\n');
+    return `─── Entry ${num} · ${when}${ctx} ───\n${body}`;
+  }).join('\n\n');
+
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1024,
+    system: PRE_SESSION_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: `Here are my last ${entries.length} journal entries:\n\n${dossier}` }],
+  });
+
+  const { status, buffer } = await httpsPost({
+    hostname: 'api.anthropic.com',
+    path: '/v1/messages',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+    body,
+  });
+
+  const text = buffer.toString();
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error(`Anthropic ${status}: non-JSON response`); }
+
+  if (status !== 200) {
+    const msg = json.error?.message || json.error || `HTTP ${status}`;
+    throw new Error(`Anthropic: ${msg}`);
+  }
+
+  // Parse the JSON the model returned (its `content[0].text`)
+  const raw = json.content?.[0]?.text || '';
+  let recommendation;
+  try {
+    const clean = raw.replace(/```json|```/g, '').trim();
+    recommendation = JSON.parse(clean);
+  } catch {
+    throw new Error('Council response could not be parsed as JSON');
+  }
+  return recommendation;
+});
+
 // ── IPC: Key storage ───────────────────────────────────────────
 const ALLOWED_KEYS = new Set(['elevenlabs', 'openai', 'anthropic']);
 
