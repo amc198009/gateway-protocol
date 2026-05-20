@@ -1048,11 +1048,16 @@ body.gp-three-ready #geo-bg{display:none}
     <div class="gp-reminders">
       <div class="gp-reminders-title">◈ Network · Practice Rooms + Feed Server</div>
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
-        Point the app at a running instance of the reference server (in <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">/server</code> of this repo). Leave blank to disable network features and stay fully local.
+        Use the official hosted instance (one click below), run your own at <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">localhost:7070</code>, or deploy the <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">/server</code> directory anywhere Node 18+ runs. Leave blank to disable network features and stay fully local.
       </div>
       <div class="gp-reminders-row" style="margin-bottom:.4rem">
         <label style="width:120px">Server URL</label>
-        <input id="gp-net-url" type="text" placeholder="http://localhost:7070" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:12px" onblur="NETWORK.saveConfig()">
+        <input id="gp-net-url" type="text" placeholder="https://gateway-protocol.fly.dev" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:12px" onblur="NETWORK.saveConfig()">
+      </div>
+      <div class="btn-row" style="margin-bottom:.5rem;flex-wrap:wrap">
+        <button class="gp-btn" onclick="NETWORK.useHosted()" style="font-size:9px">◈ Use hosted server</button>
+        <button class="gp-btn" onclick="NETWORK.useLocal()" style="font-size:9px">Use localhost</button>
+        <button class="gp-btn" onclick="NETWORK.clearServer()" style="font-size:9px">Disconnect</button>
       </div>
       <div class="gp-reminders-row">
         <label><input type="checkbox" id="gp-net-auto-share" onchange="NETWORK.saveConfig()"> Auto-share Council transmissions to feed (anonymous)</label>
@@ -4003,6 +4008,25 @@ const NETWORK={
     document.getElementById('gp-mirror-share-feed').checked=this._cfg.autoJoinFeed;
     this._renderServerStatus();
     if(this._cfg.serverUrl) this._probeServer();
+  },
+
+  // Quick-set buttons for the canonical URLs
+  async useHosted(){
+    document.getElementById('gp-net-url').value='https://gateway-protocol.fly.dev';
+    await this.saveConfig();
+    this.loadFeed();
+    toast('Connected to hosted Gateway Protocol server');
+  },
+  async useLocal(){
+    document.getElementById('gp-net-url').value='http://localhost:7070';
+    await this.saveConfig();
+    this.loadFeed();
+    toast('Pointed at localhost:7070 — run `npm start` in /server');
+  },
+  async clearServer(){
+    document.getElementById('gp-net-url').value='';
+    await this.saveConfig();
+    toast('Network features disabled — fully local mode');
   },
 
   async saveShareConsent(){
