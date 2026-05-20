@@ -47,7 +47,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false, // electron-store needs fs access in preload? we keep it in main only, so we could enable sandbox — but disable for now to keep preload simple
+      sandbox: true,
+      webSecurity: true,
     },
   });
 

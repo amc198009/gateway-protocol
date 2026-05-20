@@ -65,3 +65,7 @@ jobs:
       - name: Verify Forge config loads
         working-directory: electron-app
         run: node -e "require('./forge.config.js'); console.log('forge.config.js loads')"
+
+      - name: npm audit (production deps only)
+        working-directory: electron-app
+        run: npm audit --omit=dev --audit-level=high

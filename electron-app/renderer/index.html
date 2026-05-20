@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  Content Security Policy: explicit allowlist for the three LLM/TTS providers
+  the Council talks to. Blocks any XSS-driven exfiltration to a third party
+  even if a renderer interpolation escapes our escapeHTML() net. The
+  'unsafe-inline' on script-src is required for the inline app script; the
+  long-term fix is splitting renderer into ES modules and dropping it.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.anthropic.com https://api.openai.com https://api.elevenlabs.io; img-src 'self' data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Gateway Protocol — Consciousness Evolution System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -1220,23 +1228,43 @@ const GP_API = {
       window.gp.keys.set(name, value || '').catch(()=>{});
     }
   },
-  // On boot, copy any key in electron-store back into localStorage so a
-  // fresh install (cleared localStorage) recovers from the encrypted backup.
+  // On boot in V2 (Electron), the encrypted vault is the source of truth.
+  // We populate in-memory caches on the relevant modules (VOICE, QM) and,
+  // as a one-time migration, evict any keys that older builds wrote into
+  // plaintext localStorage. The keys must never live outside the vault and
+  // the running process — localStorage is unencrypted on disk.
   async hydrateKeys(){
     if(!GP_ELECTRON || !window.gp.keys) return;
     try{
+      // One-time migration: pull any legacy localStorage keys into the vault, then wipe.
+      try{
+        const v=JSON.parse(localStorage.getItem('gp_voice')||'{}');
+        let migrated=false;
+        if(v.elKey ){ await window.gp.keys.set('elevenlabs', v.elKey ); delete v.elKey;  migrated=true; }
+        if(v.oaiKey){ await window.gp.keys.set('openai',     v.oaiKey); delete v.oaiKey; migrated=true; }
+        if(migrated) localStorage.setItem('gp_voice', JSON.stringify(v));
+      }catch(e){}
+      try{
+        const legacyAnt=localStorage.getItem('gp_anthropic_key');
+        if(legacyAnt){
+          await window.gp.keys.set('anthropic', legacyAnt);
+          localStorage.removeItem('gp_anthropic_key');
+        }
+      }catch(e){}
+      // Pull from vault into module-level memory only — never back to localStorage.
       const [el,oai,ant]=await Promise.all([
         window.gp.keys.get('elevenlabs'),
         window.gp.keys.get('openai'),
         window.gp.keys.get('anthropic'),
       ]);
-      const v=JSON.parse(localStorage.getItem('gp_voice')||'{}');
-      let voiceDirty=false;
-      if(el  && !v.elKey ){ v.elKey =el;  voiceDirty=true; }
-      if(oai && !v.oaiKey){ v.oaiKey=oai; voiceDirty=true; }
-      if(voiceDirty) localStorage.setItem('gp_voice',JSON.stringify(v));
-      if(ant && !localStorage.getItem('gp_anthropic_key')){
-        localStorage.setItem('gp_anthropic_key',ant);
+      if(typeof VOICE!=='undefined'){
+        if(el ) VOICE.elKey =el;
+        if(oai) VOICE.oaiKey=oai;
+      }
+      if(typeof QM!=='undefined' && ant){
+        QM._key=ant;
+        const inp=document.getElementById('anthropic-key-input');
+        if(inp) inp.value=ant;
       }
     }catch(e){ console.warn('Key hydration failed:',e); }
   }
@@ -2463,8 +2491,13 @@ const VOICE={
   },
 
   _save(){
-    try{localStorage.setItem('gp_voice',JSON.stringify({elKey:this.elKey,oaiKey:this.oaiKey,engine:this.engine,elVoiceId:this.elVoiceId,oaiVoice:this.oaiVoice}));}catch(e){}
-    // Mirror keys to electron-store (encrypted backup, no-op in plain browser)
+    // In V2 the encrypted vault owns the secrets — never let plaintext keys
+    // touch localStorage. Persist only the non-secret prefs (engine + voice
+    // selection) so reloads remember the user's chosen voice without
+    // shipping their API key alongside it on disk.
+    const prefs={engine:this.engine,elVoiceId:this.elVoiceId,oaiVoice:this.oaiVoice};
+    if(!GP_ELECTRON){ prefs.elKey=this.elKey; prefs.oaiKey=this.oaiKey; }
+    try{localStorage.setItem('gp_voice',JSON.stringify(prefs));}catch(e){}
     GP_API.saveKey('elevenlabs', this.elKey);
     GP_API.saveKey('openai',     this.oaiKey);
   },
@@ -2981,11 +3014,11 @@ function buildAffirmations(){
   allEl.innerHTML=merged.map(a=>`
   <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:.75rem 1rem">
     <div style="font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;opacity:.7;display:flex;justify-content:space-between">
-      <span>${a.code}</span>
+      <span>${escapeHTML(a.code)}</span>
       ${a._custom?'<span style="color:var(--gold2);font-size:8px;letter-spacing:1.5px">◈ Council-generated</span>':''}
     </div>
-    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--silver);line-height:1.7">${a.text}</div>
-    <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${a.intent||''}</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--silver);line-height:1.7">${escapeHTML(a.text)}</div>
+    <div style="font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${escapeHTML(a.intent||'')}</div>
   </div>`).join('');
 }
 
@@ -3002,9 +3035,9 @@ function renderCurrentAffirm(){
   if(currentAffirm>=list.length) currentAffirm=0;
   const a=list[currentAffirm];
   document.getElementById('affirm-display').innerHTML=`
-    <div class="affirm-code">${a.code}${a._custom?' <span style="font-size:9px;color:var(--gold2);letter-spacing:1.5px;margin-left:8px">◈ Council</span>':''}</div>
-    <div class="affirm-text">${a.text}</div>
-    <div class="affirm-intent">${a.intent||''}</div>`;
+    <div class="affirm-code">${escapeHTML(a.code)}${a._custom?' <span style="font-size:9px;color:var(--gold2);letter-spacing:1.5px;margin-left:8px">◈ Council</span>':''}</div>
+    <div class="affirm-text">${escapeHTML(a.text)}</div>
+    <div class="affirm-intent">${escapeHTML(a.intent||'')}</div>`;
   document.getElementById('affirm-counter').textContent=`${currentAffirm+1} / ${list.length}`;
 }
 
@@ -3037,8 +3070,12 @@ const QM={
 
   saveKey(k){
     this._key=k.trim();
-    try{localStorage.setItem('gp_anthropic_key',this._key);}catch(e){}
-    GP_API.saveKey('anthropic', this._key); // encrypted backup in Electron
+    // V2: vault is the only on-disk home for the key. V1 (no vault) still
+    // needs localStorage because the proxy reads the key from each request.
+    if(!GP_ELECTRON){
+      try{localStorage.setItem('gp_anthropic_key',this._key);}catch(e){}
+    }
+    GP_API.saveKey('anthropic', this._key);
   },
 
   _buildEntry(){
@@ -3200,13 +3237,13 @@ function renderJournalHistory(){
     const timeStr=d.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
     return`<div style="background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;flex-wrap:wrap;gap:4px">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold)">${dateStr}</div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:1px">${timeStr}${e.session?' · '+e.session:''}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold)">${escapeHTML(dateStr)}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px">${escapeHTML(timeStr)}${e.session?' · '+escapeHTML(e.session):''}</div>
       </div>
       ${e.data.map(item=>`
         <div style="margin-bottom:.5rem">
-          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${item.prompt}</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--silver);line-height:1.7;font-style:italic">${item.response}</div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${escapeHTML(item.prompt)}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--silver);line-height:1.7;font-style:italic">${escapeHTML(item.response)}</div>
         </div>`).join('')}
     </div>`;
   }).join('');
@@ -3437,7 +3474,12 @@ const PRESESSION={
       const cached=this._readCache();
       if(cached && Date.now()-cached.when < this.CACHE_TTL_MS){ this._render(cached.rec,cached.when); return; }
     }
-    const hasKey=(localStorage.getItem('gp_anthropic_key')||'').trim();
+    // V2 sources the key from the encrypted vault inside main.js — the
+    // renderer only needs to know one exists. V1 still pulls it out of
+    // localStorage to forward to the proxy.
+    const hasKey=GP_ELECTRON
+      ? (QM && QM._key ? QM._key : '')
+      : (localStorage.getItem('gp_anthropic_key')||'').trim();
     if(!hasKey) return; // silently skip — banner stays hidden until they set a key
     if(this._inflight) return this._inflight;
     this._showLoading();
@@ -3501,7 +3543,7 @@ const PRESESSION={
       {label:'Breath',   value:rec.recommendedBreath||'Coherence 5-5'}
     ];
     document.getElementById('gp-rec-chips').innerHTML=chips.map(c=>
-      `<span class="gp-rec-chip"><span class="gp-rec-chip-label">${c.label}</span> ${c.value}</span>`
+      `<span class="gp-rec-chip"><span class="gp-rec-chip-label">${escapeHTML(c.label)}</span> ${escapeHTML(c.value)}</span>`
     ).join('');
 
     const ageMin=Math.round((Date.now()-when)/60000);

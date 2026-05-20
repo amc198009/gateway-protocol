@@ -316,7 +316,10 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+// Bind to loopback only. On a coffee-shop wifi `listen(PORT)` would bind
+// 0.0.0.0 and expose this open relay to the LAN — anyone could POST upstream
+// LLM calls through your machine. 127.0.0.1 keeps it on this host.
+server.listen(PORT, '127.0.0.1', () => {
   console.log('');
   console.log('  ◈  Gateway Protocol — Voice Proxy');
   console.log('  ───────────────────────────────────────────');
