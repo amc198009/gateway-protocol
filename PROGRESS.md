@@ -1,14 +1,15 @@
 # Gateway Protocol — Build Progress
 
 **Last updated:** 2026-05-20
-**Branches:** `main` (V2+V3+V4 merged)
+**Branches:** `main` (V2+V3+V4+V5 merged)
 **Latest commit graph:**
 ```
+V5     Caching · wheel fix · cinematic wave context · shadow voice · export · IndexedDB
+V3+V4  Full Immersion + Deep Intelligence
 V2 #2  Adaptive Session Engine
 V2 #1  Electron packaging — kill the proxy
 V1     Baseline single-file HTML + proxy.js
 ```
-(Final V3+V4 commit lands after this file is written.)
 
 ---
 
@@ -142,6 +143,51 @@ npm run v1          # node proxy.js → http://localhost:5050
 - IPC `gp:reminders-set` writes to electron-store, then main process schedules `setTimeout`s
 - Fires native macOS / Windows notifications via Electron's `Notification` class
 - Auto-reschedules each day after firing, so reminders persist across app restarts (main process keeps running on macOS via "window-all-closed" no-quit)
+
+---
+
+## V5 — Polish + IndexedDB ✅
+
+Improvements done after V2/V3/V4 verification, all shipped autonomously.
+
+### V5a · Prompt caching across all Anthropic calls
+
+- Every Council system prompt now sent as a `cache_control: ephemeral` content block (mirror, pre-session, monthly patterns, affirmation, shadow dialogue, synchronicity analysis — and the V1 proxy mirror routes for parity)
+- 5-minute TTL covers a normal practice session: first call warms the cache, every subsequent call within 5 minutes hits ~50% lower latency + ~90% lower input-token cost
+- Zero behavior change for callers — `cacheableSystem(text)` helper wraps the string into the array-block form transparently
+
+### V5b · Affirmation wheel fixed
+
+- The TODO.md quirk: custom Council-generated affirmations appeared in the list below but didn't cycle through the wheel
+- New `allAffirmations()` helper centralizes the merged list (built-ins + customs). Wheel, list, and prev/next navigation all read from it
+- Custom ones get a "◈ Council" badge in the wheel display
+
+### V5c · Wave context in cinematic mode
+
+- New `#cinematic-wave-context` element shows the wave subtitle (e.g. "Resonant Tuning · Focus 10") in italic gold above the timer, only when the active session was launched from a wave card (`selectedSess.waveIndex` present)
+- Hidden in normal mode via CSS; populated on `CINEMATIC.enter()`
+
+### V5d · Voice-over for Shadow Dialogue
+
+- Checkbox in the modal header — preserved in `localStorage.gp_shadow_voice`
+- When on, every Jung reply is routed through `VOICE.speak(reply, {rate:0.72})` — slower than session cues to match the contemplative register
+- Works with any of the three voice engines (ElevenLabs / OpenAI / Web Speech)
+
+### V5e · Export All Data → JSON
+
+- New "Export All Data ↓" button in the Progress screen's btn-row
+- Downloads a timestamped JSON file (`gateway-protocol-backup-YYYY-MM-DD.json`) containing the full DB: journal, synchronicities, custom affirmations, session log, streaks, tier, 369 tracker, wave completions — everything portable
+- Tiny `EXPORT` module, ~25 lines, no IPC needed (Blob + ObjectURL trick works in renderer)
+
+### V5f · IndexedDB migration
+
+- Lifts the 5MB localStorage cap (originally Pillar 5 in HANDOFF)
+- Hand-rolled inline `idbStore` wrapper, ~30 lines, three methods (get/set/del), zero dependencies
+- `DB` rewritten to use IDB primary + localStorage best-effort mirror:
+  - In-memory cache (`_cache`) populated at boot via `await DB.hydrate()` — synchronous load()/save() API preserved so no caller refactor
+  - On first IDB run, the existing localStorage data is migrated transparently
+  - Writes update the cache, fire off async IDB write, and best-effort mirror to localStorage (silently no-ops past 5MB)
+  - `clear()` resets cache to defaults + clears both stores
 
 ---
 

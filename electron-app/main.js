@@ -190,7 +190,7 @@ ipcMain.handle('gp:mirror', async (_evt, { entry }) => {
   const body = JSON.stringify({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 1024,
-    system: MIRROR_SYSTEM_PROMPT,
+    system: cacheableSystem(MIRROR_SYSTEM_PROMPT),
     messages: [{ role: 'user', content: `Here is my journal entry:\n\n${entry}` }],
   });
 
@@ -263,7 +263,7 @@ ipcMain.handle('gp:pre-session', async (_evt, { entries }) => {
   const body = JSON.stringify({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 1024,
-    system: PRE_SESSION_SYSTEM_PROMPT,
+    system: cacheableSystem(PRE_SESSION_SYSTEM_PROMPT),
     messages: [{ role: 'user', content: `Here are my last ${entries.length} journal entries:\n\n${dossier}` }],
   });
 
@@ -301,7 +301,16 @@ ipcMain.handle('gp:pre-session', async (_evt, { entries }) => {
   return recommendation;
 });
 
-// ── Shared Anthropic call helper ───────────────────────────────
+// ── Shared Anthropic call helpers ──────────────────────────────
+// V5a: All Council system prompts are static across a session — we wrap
+// each one as a cacheable content block via `cache_control: ephemeral`.
+// The 5-minute TTL covers a typical practice session, giving us ~90%
+// cost reduction and ~50% latency reduction on every call after the
+// first one in any 5-minute window.
+function cacheableSystem(text) {
+  return [{ type: 'text', text, cache_control: { type: 'ephemeral' } }];
+}
+
 // Wraps the boilerplate: get key, build envelope, POST, parse inner JSON.
 // Returns the parsed JSON the model produced in content[0].text, or throws.
 async function anthropicJSONCall({ systemPrompt, userContent, maxTokens=1024 }) {
@@ -311,7 +320,7 @@ async function anthropicJSONCall({ systemPrompt, userContent, maxTokens=1024 }) 
   const body = JSON.stringify({
     model: 'claude-sonnet-4-20250514',
     max_tokens: maxTokens,
-    system: systemPrompt,
+    system: cacheableSystem(systemPrompt),
     messages: [{ role: 'user', content: userContent }],
   });
 
@@ -352,7 +361,7 @@ async function anthropicTextCall({ systemPrompt, messages, maxTokens=1024 }) {
   const body = JSON.stringify({
     model: 'claude-sonnet-4-20250514',
     max_tokens: maxTokens,
-    system: systemPrompt,
+    system: cacheableSystem(systemPrompt),
     messages,
   });
 

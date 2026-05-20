@@ -358,6 +358,8 @@ body.gp-cinematic #screen-sessions .timer-wrap{
   z-index:50;
 }
 body.gp-cinematic .timer-session{font-size:11px!important;letter-spacing:6px!important;color:var(--gold)!important;opacity:.7;margin:0!important}
+#cinematic-wave-context{display:none}
+body.gp-cinematic #cinematic-wave-context{display:block;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--gold2);opacity:.6;letter-spacing:2.5px;margin-top:2px}
 body.gp-cinematic .timer-phase-display{font-size:18px!important;letter-spacing:4px!important;margin:0!important;font-style:italic;opacity:.8}
 body.gp-cinematic .timer-time{font-size:96px!important;letter-spacing:12px!important;color:var(--gold2)!important;opacity:.92;margin:0!important;line-height:1!important}
 body.gp-cinematic .timer-progress{width:180px!important;height:180px!important;opacity:.8;margin:1rem 0!important}
@@ -562,6 +564,8 @@ body.gp-three-ready #geo-bg{display:none}
     </div>
     <div class="timer-wrap">
       <div class="timer-session" id="timer-session-name">Select a session above</div>
+      <!-- V5c: only visible in cinematic mode for wave-derived sessions -->
+      <div id="cinematic-wave-context"></div>
       <div class="timer-phase-display" id="timer-phase">—</div>
       <div class="timer-time" id="timer-display">00:00</div>
       <svg class="timer-progress" width="100" height="100" viewBox="0 0 100 100">
@@ -809,6 +813,8 @@ body.gp-three-ready #geo-bg{display:none}
     <div id="tesla-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-bottom:1rem"></div>
     <div class="btn-row">
       <button class="gp-btn primary" onclick="markDay()">Mark Today ✓</button>
+      <!-- V5e: full backup as JSON download -->
+      <button class="gp-btn" onclick="EXPORT.download()">Export All Data ↓</button>
       <button class="gp-btn" onclick="confirmReset()" style="border-color:rgba(192,64,64,.4);color:#c04040">Reset All Data</button>
     </div>
   </div>
@@ -860,7 +866,13 @@ body.gp-three-ready #geo-bg{display:none}
   <div class="gp-shadow-frame">
     <div class="gp-shadow-head">
       <span class="gp-shadow-head-l">◈ Shadow Dialogue · Jung</span>
-      <button class="gp-shadow-head-x" onclick="SHADOW.close()" title="Close & save to journal" aria-label="Close">×</button>
+      <span style="display:flex;align-items:center;gap:12px">
+        <!-- V5d: route Jung's replies through TTS when on. Preserved in localStorage. -->
+        <label style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="checkbox" id="gp-shadow-voice" style="accent-color:var(--gold)"> Voice
+        </label>
+        <button class="gp-shadow-head-x" onclick="SHADOW.close()" title="Close & save to journal" aria-label="Close">×</button>
+      </span>
     </div>
     <div class="gp-shadow-log" id="gp-shadow-log"></div>
     <div class="gp-shadow-input">
@@ -1113,6 +1125,15 @@ const CINEMATIC={
     this._active=true;
     document.body.classList.add('gp-cinematic');
     THREE_FIELD.setCinematic(true);
+    // V5c: surface Focus level subtitle when the session was launched from a wave card
+    const ctxEl=document.getElementById('cinematic-wave-context');
+    if(ctxEl){
+      if(selectedSess && typeof selectedSess.waveIndex==='number' && WAVES[selectedSess.waveIndex]){
+        ctxEl.textContent=WAVES[selectedSess.waveIndex].subtitle||'';
+      } else {
+        ctxEl.textContent='';
+      }
+    }
     // Try fullscreen; may be blocked outside a user gesture but timer button click counts
     try{ document.documentElement.requestFullscreen?.(); }catch(e){}
     this._escHandler=(ev)=>{ if(ev.key==='Escape'){ ev.preventDefault(); this.exit(); } };
@@ -1409,17 +1430,98 @@ const WEALTH_PROTOCOL={
 };
 
 // ═══════════════════════════ PERSISTENCE ═══════════════════════════
+// V5f · Inline IndexedDB key-value wrapper — replaces the 5MB localStorage
+// cap with effectively unlimited per-origin storage. Tiny on purpose: one
+// store, three operations, no dependency footprint.
+const idbStore=(()=>{
+  const DB_NAME='gateway-protocol';
+  const STORE='kv';
+  let dbP=null;
+  function open(){
+    if(dbP) return dbP;
+    dbP=new Promise((resolve,reject)=>{
+      const req=indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded=()=>req.result.createObjectStore(STORE);
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+    return dbP;
+  }
+  function tx(mode){
+    return open().then(db=>db.transaction(STORE,mode).objectStore(STORE));
+  }
+  return {
+    get:(key)=>tx('readonly').then(s=>new Promise((res,rej)=>{
+      const r=s.get(key); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+    })),
+    set:(key,value)=>tx('readwrite').then(s=>new Promise((res,rej)=>{
+      const r=s.put(value,key); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error);
+    })),
+    del:(key)=>tx('readwrite').then(s=>new Promise((res,rej)=>{
+      const r=s.delete(key); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error);
+    })),
+  };
+})();
+
+// V5f · DB rewritten to use IndexedDB primary + localStorage best-effort
+// mirror. Sync load()/save() API preserved — every existing caller works
+// unchanged. An in-memory cache (`_cache`) is hydrated at boot, then
+// returned synchronously thereafter. Writes update cache + kick off async
+// IDB write + best-effort localStorage mirror (which silently no-ops past
+// the 5MB quota). On first IDB run, the existing localStorage data is
+// migrated into IDB seamlessly.
 const DB={
   KEY:'gateway_protocol_v1',
+  IDB_KEY:'main',
+  _cache:null,
   defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[]};},
+
+  // Boot-time hydration. Called once before init() runs. Idempotent.
+  async hydrate(){
+    let idbVal=null;
+    try{ idbVal=await idbStore.get(this.IDB_KEY); }
+    catch(e){ console.warn('IDB unavailable, staying on localStorage:',e); }
+
+    if(idbVal && typeof idbVal==='object'){
+      // IDB is the source of truth
+      this._cache={...this.defaults(),...idbVal};
+      return;
+    }
+    // First run with IDB (or IDB returned nothing). Pull from localStorage
+    // and seed IDB with whatever's there so future loads come from IDB.
+    try{
+      const raw=localStorage.getItem(this.KEY);
+      const data=raw?{...this.defaults(),...JSON.parse(raw)}:this.defaults();
+      this._cache=data;
+      if(raw){
+        idbStore.set(this.IDB_KEY,data).catch(e=>console.warn('IDB migration write failed:',e));
+      }
+    }catch(e){
+      console.warn('localStorage hydrate failed:',e);
+      this._cache=this.defaults();
+    }
+  },
+
   load(){
-    try{const raw=localStorage.getItem(this.KEY);return raw?{...this.defaults(),...JSON.parse(raw)}:this.defaults();}
-    catch(e){console.warn('DB load failed',e);return this.defaults();}
+    // Cache populated post-hydrate. If something reads before hydrate
+    // (shouldn't happen with the current boot sequence, but defensive):
+    // fall back to a synchronous localStorage read so we never return null.
+    if(this._cache) return this._cache;
+    try{
+      const raw=localStorage.getItem(this.KEY);
+      return raw?{...this.defaults(),...JSON.parse(raw)}:this.defaults();
+    }catch(e){ return this.defaults(); }
   },
+
   save(data){
-    try{localStorage.setItem(this.KEY,JSON.stringify(data));}
-    catch(e){console.warn('DB save failed',e);}
+    this._cache=data;
+    // Primary: IndexedDB (unlimited quota, async, fire-and-forget)
+    idbStore.set(this.IDB_KEY,data).catch(e=>console.warn('IDB save failed:',e));
+    // Mirror: localStorage (best-effort; silently skips past 5MB cap)
+    try{ localStorage.setItem(this.KEY,JSON.stringify(data)); }
+    catch(e){ /* QuotaExceededError — IDB is authoritative */ }
   },
+
   update(patch){
     const d={...this.load(),...patch};
     this.save(d);
@@ -1431,7 +1533,11 @@ const DB={
     this.save(d);
     return d;
   },
-  clear(){localStorage.removeItem(this.KEY);}
+  clear(){
+    this._cache=this.defaults();
+    try{ localStorage.removeItem(this.KEY); }catch(e){}
+    idbStore.del(this.IDB_KEY).catch(()=>{});
+  }
 };
 
 // ═══════════════════════════ PAIRING GUIDE DATA ═══════════════════════════
@@ -2602,17 +2708,27 @@ function buildAffirmations(){
   </div>`).join('');
 }
 
-function renderCurrentAffirm(){
-  const a=AFFIRMATIONS[currentAffirm];
-  document.getElementById('affirm-display').innerHTML=`
-    <div class="affirm-code">${a.code}</div>
-    <div class="affirm-text">${a.text}</div>
-    <div class="affirm-intent">${a.intent}</div>`;
-  document.getElementById('affirm-counter').textContent=`${currentAffirm+1} / ${AFFIRMATIONS.length}`;
+// V5b: wheel cycles built-in AFFIRMATIONS + Council-generated custom ones.
+// Helper centralizes the merged-list lookup so wheel and grid stay in sync.
+function allAffirmations(){
+  const custom=(DB.load().customAffirmations||[]).map(c=>({code:c.code,text:c.text,intent:c.intent,_custom:true}));
+  return [...AFFIRMATIONS,...custom];
 }
 
-function nextAffirm(){currentAffirm=(currentAffirm+1)%AFFIRMATIONS.length;renderCurrentAffirm();}
-function prevAffirm(){currentAffirm=(currentAffirm-1+AFFIRMATIONS.length)%AFFIRMATIONS.length;renderCurrentAffirm();}
+function renderCurrentAffirm(){
+  const list=allAffirmations();
+  // Clamp current index if a deletion shrank the list
+  if(currentAffirm>=list.length) currentAffirm=0;
+  const a=list[currentAffirm];
+  document.getElementById('affirm-display').innerHTML=`
+    <div class="affirm-code">${a.code}${a._custom?' <span style="font-size:9px;color:var(--gold2);letter-spacing:1.5px;margin-left:8px">◈ Council</span>':''}</div>
+    <div class="affirm-text">${a.text}</div>
+    <div class="affirm-intent">${a.intent||''}</div>`;
+  document.getElementById('affirm-counter').textContent=`${currentAffirm+1} / ${list.length}`;
+}
+
+function nextAffirm(){const n=allAffirmations().length;currentAffirm=(currentAffirm+1)%n;renderCurrentAffirm();}
+function prevAffirm(){const n=allAffirmations().length;currentAffirm=(currentAffirm-1+n)%n;renderCurrentAffirm();}
 
 // ═══════════════════════════ JOURNAL ═══════════════════════════
 function buildJournal(){
@@ -3268,6 +3384,14 @@ const SHADOW={
     this._history=[];
     document.getElementById('gp-shadow-modal').classList.add('visible');
     document.getElementById('gp-shadow-log').innerHTML='';
+    // V5d: restore last voice-toggle preference + persist on change
+    const vbox=document.getElementById('gp-shadow-voice');
+    if(vbox){
+      vbox.checked = localStorage.getItem('gp_shadow_voice')==='1';
+      vbox.onchange=()=>{
+        try{ localStorage.setItem('gp_shadow_voice', vbox.checked?'1':'0'); }catch(e){}
+      };
+    }
     // Auto-kick off — Jung speaks first
     this._appendSystem('Jung is listening. Speak whatever is surfacing.');
     setTimeout(()=>this.send(true),300);
@@ -3326,6 +3450,12 @@ const SHADOW={
       this._removeThinking();
       this._appendMsg('jung',r.reply);
       this._history.push({role:'assistant',content:r.reply});
+      // V5d: speak Jung's reply through the active TTS engine if Voice is on.
+      // Slower rate than session cues to match the contemplative register.
+      const voiceBox=document.getElementById('gp-shadow-voice');
+      if(voiceBox && voiceBox.checked && VOICE.enabled){
+        try{ VOICE.speak(r.reply,{rate:0.72}); }catch(e){ console.warn('Shadow TTS failed:',e); }
+      }
       if(r.isComplete){
         this._appendSystem('Integration reached. The dialogue closes naturally — but you can keep talking, or close to save.');
       }
@@ -3476,6 +3606,33 @@ const REMINDERS={
   }
 };
 
+// ═══════════════════════════ V5e · DATA EXPORT ═══════════════════════════
+// Snapshots the full DB to a timestamped JSON file the user can save anywhere.
+// Includes journal, synchronicities, custom affirmations, streaks, tier,
+// session log, and the 369 tracker — everything portable.
+const EXPORT={
+  download(){
+    const data=DB.load();
+    const payload={
+      _meta:{
+        app:'Gateway Protocol',
+        version:'2.0.0',
+        exportedAt:new Date().toISOString(),
+      },
+      data
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='gateway-protocol-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },200);
+    toast('Backup downloaded — '+(data.journal?.length||0)+' entries, '+(data.synchronicities?.length||0)+' syncs');
+  }
+};
+
 // Tiny escape helper used by V4 panels
 function escapeHTML(s){
   return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3506,10 +3663,16 @@ function confirmReset(){
 }
 
 // ═══════════════════════════ START ═══════════════════════════
-// In Electron, restore encrypted keys back into localStorage first so that
-// VOICE.init() and QM.init() find them. No-op when running in a browser.
+// Boot sequence:
+//   1. Restore encrypted API keys from electron-store (V2)
+//   2. Hydrate DB from IndexedDB (V5f) — migrates from localStorage on first run
+//   3. Re-seed the module-level `stats` from the hydrated cache so updateStats
+//      reads the right thing immediately
+//   4. init() builds the UI
 (async()=>{
-  try{ await GP_API.hydrateKeys(); }catch(e){ console.warn('Boot hydration:',e); }
+  try{ await GP_API.hydrateKeys(); }catch(e){ console.warn('Boot · keys:',e); }
+  try{ await DB.hydrate(); }catch(e){ console.warn('Boot · DB hydrate:',e); }
+  stats=DB.load(); // re-pull after hydrate in case IDB had fresher data
   init();
 })();
 </script>

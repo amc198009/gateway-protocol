@@ -145,7 +145,8 @@ Return ONLY valid JSON. No preamble. No markdown fences. No text outside the JSO
     const payload = JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
-      system: systemPrompt,
+      // V5a: cacheable system prompt — 5min ephemeral TTL on Anthropic side
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: `Here is my journal entry:\n\n${entry}` }]
     });
 
@@ -225,7 +226,8 @@ Return ONLY valid JSON. No preamble. No markdown fences.`;
     const payload = JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
-      system: systemPrompt,
+      // V5a: cacheable system prompt — 5min ephemeral TTL on Anthropic side
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: `Here are my last ${entries.length} journal entries:\n\n${dossier}` }]
     });
 

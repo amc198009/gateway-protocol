@@ -58,26 +58,20 @@ These are wired in code and parse cleanly, but I can't drive them without your A
 
 **Decision:** Defer until either (a) r170 actually removes the UMD build or (b) you want to add more Three.js features that benefit from tree-shaking.
 
-### 4. IndexedDB migration
+### 4. IndexedDB migration ✅ DONE in V5f
 
-**Status:** Not built. Was in the original 5-pillar list but dropped from the V2/V3/V4 re-scope. Current persistence is `localStorage` with a 5 MB browser cap.
-
-**Impact:** With Shadow Dialogue saving full conversations + the Synchronicity log growing over time, you'll hit the cap in 6–12 months of heavy use.
-
-**To add:** Wrap `DB.load()` / `DB.save()` with `idb-keyval` (2 KB library). Migrate on first run by reading localStorage, writing to IDB, then deleting localStorage. Estimated 200–300 lines.
-
-**Decision:** Defer until you hit a "QuotaExceededError" toast.
+**Status:** Built and shipped. Inline ~30-line `idbStore` wrapper, no external dependency. DB rewritten with IDB primary + localStorage best-effort mirror. Migration from existing localStorage data is automatic on first run.
 
 ---
 
 ## 🟢 Nice-to-haves (not blockers)
 
 - **Cinematic-mode HRV overlay polish** — the bar floats at the bottom and looks slightly disconnected. Could be a circular pulse around the timer ring instead.
-- **Wave card in cinematic mode** — currently only the timer + cue show. Could surface "Wave III · Focus 15" at the top for context.
-- **Voice-over for Shadow Dialogue** — Jung's replies could be spoken via the same TTS engine if voice is enabled. Currently text-only.
-- **Export journal/synchronicities** — JSON download button, useful for backup or external analysis.
+- ~~**Wave card in cinematic mode**~~ ✅ V5c — Focus level subtitle surfaces in cinematic when launched from a wave.
+- ~~**Voice-over for Shadow Dialogue**~~ ✅ V5d — checkbox in the modal, routes Jung's replies through `VOICE.speak()`.
+- ~~**Export journal/synchronicities**~~ ✅ V5e — "Export All Data ↓" on Progress screen, full DB to timestamped JSON.
 - **Dedicated Settings screen** — the reminder settings live in Progress; voice settings live in the Sessions screen. A consolidated Settings tab would be cleaner.
-- **Prompt caching on Anthropic calls** — the system prompts for Mirror / preSession / patterns / affirmation / shadow / sync are static and could be cached via the `cache_control` parameter for ~50% latency reduction on repeated calls.
+- ~~**Prompt caching on Anthropic calls**~~ ✅ V5a — `cache_control: ephemeral` on every Council system prompt across main.js + proxy.js.
 - **HRV "real" mode** — if you add a Bluetooth chest strap or watch integration later, the visualizer could ingest real HRV data instead of breath-derived approximation.
 - **Locale support** — all UI text is English. The Cormorant Garamond + Montserrat font stack handles most Latin alphabets, but no translation pipeline exists.
 
@@ -85,7 +79,7 @@ These are wired in code and parse cleanly, but I can't drive them without your A
 
 ## ⚠️ Known quirks
 
-- **Custom affirmations don't refresh the wheel automatically** — `buildAffirmations()` is called after save, but the carousel (`renderCurrentAffirm`) still cycles through the built-in `AFFIRMATIONS` constant only. Custom ones appear in the "all affirmations" list below. If you want them in the wheel rotation, replace the constant reference in `renderCurrentAffirm` with the merged list.
+- ~~**Custom affirmations don't refresh the wheel automatically**~~ ✅ V5b — `allAffirmations()` helper centralizes the merged list; wheel + grid + prev/next all read from it. Customs get a "◈ Council" badge in the wheel.
 - **Reminders fire only while the app is running** — Electron's main process keeps `setTimeout`s alive. If you fully Quit the app (Cmd+Q), they stop. To make them OS-level persistent, you'd need a launchd agent (macOS) / startup task — out of scope here.
 - **The `defer` removal on Three.js was deliberate** — `<script defer>` would race the inline script. Three.js loads synchronously now (~600 KB blocking load on first launch only, then cached).
 - **`electron-store` v8 was pinned** — v9+ went ESM-only and isn't compatible with `require()`. Watch out if Dependabot tries to bump it.
