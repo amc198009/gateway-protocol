@@ -1,0 +1,13 @@
+{
+  "name": "gateway-protocol-root",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Root delegator — V1 (proxy.js) lives at root, V2 (Electron) lives in electron-app/. These scripts let you run either from here.",
+  "scripts": {
+    "start":   "cd electron-app && npm start",
+    "package": "cd electron-app && npm run package",
+    "make":    "cd electron-app && npm run make",
+    "v1":      "node proxy.js",
+    "install:v2": "cd electron-app && npm install"
+  }
+}
