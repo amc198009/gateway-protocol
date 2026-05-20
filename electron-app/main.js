@@ -580,6 +580,80 @@ ipcMain.handle('gp:reminders-set', (_evt, cfg) => {
 // Schedule on app ready (after createWindow)
 app.whenReady().then(scheduleReminders);
 
+// ── IPC: V7 · Network config (server URL for Practice Rooms + Feed) ──
+const NETWORK_KEY = 'network';
+ipcMain.handle('gp:network-get', () => store.get(NETWORK_KEY) || { serverUrl: '', autoJoinFeed: false });
+ipcMain.handle('gp:network-set', (_evt, cfg) => {
+  store.set(NETWORK_KEY, cfg || { serverUrl: '', autoJoinFeed: false });
+  return true;
+});
+
+// ── IPC: V7c · OpenAI embeddings (for semantic journal memory) ───────
+ipcMain.handle('gp:embed', async (_evt, { text }) => {
+  const key = store.get('openai');
+  if (!key) throw new Error('Missing OpenAI API key — needed for semantic journal memory');
+  if (!text || !text.trim()) throw new Error('text required');
+
+  const body = JSON.stringify({
+    model: 'text-embedding-3-small',
+    input: text.slice(0, 8000), // model max ~8191 tokens; this is a safe cap
+  });
+  const { status, buffer } = await httpsPost({
+    hostname: 'api.openai.com',
+    path: '/v1/embeddings',
+    headers: {
+      'Authorization': 'Bearer ' + key,
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+    body,
+  });
+  const env = JSON.parse(buffer.toString());
+  if (status !== 200) throw new Error('OpenAI embeddings: ' + (env.error?.message || status));
+  return { vector: env.data[0].embedding, model: env.model, dim: env.data[0].embedding.length };
+});
+
+// ── IPC: V7c · Mirror with retrieved context (semantic memory enabled) ─
+// Variant of gp:mirror that takes pre-retrieved past entries and weaves
+// them into the user content so the Council can reference long-term history.
+ipcMain.handle('gp:mirror-with-context', async (_evt, { entry, pastEntries }) => {
+  const key = store.get('anthropic');
+  if (!key) throw new Error('Missing Anthropic API key');
+
+  let userContent = '';
+  if (Array.isArray(pastEntries) && pastEntries.length) {
+    userContent += 'BACKGROUND — semantically-relevant past entries from this practitioner:\n\n';
+    pastEntries.forEach((p, i) => {
+      userContent += `[${i+1}] ${p.date}${p.session ? ' · ' + p.session : ''}\n`;
+      (p.data || []).forEach(d => { userContent += `   ${d.prompt}: ${d.response}\n`; });
+      userContent += '\n';
+    });
+    userContent += '── Reference these only if genuinely relevant. The practitioner does not need to be told about every entry — only weave them in when they reveal a pattern. ──\n\n';
+  }
+  userContent += `Here is my current journal entry:\n\n${entry}`;
+
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1024,
+    system: cacheableSystem(MIRROR_SYSTEM_PROMPT),
+    messages: [{ role: 'user', content: userContent }],
+  });
+  const { status, buffer } = await httpsPost({
+    hostname: 'api.anthropic.com',
+    path: '/v1/messages',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+    body,
+  });
+  const env = JSON.parse(buffer.toString());
+  if (status !== 200) throw new Error('Anthropic: ' + (env.error?.message || status));
+  return env;
+});
+
 // ── IPC: Key storage ───────────────────────────────────────────
 const ALLOWED_KEYS = new Set(['elevenlabs', 'openai', 'anthropic']);
 

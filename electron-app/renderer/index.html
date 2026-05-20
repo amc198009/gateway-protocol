@@ -259,6 +259,62 @@ body{
   .solf-grid{grid-template-columns:repeat(2,1fr)}
 }
 
+/* ═══ V7 · NETWORK (Practice Rooms + Feed) ═══ */
+.gp-net-panel{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem}
+.gp-net-title{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+.gp-net-empty{font-size:12px;color:var(--muted);font-style:italic;line-height:1.7;text-align:center;padding:1.5rem 0}
+.gp-net-status{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+.gp-net-status .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.gp-net-status.live .dot{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2s ease-in-out infinite}
+.gp-net-status.live{color:var(--gold)}
+.gp-room-form{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.gp-room-form input,.gp-room-form select{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:12px;text-transform:uppercase;letter-spacing:1.5px}
+.gp-room-form input{flex:1;min-width:140px}
+.gp-room-display{display:flex;flex-direction:column;gap:.6rem;font-size:13px;color:var(--silver);line-height:1.7}
+.gp-room-code{font-family:'Cormorant Garamond',serif;font-size:36px;letter-spacing:8px;color:var(--gold2);text-align:center;padding:.5rem 0}
+.gp-room-presence{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);text-align:center}
+.gp-room-host{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:.3rem}
+
+.gp-feed-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.gp-feed-filter input,.gp-feed-filter select{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:11px}
+.gp-feed-list{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto}
+.gp-feed-item{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem 1.25rem}
+.gp-feed-item-meta{display:flex;gap:8px;align-items:center;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;flex-wrap:wrap}
+.gp-feed-tag{padding:2px 8px;border:.5px solid rgba(201,168,76,.25);border-radius:10px;color:var(--gold)}
+.gp-feed-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--silver);line-height:1.7}
+.gp-feed-react{margin-top:.6rem;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:.5px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:14px;cursor:pointer}
+.gp-feed-react:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ═══ V7e · CERTIFICATIONS ═══ */
+.gp-cert-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.gp-cert-name{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold2);letter-spacing:1px;margin-bottom:.2rem}
+.gp-cert-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.gp-cert-progress{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);letter-spacing:2px;white-space:nowrap}
+.gp-cert-card.earned{background:linear-gradient(90deg,rgba(201,168,76,.08),rgba(201,168,76,.02));border-color:rgba(201,168,76,.3)}
+.gp-cert-issue{background:none;border:.5px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;cursor:pointer;border-radius:2px}
+.gp-cert-issue:hover{background:rgba(201,168,76,.1)}
+
+/* ═══ V7f · CUSTOM PROTOCOL BUILDER ═══ */
+.gp-protobuild{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.gp-protobuild input,.gp-protobuild textarea{width:100%;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:12px;margin-bottom:.5rem;box-sizing:border-box}
+.gp-protobuild textarea{font-family:'Cormorant Garamond',serif;resize:vertical;min-height:50px}
+.gp-phase-row{display:flex;gap:6px;margin-bottom:6px}
+.gp-phase-row input[type=number]{width:80px;flex:0 0 80px}
+.gp-phase-row input[type=text]{flex:1}
+.gp-protobuild-saved{margin-top:1rem;display:flex;flex-direction:column;gap:6px}
+.gp-proto-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 12px;background:rgba(255,255,255,.02);border:.5px solid var(--border);border-radius:3px}
+.gp-proto-item .name{color:var(--gold2);font-family:'Cormorant Garamond',serif;font-size:14px}
+.gp-proto-item .actions button{background:none;border:.5px solid var(--border);color:var(--muted);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;cursor:pointer;border-radius:2px;margin-left:4px}
+.gp-proto-item .actions button:hover{color:var(--gold);border-color:var(--gold)}
+
+/* ═══ V7d · BIOMETRIC HRV PANEL ═══ */
+.gp-bio-input{display:flex;gap:6px;margin-bottom:1rem;align-items:center}
+.gp-bio-input input{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:12px}
+.gp-bio-input input[type=number]{width:90px}
+.gp-bio-trend{font-size:11px;color:var(--silver);margin-top:.6rem;display:flex;justify-content:space-between}
+.gp-bio-trend .up{color:#7dd87d}
+.gp-bio-trend .down{color:#d87d7d}
+
 /* ═══ V4e · CODE OF THE DAY ═══ */
 .gp-cotd{background:linear-gradient(90deg,rgba(201,168,76,.07) 0%,rgba(201,168,76,.02) 60%,transparent 100%);border-left:1px solid var(--gold);padding:1rem 1.25rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0;position:relative}
 .gp-cotd-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.35rem}
@@ -471,6 +527,7 @@ body.gp-three-ready #geo-bg{display:none}
     <button class="nav-btn" onclick="show('journal')">Journal</button>
     <button class="nav-btn" onclick="show('progress')">Progress</button>
     <button class="nav-btn" onclick="show('synchronicity')">Synchronicity</button>
+    <button class="nav-btn" onclick="show('network')">Network</button>
     <button class="nav-btn" onclick="show('council')">Council</button>
     <button class="nav-btn" onclick="show('settings')">Settings</button>
   </nav>
@@ -635,6 +692,34 @@ body.gp-three-ready #geo-bg{display:none}
     <div class="section-title">Specialized Protocols</div>
     <div class="section-sub">Targeted sequences from 5 council agents — Monroe, Dispenza, Lipton, Tesla, Jung.</div>
     <div id="protocols-content"></div>
+
+    <!-- V7f · Custom Protocol Builder -->
+    <div class="divider"></div>
+    <div class="section-title" style="margin-top:1.5rem">Your Custom Protocols</div>
+    <div class="section-sub">Compose your own protocol — name, intention, and phases with timed cues. Saves locally; export to share, import to receive. Future versions will publish to a community marketplace.</div>
+
+    <div class="gp-protobuild">
+      <input id="gp-proto-name" placeholder="Protocol name (e.g. 'Sovereign Receiving')">
+      <textarea id="gp-proto-intention" placeholder="The intention — what state, condition, or shift this protocol anchors"></textarea>
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:.6rem 0 .3rem">Phases · each with duration + cue text</div>
+      <div id="gp-proto-phases">
+        <div class="gp-phase-row">
+          <input type="number" min="1" max="60" placeholder="min" value="5">
+          <input type="text" placeholder="Phase name + cue (e.g. 'Resonant tuning — hum until you feel it')">
+        </div>
+        <div class="gp-phase-row">
+          <input type="number" min="1" max="60" placeholder="min" value="10">
+          <input type="text" placeholder="">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:.6rem">
+        <button class="gp-btn" onclick="PROTOBUILD.addPhase()">+ Phase</button>
+        <button class="gp-btn primary" onclick="PROTOBUILD.save()">Save Protocol</button>
+        <button class="gp-btn" onclick="PROTOBUILD.importFile()">Import JSON…</button>
+      </div>
+      <div class="gp-protobuild-saved" id="gp-proto-saved"></div>
+      <input type="file" id="gp-proto-import-input" accept=".json" style="display:none" onchange="PROTOBUILD.handleImport(this)">
+    </div>
   </div>
 
   <!-- ════ SCREEN: AFFIRMATIONS ════ -->
@@ -687,6 +772,13 @@ body.gp-three-ready #geo-bg{display:none}
     <div class="btn-row" style="margin-top:1rem">
       <button class="gp-btn primary" onclick="saveJournal()">Anchor Entry</button>
       <button class="gp-btn primary" id="mirror-btn" onclick="invokeQuantumMirror()" style="border-color:rgba(201,168,76,.6)">◈ Consult the Council</button>
+    </div>
+    <!-- V7b · opt-in feed share for the most recent Council transmission -->
+    <div style="text-align:center;font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-top:.5rem">
+      <label style="cursor:pointer">
+        <input type="checkbox" id="gp-mirror-share-feed" style="accent-color:var(--gold)" onchange="NETWORK.saveShareConsent()">
+        Share Council transmissions anonymously to the global feed
+      </label>
     </div>
     <div id="journal-confirm" style="text-align:center;font-size:10px;color:var(--gold);letter-spacing:2px;min-height:18px;margin-top:.5rem"></div>
 
@@ -800,6 +892,12 @@ body.gp-three-ready #geo-bg{display:none}
     <div class="section-title" style="margin-top:1rem">Wave Mastery</div>
     <div class="wave-progress" id="wave-progress"></div>
 
+    <!-- V7e · Gateway Institute Certifications -->
+    <div class="divider" style="margin-top:1.5rem"></div>
+    <div class="section-title" style="margin-top:1rem">Gateway Institute</div>
+    <div class="section-sub">Certification tracks that mirror the Monroe Institute progression. Completion generates a cryptographically-signed certificate (JSON + printable PDF) you can verify or share.</div>
+    <div id="gp-cert-list" style="margin-bottom:1rem"></div>
+
     <!-- 369 Tesla Tracker -->
     <div class="divider" style="margin-top:1.5rem"></div>
     <div class="section-title" style="margin-top:1rem">369 Tesla Tracker</div>
@@ -840,6 +938,75 @@ body.gp-three-ready #geo-bg{display:none}
     <div class="gp-sync-list" id="gp-sync-list"></div>
   </div>
 
+  <!-- ════ SCREEN: NETWORK (V7a + V7b) ════ -->
+  <div id="screen-network" class="screen">
+    <div class="section-title">Global Gateway Network</div>
+    <div class="section-sub">Practice in synchrony with others. Share Council transmissions anonymously. Both require a server URL — point at <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-size:11px">http://localhost:7070</code> for local dev, or deploy the reference server in <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-size:11px">/server</code> for global rooms.</div>
+
+    <div class="gp-net-panel">
+      <div class="gp-net-status" id="gp-net-server-status"><span class="dot"></span>Server: not configured</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:.6rem">Set the server URL in <a href="#" onclick="showScreen('settings');return false" style="color:var(--gold)">Settings → Network</a> to enable Practice Rooms and the Feed.</div>
+    </div>
+
+    <!-- Practice Rooms -->
+    <div class="gp-net-panel">
+      <div class="gp-net-title">◈ Community Practice Rooms</div>
+      <div id="gp-room-idle">
+        <div style="font-size:12px;color:var(--silver);line-height:1.7;margin-bottom:.8rem">
+          Live-synchronized group sessions. The first joiner is the host and controls the timer.
+          Everyone sees the same wave, same phase, same countdown. Anonymous presence count only —
+          no chat, no video, no identifiers. Pure synchronized practice.
+        </div>
+        <div class="gp-room-form">
+          <input id="gp-room-code-input" placeholder="ROOM CODE (4–12 chars)" maxlength="12">
+          <select id="gp-room-wave-select">
+            <option value="0">Choose Wave…</option>
+            <option value="1">Wave I — Discovery</option>
+            <option value="2">Wave II — Threshold</option>
+            <option value="3">Wave III — Freedom</option>
+            <option value="4">Wave IV — Colleagues</option>
+            <option value="5">Wave V — Exploration</option>
+            <option value="6">Wave VI — Patterns</option>
+            <option value="7">Wave VII — Adventure</option>
+          </select>
+          <button class="gp-btn primary" onclick="NETWORK.joinRoom()">Join / Create</button>
+          <button class="gp-btn" onclick="NETWORK.generateCode()">Random Code</button>
+        </div>
+      </div>
+      <div id="gp-room-active" style="display:none">
+        <div class="gp-room-code" id="gp-room-active-code"></div>
+        <div class="gp-room-presence" id="gp-room-active-presence">— practitioner connected</div>
+        <div class="gp-room-host" id="gp-room-active-host"></div>
+        <div class="gp-room-display" id="gp-room-active-state" style="margin-top:1rem"></div>
+        <div class="btn-row" style="margin-top:1rem;justify-content:center">
+          <button class="gp-btn" onclick="NETWORK.leaveRoom()">Leave Room</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transmission Feed -->
+    <div class="gp-net-panel">
+      <div class="gp-net-title">◈ Transmission Feed</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+        Opt-in only. Council transmissions you share appear here — wave, frequency, and code visible, but never your identity. Filter by what others are working with this week.
+      </div>
+      <div class="gp-feed-filter">
+        <select id="gp-feed-wave-filter" onchange="NETWORK.loadFeed()">
+          <option value="">All waves</option>
+          <option value="Wave I">Wave I</option><option value="Wave II">Wave II</option>
+          <option value="Wave III">Wave III</option><option value="Wave IV">Wave IV</option>
+          <option value="Wave V">Wave V</option><option value="Wave VI">Wave VI</option>
+          <option value="Wave VII">Wave VII</option>
+        </select>
+        <input id="gp-feed-code-filter" placeholder="Filter by code (e.g. 528, 369…)" onchange="NETWORK.loadFeed()">
+        <button class="gp-btn" onclick="NETWORK.loadFeed()">Refresh</button>
+      </div>
+      <div class="gp-feed-list" id="gp-feed-list">
+        <div class="gp-net-empty">Configure a server URL in Settings to load the feed.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ════ SCREEN: SETTINGS (V6d) ════ -->
   <div id="screen-settings" class="screen">
     <div class="section-title">Settings</div>
@@ -867,6 +1034,43 @@ body.gp-three-ready #geo-bg{display:none}
         Reminders fire as native OS notifications. They're scheduled by the app and persist while the app is running.
         For OS-persistent reminders (firing even when the app is closed), use Calendar or a launchd agent.
       </div>
+    </div>
+
+    <!-- V7 · Network config -->
+    <div class="gp-reminders">
+      <div class="gp-reminders-title">◈ Network · Practice Rooms + Feed Server</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+        Point the app at a running instance of the reference server (in <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">/server</code> of this repo). Leave blank to disable network features and stay fully local.
+      </div>
+      <div class="gp-reminders-row" style="margin-bottom:.4rem">
+        <label style="width:120px">Server URL</label>
+        <input id="gp-net-url" type="text" placeholder="http://localhost:7070" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:12px" onblur="NETWORK.saveConfig()">
+      </div>
+      <div class="gp-reminders-row">
+        <label><input type="checkbox" id="gp-net-auto-share" onchange="NETWORK.saveConfig()"> Auto-share Council transmissions to feed (anonymous)</label>
+      </div>
+      <div id="gp-net-server-probe" style="font-size:10px;color:var(--muted);margin-top:.4rem"></div>
+    </div>
+
+    <!-- V7d · Biometric (manual HRV) -->
+    <div class="gp-reminders">
+      <div class="gp-reminders-title">◈ Biometric · Manual HRV Tracking</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+        Apple HealthKit and Google Fit live reads aren't possible from a desktop Electron app (those APIs are OS-locked to native iOS/Android). For now: enter HRV readings manually from your Apple Watch / Whoop / Oura / Polar app. Pre-session and post-session entries become a delta you can correlate with practice consistency.
+        <br><br>
+        <em>Future: an iOS companion app for live HealthKit sync.</em>
+      </div>
+      <div class="gp-bio-input">
+        <input type="number" id="gp-bio-hrv" placeholder="HRV ms" min="0" max="500" step="1">
+        <select id="gp-bio-context">
+          <option value="resting">Resting baseline</option>
+          <option value="pre">Pre-session</option>
+          <option value="post">Post-session</option>
+        </select>
+        <button class="gp-btn primary" onclick="BIO.add()">Log</button>
+      </div>
+      <div id="gp-bio-trend" class="gp-bio-trend"></div>
+      <div id="gp-bio-history" style="font-size:10px;color:var(--muted);margin-top:.6rem;max-height:120px;overflow-y:auto"></div>
     </div>
 
     <!-- Data management -->
@@ -1525,7 +1729,7 @@ const DB={
   KEY:'gateway_protocol_v1',
   IDB_KEY:'main',
   _cache:null,
-  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[]};},
+  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[]};},
 
   // Boot-time hydration. Called once before init() runs. Idempotent.
   async hydrate(){
@@ -1948,6 +2152,16 @@ function init(){
   SYNC.init();
   // V4f: load reminder settings into the panel
   REMINDERS.init();
+  // V7: network config + initial feed load when configured
+  NETWORK.init().then(()=>{ if(NETWORK._cfg.serverUrl) NETWORK.loadFeed(); });
+  // V7d: HRV trend render
+  BIO.render();
+  // V7e: certifications render
+  INSTITUTE.render();
+  // V7f: custom protocols list
+  PROTOBUILD.render();
+  // V7c: embed any pre-existing journal entries that haven't been embedded yet
+  MEMORY.embedNewEntries().catch(()=>{});
 }
 
 // ═══════════════════════════ STARS ═══════════════════════════
@@ -2607,17 +2821,22 @@ function toggleTimer(){
   document.getElementById('timer-btn').textContent=timerRunning?'Pause':'Resume';
   if(timerRunning){
     CINEMATIC.enter(); // V3b: enter cinematic mode on Begin/Resume
+    // V7a: if hosting a practice room, broadcast session-start to participants
+    NETWORK.broadcastTimerStart({timerSeconds:timerSeconds,timerMax:timerMax,sessionName:selectedSess.name});
     scheduleCues(selectedSess,timerMax);
     AMBIENT.start(AMBIENT._currentSolfHz,AMBIENT._currentBeatHz);
     AMBIENT.scheduleDescentCurve(timerMax);
     timerInterval=setInterval(()=>{
       timerSeconds++;
+      let currentPhase='';
       if(selectedSess.phases){
         const phaseIdx=Math.floor((timerSeconds/timerMax)*selectedSess.phases.length);
-        const ph=selectedSess.phases[Math.min(phaseIdx,selectedSess.phases.length-1)];
-        document.getElementById('timer-phase').textContent=ph||'';
+        currentPhase=selectedSess.phases[Math.min(phaseIdx,selectedSess.phases.length-1)]||'';
+        document.getElementById('timer-phase').textContent=currentPhase;
       }
       renderTimer();
+      // V7a: broadcast timer ticks to practice room (no-op if not hosting)
+      NETWORK.broadcastTimer({timerSeconds,phase:currentPhase,sessionName:selectedSess.name,timerMax});
       if(timerSeconds>=timerMax){
         clearInterval(timerInterval);timerRunning=false;
         CINEMATIC.exit(); // V3b: leave cinematic on session completion
@@ -2644,6 +2863,7 @@ function toggleTimer(){
     clearCues();
     AMBIENT.stop();
     CINEMATIC.exit(); // V3b: leave cinematic on pause
+    NETWORK.broadcastTimerStop(); // V7a: tell practice room participants
   }
 }
 
@@ -2860,13 +3080,24 @@ const QM={
     this._animateDots();
 
     try{
-      const data=await GP_API.mirror({entry,key:this._key});
+      // V7c: retrieve top-K semantically-similar past entries and weave into the
+      // Council's context. The model can now reference long-term patterns
+      // ("Three months ago you wrote about…") instead of being stateless.
+      // Falls through silently if no embeddings exist (e.g. no OpenAI key).
+      let pastEntries=[];
+      try{ pastEntries=await MEMORY.retrieve(entry, MEMORY.K); }catch(e){ /* silent */ }
+
+      let data;
+      if(GP_ELECTRON && pastEntries.length){
+        data=await window.gp.mirrorWithContext({entry, pastEntries});
+      } else {
+        data=await GP_API.mirror({entry,key:this._key});
+      }
 
       // Extract text from Anthropic response
       const raw=data.content?.[0]?.text||'';
       let parsed;
       try{
-        // Strip any accidental markdown fences
         const clean=raw.replace(/```json|```/g,'').trim();
         parsed=JSON.parse(clean);
       }catch(e){
@@ -2875,6 +3106,9 @@ const QM={
 
       this._lastTransmission=parsed;
       this._render(parsed);
+
+      // V7b: opt-in feed share — fire-and-forget after a successful Council call
+      try{ NETWORK.maybeShareTransmission(parsed); }catch(e){}
 
     }catch(err){
       toast('Mirror: '+err.message);
@@ -2951,6 +3185,8 @@ function saveJournal(){
   toast('Entry anchored to your record.');
   // V2 #2: re-request Council pre-session recommendation on every journal save
   PRESESSION.request(true);
+  // V7c: embed the new entry for semantic memory (silent fail if no OpenAI key)
+  MEMORY.embedNewEntries().catch(()=>{});
 }
 
 function renderJournalHistory(){
@@ -3691,6 +3927,616 @@ const EXPORT={
     a.click();
     setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },200);
     toast('Backup downloaded — '+(data.journal?.length||0)+' entries, '+(data.synchronicities?.length||0)+' syncs');
+  }
+};
+
+// ═══════════════════════════ V7 · NETWORK (Practice Rooms + Feed) ═══════════════════════════
+const NETWORK={
+  _cfg:{serverUrl:'',autoJoinFeed:false},
+  _ws:null,
+  _activeRoom:null,
+  _activeWave:0,
+  _isHost:false,
+  _hostId:null,
+  _myId:null,
+
+  async init(){
+    try{ this._cfg=await GP_API.network.get(); }catch(e){}
+    const urlInput=document.getElementById('gp-net-url');
+    if(urlInput) urlInput.value=this._cfg.serverUrl||'';
+    const autoBox=document.getElementById('gp-net-auto-share');
+    if(autoBox) autoBox.checked=!!this._cfg.autoJoinFeed;
+    const shareBox=document.getElementById('gp-mirror-share-feed');
+    if(shareBox) shareBox.checked=!!this._cfg.autoJoinFeed;
+    this._renderServerStatus();
+    if(this._cfg.serverUrl) this._probeServer();
+  },
+
+  async saveConfig(){
+    this._cfg={
+      serverUrl:(document.getElementById('gp-net-url').value||'').trim().replace(/\/+$/,''),
+      autoJoinFeed:document.getElementById('gp-net-auto-share').checked,
+    };
+    try{ await GP_API.network.set(this._cfg); }catch(e){}
+    document.getElementById('gp-mirror-share-feed').checked=this._cfg.autoJoinFeed;
+    this._renderServerStatus();
+    if(this._cfg.serverUrl) this._probeServer();
+  },
+
+  async saveShareConsent(){
+    this._cfg.autoJoinFeed=document.getElementById('gp-mirror-share-feed').checked;
+    document.getElementById('gp-net-auto-share').checked=this._cfg.autoJoinFeed;
+    try{ await GP_API.network.set(this._cfg); }catch(e){}
+  },
+
+  _renderServerStatus(){
+    const el=document.getElementById('gp-net-server-status');
+    if(!el) return;
+    if(this._cfg.serverUrl){
+      el.classList.add('live');
+      el.innerHTML='<span class="dot"></span>Server: '+escapeHTML(this._cfg.serverUrl);
+    } else {
+      el.classList.remove('live');
+      el.innerHTML='<span class="dot"></span>Server: not configured';
+    }
+  },
+
+  async _probeServer(){
+    const probeEl=document.getElementById('gp-net-server-probe');
+    if(!probeEl) return;
+    probeEl.textContent='Probing…';
+    try{
+      const res=await fetch(this._cfg.serverUrl+'/',{cache:'no-store'});
+      const data=await res.json();
+      probeEl.style.color='var(--gold)';
+      probeEl.textContent=`✓ Connected · ${data.rooms} active rooms · ${data.feedSize} feed items · up ${data.uptime}s`;
+    }catch(e){
+      probeEl.style.color='#c04040';
+      probeEl.textContent='✗ Cannot reach '+this._cfg.serverUrl+' — '+(e.message||e);
+    }
+  },
+
+  // ── Practice Rooms ──
+  generateCode(){
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s=''; for(let i=0;i<6;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+    document.getElementById('gp-room-code-input').value=s;
+  },
+
+  joinRoom(){
+    if(!this._cfg.serverUrl){ toast('Set a server URL in Settings first.'); return; }
+    const code=(document.getElementById('gp-room-code-input').value||'').trim().toUpperCase();
+    const wave=parseInt(document.getElementById('gp-room-wave-select').value,10)||0;
+    if(!/^[A-Z0-9]{4,12}$/.test(code)){ toast('Room code must be 4–12 letters/numbers.'); return; }
+    this._activeRoom=code;
+    this._activeWave=wave;
+    const wsUrl=this._cfg.serverUrl.replace(/^http/,'ws')+'/room/'+code;
+    try{
+      this._ws=new WebSocket(wsUrl);
+    }catch(e){ toast('WebSocket failed: '+e.message); return; }
+    this._ws.onopen=()=>{
+      if(wave>0) this._ws.send(JSON.stringify({type:'set-wave',wave}));
+      this._showActive();
+    };
+    this._ws.onmessage=(ev)=>this._handleMessage(ev.data);
+    this._ws.onclose=()=>{ if(this._activeRoom){ toast('Room disconnected'); this._hideActive(); } };
+    this._ws.onerror=()=>{ toast('Connection error — is the server running?'); };
+  },
+
+  _showActive(){
+    document.getElementById('gp-room-idle').style.display='none';
+    document.getElementById('gp-room-active').style.display='block';
+    document.getElementById('gp-room-active-code').textContent=this._activeRoom;
+  },
+  _hideActive(){
+    if(this._ws){ try{ this._ws.close(); }catch(e){} this._ws=null; }
+    this._activeRoom=null;this._activeWave=0;this._isHost=false;this._hostId=null;
+    document.getElementById('gp-room-idle').style.display='block';
+    document.getElementById('gp-room-active').style.display='none';
+  },
+
+  leaveRoom(){
+    this._hideActive();
+    toast('Left practice room.');
+  },
+
+  _handleMessage(raw){
+    let msg; try{ msg=JSON.parse(raw); }catch(e){ return; }
+    if(msg.type==='presence'){
+      if(msg.you) this._myId=msg.you;
+      if(msg.hostId) this._hostId=msg.hostId;
+      this._isHost=this._myId===this._hostId;
+      const presEl=document.getElementById('gp-room-active-presence');
+      presEl.textContent=msg.count===1
+        ? '1 practitioner in the field'
+        : msg.count+' practitioners in the field';
+      document.getElementById('gp-room-active-host').textContent=this._isHost
+        ? '◈ You are hosting · timer controls below mirror this room'
+        : '◈ Following host · your timer will mirror theirs';
+    }
+    if(msg.type==='state'){
+      const stateEl=document.getElementById('gp-room-active-state');
+      const mm=String(Math.floor((msg.timerSeconds||0)/60)).padStart(2,'0');
+      const ss=String((msg.timerSeconds||0)%60).padStart(2,'0');
+      stateEl.innerHTML=`
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Wave ${msg.wave||'—'} · ${msg.sessionName||'no session'}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold2);letter-spacing:4px;text-align:center;margin:.5rem 0">${mm}:${ss}</div>
+        <div style="font-size:12px;color:var(--gold);font-style:italic;text-align:center">${escapeHTML(msg.phase||'')}</div>
+        <div style="font-size:10px;color:${msg.running?'var(--gold)':'var(--muted)'};letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:.4rem">${msg.running?'◈ Active':'idle'}</div>
+      `;
+    }
+    if(msg.type==='cue'){
+      // Show the host's broadcast cue as a toast (and via Voice if enabled)
+      toast('◈ '+msg.text);
+      if(VOICE.enabled) try{ VOICE.speak(msg.text,{rate:0.78}); }catch(e){}
+    }
+  },
+
+  // Called by the local session timer when host — broadcasts state outward
+  broadcastTimer(state){
+    if(!this._ws || this._ws.readyState!==1 || !this._isHost) return;
+    this._ws.send(JSON.stringify({type:'timer',action:'tick',timerSeconds:state.timerSeconds,phase:state.phase,sessionName:state.sessionName,timerMax:state.timerMax}));
+  },
+  broadcastTimerStart(state){
+    if(!this._ws || this._ws.readyState!==1 || !this._isHost) return;
+    this._ws.send(JSON.stringify({type:'timer',action:'start',timerSeconds:state.timerSeconds||0,timerMax:state.timerMax,sessionName:state.sessionName}));
+  },
+  broadcastTimerStop(){
+    if(!this._ws || this._ws.readyState!==1 || !this._isHost) return;
+    this._ws.send(JSON.stringify({type:'timer',action:'pause'}));
+  },
+
+  // ── Feed ──
+  async loadFeed(){
+    if(!this._cfg.serverUrl){
+      document.getElementById('gp-feed-list').innerHTML='<div class="gp-net-empty">Set a server URL in Settings to load the feed.</div>';
+      return;
+    }
+    const wave=document.getElementById('gp-feed-wave-filter').value;
+    const code=document.getElementById('gp-feed-code-filter').value.trim();
+    const params=new URLSearchParams();
+    if(wave) params.set('wave',wave);
+    if(code) params.set('code',code);
+    params.set('limit','50');
+    try{
+      const res=await fetch(this._cfg.serverUrl+'/feed?'+params.toString());
+      const {items}=await res.json();
+      const list=document.getElementById('gp-feed-list');
+      if(!items.length){ list.innerHTML='<div class="gp-net-empty">No transmissions match. Be the first to share.</div>'; return; }
+      list.innerHTML=items.map(item=>{
+        const ago=this._timeAgo(item.at);
+        return `<div class="gp-feed-item">
+          <div class="gp-feed-item-meta">
+            ${item.wave?`<span class="gp-feed-tag">${escapeHTML(item.wave)}</span>`:''}
+            ${item.frequency?`<span class="gp-feed-tag">${escapeHTML(item.frequency)}</span>`:''}
+            ${item.code?`<span class="gp-feed-tag">${escapeHTML(item.code)}</span>`:''}
+            <span style="opacity:.7">${ago}</span>
+          </div>
+          <div class="gp-feed-text">"${escapeHTML(item.transmission)}"</div>
+          <button class="gp-feed-react" onclick="NETWORK.react('${item.id}',this)">◈ I needed this · ${item.reactions||0}</button>
+        </div>`;
+      }).join('');
+    }catch(e){
+      document.getElementById('gp-feed-list').innerHTML='<div class="gp-net-empty" style="color:#c04040">Feed unreachable: '+escapeHTML(e.message||String(e))+'</div>';
+    }
+  },
+
+  async react(id,btn){
+    if(!this._cfg.serverUrl) return;
+    try{
+      const res=await fetch(this._cfg.serverUrl+'/feed/'+id+'/react',{method:'POST'});
+      const data=await res.json();
+      if(data.ok) btn.textContent='◈ I needed this · '+data.reactions;
+    }catch(e){}
+  },
+
+  // Called automatically after a Council mirror response if autoJoinFeed is on
+  async maybeShareTransmission(rec){
+    if(!this._cfg.autoJoinFeed || !this._cfg.serverUrl) return;
+    if(!rec || !rec.transmission) return;
+    try{
+      await fetch(this._cfg.serverUrl+'/feed',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          wave:rec.wave||'',
+          frequency:rec.frequency||'',
+          code:rec.code||'',
+          transmission:rec.transmission,
+        }),
+      });
+    }catch(e){ console.warn('Feed share failed:',e); }
+  },
+
+  _timeAgo(ts){
+    const s=Math.round((Date.now()-ts)/1000);
+    if(s<60) return s+'s ago';
+    if(s<3600) return Math.round(s/60)+'m ago';
+    if(s<86400) return Math.round(s/3600)+'h ago';
+    return Math.round(s/86400)+'d ago';
+  }
+};
+
+// ═══════════════════════════ V7c · SEMANTIC JOURNAL MEMORY ═══════════════════════════
+// Embeds journal entries via OpenAI text-embedding-3-small, stores vectors
+// in IDB (under the same idbStore wrapper used for DB persistence), and
+// before each Mirror call retrieves the top-k most-relevant past entries
+// via cosine similarity. Makes the Council long-term aware.
+const MEMORY={
+  IDB_KEY:'journal_embeddings', // stores Array<{id, vector, date, summary}>
+  K:3,
+
+  async _load(){
+    try{ return (await idbStore.get(this.IDB_KEY)) || []; }
+    catch(e){ return []; }
+  },
+  async _save(arr){
+    try{ await idbStore.set(this.IDB_KEY,arr); }catch(e){ console.warn('MEMORY save:',e); }
+  },
+
+  // Embed every journal entry that doesn't have a vector yet. Runs lazily —
+  // typically once per new entry, fire-and-forget after saveJournal.
+  async embedNewEntries(){
+    const haveKey=(JSON.parse(localStorage.getItem('gp_voice')||'{}').oaiKey || '').trim();
+    if(!haveKey) return; // can't embed without OpenAI; silently skip
+    const journal=DB.load().journal||[];
+    const existing=await this._load();
+    const haveIds=new Set(existing.map(e=>e.id));
+    const todo=journal.filter(j=>!haveIds.has(j.id));
+    if(!todo.length) return;
+    for(const j of todo){
+      const text=(j.data||[]).map(d=>d.prompt+': '+d.response).join('\n');
+      if(!text.trim()) continue;
+      try{
+        const {vector}=await GP_API.embed({text});
+        existing.push({
+          id:j.id,
+          vector,
+          date:j.date,
+          summary:text.slice(0,200),
+        });
+      }catch(e){
+        console.warn('Embedding failed for entry',j.id,e.message||e);
+        break; // probably out of quota or no key — stop trying this batch
+      }
+    }
+    await this._save(existing);
+  },
+
+  // Find top-K most-similar past entries to the given query text.
+  async retrieve(queryText, k=this.K){
+    const stored=await this._load();
+    if(stored.length<2) return [];
+    let queryVec;
+    try{ ({vector:queryVec}=await GP_API.embed({text:queryText})); }
+    catch(e){ console.warn('Query embedding failed:',e); return []; }
+
+    // Cosine similarity
+    const scored=stored.map(s=>{
+      let dot=0, na=0, nb=0;
+      for(let i=0;i<queryVec.length;i++){
+        dot+=queryVec[i]*s.vector[i];
+        na+=queryVec[i]*queryVec[i];
+        nb+=s.vector[i]*s.vector[i];
+      }
+      const sim=dot/(Math.sqrt(na)*Math.sqrt(nb)+1e-9);
+      return {...s, sim};
+    });
+    scored.sort((a,b)=>b.sim-a.sim);
+    // Map back to full journal entries (so we get the full data, not just summary)
+    const journal=DB.load().journal||[];
+    return scored.slice(0,k).map(s=>{
+      const full=journal.find(j=>j.id===s.id);
+      return full ? {date:new Date(full.date).toLocaleDateString(),session:full.session,data:full.data,sim:s.sim} : null;
+    }).filter(Boolean);
+  }
+};
+
+// ═══════════════════════════ V7d · BIOMETRIC TRACKING ═══════════════════════════
+const BIO={
+  KEY:'gp_biometric',
+  _load(){ try{ return JSON.parse(localStorage.getItem(this.KEY)||'[]'); }catch(e){ return []; } },
+  _save(arr){ try{ localStorage.setItem(this.KEY,JSON.stringify(arr)); }catch(e){} },
+
+  add(){
+    const v=parseFloat(document.getElementById('gp-bio-hrv').value);
+    const ctx=document.getElementById('gp-bio-context').value;
+    if(!v || v<5 || v>500){ toast('Enter a valid HRV value (5–500 ms).'); return; }
+    const arr=this._load();
+    arr.push({at:Date.now(),hrv:v,context:ctx});
+    this._save(arr);
+    document.getElementById('gp-bio-hrv').value='';
+    this.render();
+    toast('HRV logged ('+v+' ms · '+ctx+').');
+  },
+
+  render(){
+    const arr=this._load();
+    const trendEl=document.getElementById('gp-bio-trend');
+    const histEl=document.getElementById('gp-bio-history');
+    if(!arr.length){
+      if(trendEl) trendEl.innerHTML='<span style="color:var(--muted);font-style:italic">No readings yet. Log your first HRV value above.</span>';
+      if(histEl) histEl.innerHTML='';
+      return;
+    }
+    // Compute baseline avg from last 7 vs prior 7 readings
+    const sorted=arr.slice().sort((a,b)=>a.at-b.at);
+    const recent=sorted.slice(-7);
+    const prior=sorted.slice(-14,-7);
+    const avg=a=>a.reduce((s,x)=>s+x.hrv,0)/a.length;
+    const recentAvg=avg(recent);
+    const priorAvg=prior.length?avg(prior):recentAvg;
+    const delta=recentAvg-priorAvg;
+    const pct=priorAvg?((delta/priorAvg)*100):0;
+    const arrow=delta>=0?'▲':'▼';
+    const cls=delta>=0?'up':'down';
+    if(trendEl){
+      trendEl.innerHTML=`
+        <span>Recent avg: <strong style="color:var(--gold)">${recentAvg.toFixed(0)} ms</strong> (last ${recent.length})</span>
+        <span>vs prior: <span class="${cls}">${arrow} ${Math.abs(pct).toFixed(1)}%</span></span>
+      `;
+    }
+    if(histEl){
+      histEl.innerHTML=sorted.slice().reverse().slice(0,10).map(e=>{
+        const d=new Date(e.at);
+        return `<div style="display:flex;justify-content:space-between;padding:2px 0">
+          <span>${d.toLocaleDateString()} ${d.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}</span>
+          <span style="color:var(--gold)">${e.hrv} ms · ${e.context}</span>
+        </div>`;
+      }).join('');
+    }
+  }
+};
+
+// ═══════════════════════════ V7e · GATEWAY INSTITUTE CERTIFICATIONS ═══════════════════════════
+const INSTITUTE={
+  TRACKS:[
+    {id:'voyage', name:'Gateway Voyage',
+     sub:'Complete each of the 7 Waves at least 3 times. Mirrors the Monroe Institute residential program.',
+     check: stats => {
+       const w = stats.waveCompletions || [0,0,0,0,0,0,0];
+       const completedWaves = w.filter(c => c >= 3).length;
+       return { progress: completedWaves, target: 7, done: completedWaves >= 7 };
+     }},
+    {id:'adept', name:'Adept',
+     sub:'Accumulate 50 hours of total practice across any sessions.',
+     check: stats => {
+       const hours = (stats.minutes || 0) / 60;
+       return { progress: Math.round(hours*10)/10, target: 50, done: hours >= 50, unit:'h' };
+     }},
+    {id:'sovereign', name:'Sovereign',
+     sub:'Sustain a 21-day continuous practice streak.',
+     check: stats => {
+       const streak = (stats.streak || []).length;
+       return { progress: streak, target: 21, done: streak >= 21 };
+     }},
+    {id:'cartographer', name:'Cartographer',
+     sub:'Anchor 30 journal entries — building a personal map of consciousness.',
+     check: stats => {
+       const n = (stats.journal || []).length;
+       return { progress: n, target: 30, done: n >= 30 };
+     }},
+  ],
+
+  render(){
+    const stats=DB.load();
+    const list=document.getElementById('gp-cert-list');
+    if(!list) return;
+    list.innerHTML=this.TRACKS.map(t=>{
+      const {progress,target,done,unit=''}=t.check(stats);
+      const earnedKey='gp_cert_'+t.id;
+      const earnedAt=localStorage.getItem(earnedKey);
+      return `<div class="gp-cert-card ${done?'earned':''}">
+        <div>
+          <div class="gp-cert-name">${escapeHTML(t.name)}${done?' · ✓':''}</div>
+          <div class="gp-cert-sub">${escapeHTML(t.sub)}</div>
+          ${earnedAt?`<div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;margin-top:.3rem">Earned ${new Date(+earnedAt).toLocaleDateString()}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+          <div class="gp-cert-progress">${progress}${unit} / ${target}${unit}</div>
+          ${done?`<button class="gp-cert-issue" onclick="INSTITUTE.issue('${t.id}')">${earnedAt?'Re-issue':'Issue Certificate'}</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  async issue(trackId){
+    const track=this.TRACKS.find(t=>t.id===trackId);
+    if(!track){ return; }
+    const stats=DB.load();
+    const {progress,target,done,unit=''}=track.check(stats);
+    if(!done){ toast('Track not yet complete.'); return; }
+    // Mark earned
+    localStorage.setItem('gp_cert_'+trackId, Date.now().toString());
+
+    // Build the certificate payload
+    const cert={
+      type:'GatewayInstituteCertificate',
+      track:track.name,
+      trackId:track.id,
+      issued:new Date().toISOString(),
+      progress:`${progress}${unit} of ${target}${unit}`,
+      practitioner:'(anonymous)', // could be linked to a name later
+      stats:{
+        sessions:stats.sessions||0,
+        minutes:stats.minutes||0,
+        journalEntries:(stats.journal||[]).length,
+        waveCompletions:stats.waveCompletions||[],
+      },
+      issuer:'Gateway Protocol · Self-Sovereign Issuance',
+    };
+
+    // Sign with a per-install secret stored in IDB. This is a HMAC-SHA256
+    // signature — not a true PKI cert chain, but tamper-evident: verifying
+    // the cert requires the same install secret. For real "verifiable
+    // anywhere" certs you'd swap this for ed25519 + a published pubkey.
+    let secret;
+    try{
+      secret=await idbStore.get('gp_signing_secret');
+      if(!secret){
+        const raw=crypto.getRandomValues(new Uint8Array(32));
+        secret=Array.from(raw).map(b=>b.toString(16).padStart(2,'0')).join('');
+        await idbStore.set('gp_signing_secret',secret);
+      }
+    }catch(e){ secret='fallback-key'; }
+
+    const payloadStr=JSON.stringify(cert);
+    const enc=new TextEncoder();
+    const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+    const sigBuf=await crypto.subtle.sign('HMAC',key,enc.encode(payloadStr));
+    const sigHex=Array.from(new Uint8Array(sigBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+    const signed={...cert, signature:sigHex, signatureMethod:'HMAC-SHA256 (per-install secret)'};
+
+    // Download as JSON
+    const blob=new Blob([JSON.stringify(signed,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`gateway-certificate-${track.id}-${Date.now()}.json`;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },200);
+
+    // Also offer a printable PDF version (just opens a styled new window for OS print → PDF)
+    this._openPrintableCert(signed);
+
+    toast('Certificate issued · '+track.name);
+    this.render();
+  },
+
+  _openPrintableCert(c){
+    const w=window.open('','_blank','width=900,height=700');
+    if(!w) return;
+    w.document.write(`<!doctype html><html><head><title>${c.track} · Certificate</title>
+    <style>
+      body{margin:0;padding:0;background:#0a0a0d;color:#e8e2d4;font-family:Georgia,serif}
+      .cert{max-width:780px;margin:60px auto;padding:80px 60px;background:radial-gradient(ellipse at top,rgba(201,168,76,.08),transparent 70%),#0a0a0d;border:1px solid rgba(201,168,76,.4);border-radius:6px;text-align:center}
+      h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:42px;letter-spacing:8px;color:#f0d88a;margin:0 0 12px}
+      .sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:50px}
+      .name{font-family:'Cormorant Garamond',Georgia,serif;font-size:64px;font-weight:300;color:#f0d88a;margin:30px 0;letter-spacing:6px}
+      .line{font-size:14px;color:#aaa;margin:6px 0;font-style:italic}
+      .meta{margin-top:50px;font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase;line-height:2}
+      .sig{margin-top:40px;padding-top:20px;border-top:.5px solid #333;font-size:9px;color:#666;font-family:monospace;word-break:break-all;letter-spacing:0}
+      @media print{body{background:white;color:black}.cert{border-color:#c9a84c}h1,.name{color:#c9a84c}.line{color:#555}.meta,.sig{color:#888}}
+    </style></head><body><div class="cert">
+      <div class="sub">◈ Gateway Institute · Certificate of Completion</div>
+      <div class="name">${escapeHTML(c.track)}</div>
+      <div class="line">Awarded for sustained, sovereign practice</div>
+      <div class="line">${escapeHTML(c.progress)}</div>
+      <div class="meta">
+        Issued ${new Date(c.issued).toLocaleDateString('en',{year:'numeric',month:'long',day:'numeric'})}<br>
+        ${c.stats.sessions} sessions · ${Math.round(c.stats.minutes/60)} hours · ${c.stats.journalEntries} journal entries
+      </div>
+      <div class="sig"><strong style="color:#888">Signature (${escapeHTML(c.signatureMethod)}):</strong><br>${c.signature}</div>
+    </div></body></html>`);
+    w.document.close();
+  }
+};
+
+// ═══════════════════════════ V7f · CUSTOM PROTOCOL BUILDER ═══════════════════════════
+const PROTOBUILD={
+  addPhase(){
+    const wrap=document.getElementById('gp-proto-phases');
+    const row=document.createElement('div');
+    row.className='gp-phase-row';
+    row.innerHTML='<input type="number" min="1" max="60" placeholder="min" value="5"><input type="text" placeholder="Phase name + cue">';
+    wrap.appendChild(row);
+  },
+  _collectPhases(){
+    const rows=document.querySelectorAll('#gp-proto-phases .gp-phase-row');
+    const phases=[];
+    for(const r of rows){
+      const dur=parseInt(r.querySelector('input[type=number]').value,10);
+      const cue=r.querySelector('input[type=text]').value.trim();
+      if(dur>0 && cue) phases.push({dur,cue,name:cue.split(' — ')[0]||cue});
+    }
+    return phases;
+  },
+  save(){
+    const name=document.getElementById('gp-proto-name').value.trim();
+    const intention=document.getElementById('gp-proto-intention').value.trim();
+    const phases=this._collectPhases();
+    if(!name || !intention || phases.length<1){ toast('Need a name, intention, and at least one phase.'); return; }
+    const d=DB.load();
+    d.customProtocols=[...(d.customProtocols||[]),{
+      id:Date.now(),
+      name, intention, phases,
+      totalMin:phases.reduce((a,p)=>a+p.dur,0),
+      createdAt:new Date().toISOString(),
+    }];
+    DB.save(d);
+    document.getElementById('gp-proto-name').value='';
+    document.getElementById('gp-proto-intention').value='';
+    this.render();
+    toast('Custom protocol saved: '+name);
+  },
+  render(){
+    const protos=DB.load().customProtocols||[];
+    const list=document.getElementById('gp-proto-saved');
+    if(!list) return;
+    if(!protos.length){ list.innerHTML='<div style="font-size:11px;color:var(--muted);font-style:italic;text-align:center;padding:.5rem">No custom protocols yet.</div>'; return; }
+    list.innerHTML=protos.slice().reverse().map(p=>`
+      <div class="gp-proto-item">
+        <div><div class="name">${escapeHTML(p.name)}</div><div style="font-size:10px;color:var(--muted)">${p.phases.length} phases · ${p.totalMin} min</div></div>
+        <div class="actions">
+          <button onclick="PROTOBUILD.run(${p.id})">Run</button>
+          <button onclick="PROTOBUILD.exportOne(${p.id})">Export</button>
+          <button onclick="PROTOBUILD.remove(${p.id})">×</button>
+        </div>
+      </div>
+    `).join('');
+  },
+  run(id){
+    const p=(DB.load().customProtocols||[]).find(x=>x.id===id);
+    if(!p) return;
+    // Synthesize a session-shape object and select it via existing selectSession
+    const sess={
+      name:p.name, dur:p.totalMin, icon:'◈',
+      phases:p.phases.map(ph=>ph.name),
+      customCues:p.phases.map(ph=>ph.cue), // available if a future scheduler reads them
+      isCustom:true,
+    };
+    showScreen('sessions');
+    selectSession(sess);
+    toast('Custom protocol loaded · Press Begin');
+  },
+  exportOne(id){
+    const p=(DB.load().customProtocols||[]).find(x=>x.id===id);
+    if(!p) return;
+    const blob=new Blob([JSON.stringify({type:'GatewayProtocol-CustomProtocol-v1',protocol:p},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='protocol-'+p.name.replace(/[^\w]+/g,'-').toLowerCase()+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },200);
+  },
+  remove(id){
+    if(!confirm('Remove this custom protocol?')) return;
+    const d=DB.load();
+    d.customProtocols=(d.customProtocols||[]).filter(p=>p.id!==id);
+    DB.save(d);
+    this.render();
+  },
+  importFile(){
+    document.getElementById('gp-proto-import-input').click();
+  },
+  async handleImport(input){
+    const file=input.files[0];
+    if(!file) return;
+    try{
+      const txt=await file.text();
+      const obj=JSON.parse(txt);
+      if(obj.type!=='GatewayProtocol-CustomProtocol-v1' || !obj.protocol){
+        toast('Not a valid Gateway Protocol export.'); return;
+      }
+      const p=obj.protocol;
+      const d=DB.load();
+      d.customProtocols=[...(d.customProtocols||[]),{...p, id:Date.now(), createdAt:new Date().toISOString()}];
+      DB.save(d);
+      this.render();
+      toast('Imported: '+p.name);
+    }catch(e){ toast('Import failed: '+e.message); }
+    input.value='';
   }
 };
 

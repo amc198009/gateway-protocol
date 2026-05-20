@@ -1,9 +1,12 @@
 # Gateway Protocol — Build Progress
 
 **Last updated:** 2026-05-20
-**Branches:** `main` (V2+V3+V4+V5 merged)
+**Branches:** `main` (V2 + V3 + V4 + V5 + V6 + V7 merged)
+**Repo:** [github.com/amc198009/gateway-protocol](https://github.com/amc198009/gateway-protocol)
 **Latest commit graph:**
 ```
+V7     The Global Gateway Network · Practice Rooms · Feed · Semantic Memory · Certifications · Protocols
+V6     README · CI · HRV polish · Settings screen
 V5     Caching · wheel fix · cinematic wave context · shadow voice · export · IndexedDB
 V3+V4  Full Immersion + Deep Intelligence
 V2 #2  Adaptive Session Engine
@@ -188,6 +191,66 @@ Improvements done after V2/V3/V4 verification, all shipped autonomously.
   - On first IDB run, the existing localStorage data is migrated transparently
   - Writes update the cache, fire off async IDB write, and best-effort mirror to localStorage (silently no-ops past 5MB)
   - `clear()` resets cache to defaults + clears both stores
+
+---
+
+## V7 — The Global Gateway Network ✅ (with honest deployment gap)
+
+The project's biggest architectural shift: from local-first solo desktop app to **networked platform with optional hosted services**. The local app stays fully sovereign — every V7 feature degrades gracefully when no server is configured.
+
+### V7a · Community Practice Rooms
+
+- **Reference server** at `/server/practice-room.js` using Node's built-in `http` + the `ws` library. ~250 lines. Runs on port 7070 locally; deploy anywhere Node 18+ runs.
+- **In-memory state:** rooms (Map) + feed (ring buffer). Documented swap-for-Redis path for production scale.
+- **Room semantics:** first joiner is the host; everyone mirrors host's timer/phase. Anonymous presence count broadcast on join/leave. Hosts broadcast cue text that pops as a toast (and optional TTS) on all participant screens.
+- **Renderer integration:** new "Network" tab with join-or-create UI; the session timer (`toggleTimer`) automatically broadcasts state to the room when hosting; presence + state display updates in real time via WebSocket message handler.
+
+### V7b · Transmission Feed
+
+- **Same server, REST endpoints:** `GET /feed?wave=&code=&limit=`, `POST /feed`, `POST /feed/:id/react`.
+- **Anonymity by design:** ID is a random 6-byte hex, never tied to a user. The server doesn't see who sent what.
+- **Opt-in toggle** under the "Consult the Council" button + matching switch in Settings → Network. When on, every Council transmission is fire-and-forget POSTed to `/feed`.
+- **Feed view** with filter chips (wave + code), date-relative time, and an anonymous "I needed this" reaction counter.
+
+### V7c · Semantic Journal Memory (centerpiece)
+
+- New IPC `gp:embed` calls OpenAI's `text-embedding-3-small` (1536-dim vectors, ~$0.02/1M tokens).
+- Embeddings stored in IndexedDB under `journal_embeddings`. One vector per journal entry, computed lazily on save + at boot for any unembedded entries.
+- New IPC `gp:mirror-with-context` accepts pre-retrieved past entries and weaves them as a `BACKGROUND` block into the user content for the Mirror call.
+- Renderer flow: before each Mirror invocation, `MEMORY.retrieve()` does cosine-similarity search against all stored embeddings and returns the top-3 most-relevant past entries. The Council can now say things like "Three months ago you wrote about X — your current entry shows that's lifting."
+- Degrades silently if no OpenAI key (Council still works, just stateless).
+
+### V7d · Biometric Tracking (honest disclosure)
+
+- Manual HRV entry in Settings → Biometric. Date, value (ms), context (resting / pre-session / post-session).
+- 7-day rolling average vs prior 7-day average with up/down delta.
+- **Honest about HealthKit:** the panel explicitly explains that Apple HealthKit live read isn't possible from desktop Electron — that requires an iOS companion app, which is future work. Manual entry from your Watch / Whoop / Oura / Polar app is the practical path today.
+
+### V7e · Gateway Institute Certifications
+
+- Four tracks, each with a transparent progress check:
+  - **Gateway Voyage:** all 7 Waves completed ≥3 times each
+  - **Adept:** 50 total practice hours
+  - **Sovereign:** 21-day continuous practice streak
+  - **Cartographer:** 30 journal entries anchored
+- On completion: signed JSON certificate (HMAC-SHA256 with a per-install secret stored in IDB) downloaded as a file + a printable PDF version opens in a styled new window.
+- Earned-date persisted in localStorage; cards show ✓ + re-issue option after first issuance.
+- **Honest about NFTs:** signed-JSON is tamper-evident, not blockchain-anchored. Real NFT issuance would require crypto wallet integration + chain choice + gas fees + legal review — out of scope here. Signed PDFs cover 95% of the practical need.
+
+### V7f · Custom Protocol Builder
+
+- New section in Protocols screen: compose a protocol with name, intention, and N phases (each with duration + cue text).
+- Saved locally in `DB.customProtocols`.
+- One-click "Run" loads the custom protocol as a session and switches to the Sessions screen.
+- Export to JSON / Import from JSON for sharing between practitioners (the shippable subset of the "marketplace" vision — payments + ratings deferred).
+
+### V7 supporting docs
+
+Three new top-level files document the **gap between code and product**:
+
+- **LAUNCH_CHECKLIST.md** — every infrastructure / legal / business decision that stands between V7 shipped and "real beta launch." Honest about hosting costs (Fly.io recommended), production state migration (Redis), GDPR, signing, trademark, App Store choice.
+- **MONETIZATION.md** — proposed tier strategy (Free Sovereign / $9 Connected / $19 Voyager / $99 Guide), with unit economics on the Anthropic / OpenAI / ElevenLabs cost stack. Includes honest "don't raise yet — bootstrap to $30k MRR first" framing.
+- **DRAFT_PRIVACY.md** — privacy policy draft, **clearly marked DRAFT — NOT LEGAL ADVICE**. Designed to be the starting point a real privacy attorney can review and finalize.
 
 ---
 

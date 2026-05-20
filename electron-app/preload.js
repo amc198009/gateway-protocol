@@ -53,6 +53,18 @@ contextBridge.exposeInMainWorld('gp', {
     set: (cfg)    => ipcRenderer.invoke('gp:reminders-set', cfg),
   },
 
+  // V7 — Network: Practice Rooms server URL + feed auto-share preference
+  network: {
+    get: ()       => ipcRenderer.invoke('gp:network-get'),
+    set: (cfg)    => ipcRenderer.invoke('gp:network-set', cfg),
+  },
+
+  // V7c — OpenAI text embedding for semantic journal memory
+  embed: (opts)   => ipcRenderer.invoke('gp:embed', opts),
+
+  // V7c — Mirror call with retrieved past entries as context
+  mirrorWithContext: (opts) => ipcRenderer.invoke('gp:mirror-with-context', opts),
+
   // Encrypted API key storage (electron-store backed)
   keys: {
     get: (name)        => ipcRenderer.invoke('gp:key-get', name),
