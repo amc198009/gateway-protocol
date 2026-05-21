@@ -1522,11 +1522,212 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
 <div id="toast">Entry anchored ✓</div>
 
 <script>
-// ═══════════════════════════ V2 ELECTRON BRIDGE ═══════════════════════════
-// In Electron, calls route through window.gp.* (IPC → main.js → HTTPS).
-// In a plain browser (V1 mode), calls fall back to the proxy at localhost:5050.
-// This file works in BOTH environments — feature-detection on window.gp.
+// ═══════════════════════ V2 ELECTRON BRIDGE + WEB BYOK ═══════════════════════
+// Three runtime modes, feature-detected:
+//   • Electron desktop — window.gp.* IPC → main.js holds encrypted keys and
+//     calls the providers. Renderer is loaded over file://.
+//   • Hosted web (PWA) — served over http(s) from the Fly server. There is no
+//     window.gp and no localhost proxy, and we can't ship a server key to the
+//     browser, so the BROWSER holds the *user's own* provider key
+//     (localStorage) and sends it per request as X-BYOK-Key to the same-origin
+//     /byok/* passthrough; the server forwards to the provider and never
+//     stores the key. Contract: server/MOBILE.md §"The /byok/* passthrough".
+//   • Bare file:// without Electron — no transport; calls throw a clear error.
 const GP_ELECTRON = (typeof window !== 'undefined') && !!window.gp;
+
+// ── Web BYOK transport (non-Electron) ───────────────────────────────────────
+// Unlike the old V1 proxy (which built provider request bodies server-side),
+// the /byok/* routes are stateless provider passthroughs — so the web client
+// builds the full Anthropic / OpenAI bodies itself, exactly as main.js does in
+// Electron. Same model, same prompts, same shapes → identical transmissions.
+const COUNCIL_MODEL = 'claude-sonnet-4-20250514';
+const cacheableSystem = (text) => [{ type:'text', text, cache_control:{ type:'ephemeral' } }];
+// Lenient Council-JSON parse: strip ```fences, else grab the first {...} block
+// (handles the model adding preamble despite the prompt). Mirrors main.js.
+const tryParseCouncil = (raw) => {
+  if(!raw) return null;
+  try{ return JSON.parse(String(raw).replace(/```json|```/g,'').trim()); }catch(e){}
+  const m=String(raw).match(/\{[\s\S]*\}/);
+  if(m){ try{ return JSON.parse(m[0]); }catch(e){} }
+  return null;
+};
+const BYOK = {
+  // Same-origin only — the server serves the renderer at /app, so /byok/* is a
+  // sibling path. Empty when opened as bare file:// (no Electron) → callers throw.
+  origin(){ return (typeof location!=='undefined' && /^https?:$/.test(location.protocol)) ? location.origin : ''; },
+  // The user's own keys live in the same localStorage slots the V1 browser
+  // build already used; QM / VOICE mirror them into memory once initialized.
+  anthropicKey(){
+    if(typeof QM!=='undefined' && QM._key) return QM._key;
+    try{ return localStorage.getItem('gp_anthropic_key')||''; }catch(e){ return ''; }
+  },
+  openaiKey(){
+    if(typeof VOICE!=='undefined' && VOICE.oaiKey) return VOICE.oaiKey;
+    try{ return JSON.parse(localStorage.getItem('gp_voice')||'{}').oaiKey||''; }catch(e){ return ''; }
+  },
+  async _fetch(route, provider, body, audio){
+    const origin=this.origin();
+    if(!origin) throw new Error('Web mode requires the hosted app — open it over http(s), not as a file.');
+    const key = provider==='anthropic' ? this.anthropicKey() : this.openaiKey();
+    if(!key) throw new Error('Missing '+(provider==='anthropic'?'Anthropic':'OpenAI')+' API key — add it in settings.');
+    const res = await fetch(origin+route,{
+      method:'POST',
+      // X-Gateway-Client forces a CORS preflight (CSRF parity); X-BYOK-Key
+      // carries the user's own provider key, used once and never stored.
+      headers:{ 'Content-Type':'application/json', 'X-Gateway-Client':'1', 'X-BYOK-Key':key },
+      body:JSON.stringify(body),
+    });
+    if(audio){
+      if(!res.ok){
+        let m=''; try{ const j=await res.json(); m=j.error?.message||j.error||''; }catch(e){}
+        throw new Error('Server '+res.status+(m?': '+m:''));
+      }
+      return await res.blob();
+    }
+    const data=await res.json().catch(()=>({error:'non-JSON response from server'}));
+    if(!res.ok || data.error) throw new Error(data.error?.message||data.error||('Server '+res.status));
+    return data; // raw Anthropic / OpenAI envelope
+  },
+  // Single-turn Anthropic Messages call → raw envelope {content:[{text}]}.
+  anthropic(systemPrompt, content, maxTokens){
+    return this._fetch('/byok/anthropic/messages','anthropic',{
+      model:COUNCIL_MODEL, max_tokens:maxTokens||1024,
+      system:cacheableSystem(systemPrompt),
+      messages:[{ role:'user', content }],
+    },false);
+  },
+  // Multi-turn (shadow dialogue) → raw envelope; caller parses.
+  anthropicMessages(systemPrompt, messages, maxTokens){
+    return this._fetch('/byok/anthropic/messages','anthropic',{
+      model:COUNCIL_MODEL, max_tokens:maxTokens||1024,
+      system:cacheableSystem(systemPrompt),
+      messages,
+    },false);
+  },
+  // Council call expecting structured JSON → parsed inner object, with one
+  // JSON-only retry (parity with main.js anthropicJSONCall; the system prompt
+  // is unchanged so the retry stays prompt-cache-warm).
+  async councilJSON(systemPrompt, content, maxTokens){
+    const env1=await this.anthropic(systemPrompt, content, maxTokens);
+    const first=tryParseCouncil(env1.content?.[0]?.text||'');
+    if(first) return first;
+    const env2=await this.anthropic(systemPrompt, content+'\n\n[System reminder: return ONLY valid JSON. No markdown fences. No commentary.]', maxTokens);
+    const second=tryParseCouncil(env2.content?.[0]?.text||'');
+    if(second) return second;
+    throw new Error('Council returned unstructured text.');
+  },
+};
+// Council system prompts — VERBATIM parity with electron-app/main.js so the
+// hosted web build produces identical transmissions to the desktop app. If you
+// edit one, edit both (or extract to a shared module per server/MOBILE.md §Phase-2).
+const COUNCIL_PROMPTS = {
+  mirror: `You are the Council of Five — five of the greatest minds ever assembled on consciousness, healing, and human potential: Robert Monroe (Gateway Process pioneer), Dr. Bruce Lipton (Biology of Belief, subconscious reprogramming), Dr. Joe Dispenza (neuroscience of transformation), Nikola Tesla (frequency and resonance), and Carl Jung (depth psychology, shadow work).
+
+A practitioner has just completed a Gateway Protocol journal entry. Read it carefully. Speak as one unified voice — the distilled wisdom of all five — and return a JSON object with exactly these fields:
+
+{
+  "stateAssessment": "2-3 sentences identifying the dominant consciousness frequency this person is operating from — not what they said, but what their words reveal about their current vibrational state",
+  "shadowObservation": "1-2 sentences on what is unspoken, avoided, or lurking beneath the surface — Jung's perspective",
+  "transmission": "3-4 sentences of direct guidance — what this person needs to hear right now, spoken with authority and compassion",
+  "wave": "The single most important Gateway Wave for this person to work with next (Wave I through Wave VII) — name and one sentence why",
+  "frequency": "The single Solfeggio frequency most aligned with their current need — Hz number and one sentence why",
+  "code": "The single activation code most relevant right now (55515, 1111, 528 Hz, 432 Hz, 888, 369, Gateway) — just the code and one sentence why",
+  "practice": "One specific practice to do in the next 24 hours — concrete, actionable, 1-2 sentences"
+}
+
+Return ONLY valid JSON. No preamble. No markdown fences. No text outside the JSON object.`,
+  preSession: `You are the Council of Five — Monroe, Lipton, Dispenza, Tesla, Jung — preparing a practitioner for their next Gateway Protocol session.
+
+You are given their last journal entries in chronological order (oldest first, most recent last). Read for patterns ACROSS entries, not just the most recent one:
+- What state are they cycling through?
+- What shadow theme keeps resurfacing?
+- What have they been over-practicing or avoiding?
+- What is the next true edge — the practice that would meet them where they actually are, not where they want to be?
+
+Then return a JSON object with EXACTLY these fields:
+
+{
+  "recommendedWave": <integer 1-7>,         // Gateway Wave: I=Discovery/Focus10, II=Threshold/Focus12, III=Freedom/Focus15, IV=Colleagues, V=Stations, VI=Patterns, VII=23-27
+  "recommendedFreq": <integer Hz>,           // ONE of: 174, 285, 396, 417, 432, 528, 639, 741, 852, 963
+  "recommendedBreath": <string>,             // ONE of: "Coherence 5-5", "Gateway 5-5-5", "Box 4-4-4-4", "Dispenza 4-0-8", "Tesla 3-6-9", "Pranayama 4-7-8"
+  "intention": <string>,                      // 1 sentence in second person. The seed for this session. Speak directly to them.
+  "rationale": <string>                       // 2-3 sentences. Why THIS wave + freq + breath for THIS person right now, based on the pattern you read across their entries.
+}
+
+Return ONLY valid JSON. No preamble. No markdown fences. No text outside the JSON object.`,
+  monthly: `You are the Council of Five — Monroe, Lipton, Dispenza, Tesla, Jung — performing a deep month-scale pattern reading.
+
+You are given a practitioner's journal entries from the last 30 days. Read for:
+- Recurring shadow themes (what keeps coming up that they haven't integrated)
+- Breakthroughs (real shifts in state, not just hopes)
+- Energetic arc (where did they start, where are they now, where is the trajectory pointing)
+- What is being avoided or under-practiced
+
+Return JSON with EXACTLY these fields:
+
+{
+  "themes": [<string>, ...],              // 3-5 recurring themes, each one short phrase
+  "breakthroughs": [<string>, ...],        // 0-3 genuine shifts you can see in the entries
+  "shadows": [<string>, ...],              // 1-3 unintegrated patterns asking for attention
+  "coherenceArc": <string>,                // 2-3 sentences on the trajectory month-over-month
+  "suggestion": <string>                   // 1-2 sentences: the single most important next move
+}
+
+Return ONLY valid JSON. No preamble. No markdown fences.`,
+  affirmation: `You are the Council of Five writing a custom activation affirmation for a Gateway practitioner.
+
+The practitioner has given you an intention (what they want) and chosen an activation code (the energetic frequency: 55515, 1111, 528 Hz, 432 Hz, 888, 369, Focus 15, Shadow, Gateway). Write a single affirmation that:
+- Is spoken in first person, present tense ("I am" / "I have" — not "I will")
+- Embodies the energetic signature of the chosen code
+- Speaks to their specific intention
+- Is 1-3 sentences, no longer
+- Is precise, not vague spiritual platitude
+- Has rhythmic, almost incantatory quality when spoken aloud
+
+Return JSON:
+{
+  "affirmation": <the affirmation text>,
+  "intent": <one short phrase summarizing what it activates, e.g. "Wealth · Freedom · Life Upgrade">
+}
+
+Return ONLY valid JSON. No markdown fences.`,
+  shadow: `You are Carl Jung speaking through the Council of Five, holding a shadow work dialogue with a practitioner.
+
+Your method:
+- Open with one short, direct question that goes immediately beneath the surface of whatever they've brought.
+- Each turn, ask ONE question. Never two. Never a paragraph of teaching.
+- The question should reveal the next layer they haven't seen yet — not what they want to talk about, but what they're avoiding.
+- Use their own words and images back to them. Notice what they emphasize, what they minimize, what they joke about.
+- Track for resistance: if they deflect, name the deflection gently and re-ask.
+- After roughly 6-8 exchanges, when a genuine integration moment arrives (recognition, grief, embodied yes), name what you've seen and offer a single practice to anchor it.
+
+Format every reply as JSON:
+{
+  "reply": <your message, 1-3 sentences max, ending in either a question or — at integration — a closing practice>,
+  "isComplete": <true only when you've named the integration and offered a closing practice; otherwise false>
+}
+
+Return ONLY valid JSON. No markdown fences.`,
+  synchronicity: `You are the Council of Five analyzing a practitioner's synchronicity log.
+
+Synchronicities are meaningful coincidences — number sequences (11:11, 333, 444), repeated symbols, dream/waking echoes, "right person/right time" events. They are the visible edge of the field reorganizing around the practitioner.
+
+Read the log for:
+- Recurring symbols or numbers
+- Time-of-day clustering (do most syncs happen morning/afternoon/evening/night?)
+- Themes the syncs are pointing to
+- What the field is trying to tell them
+
+Return JSON:
+{
+  "recurringSymbols": [<string>, ...],     // 0-5 symbols/numbers appearing more than once
+  "timeClusters": <string>,                // 1 sentence on when they tend to happen
+  "themes": [<string>, ...],               // 1-4 themes the syncs collectively point to
+  "fieldMessage": <string>                  // 2-3 sentences: what the field is showing them
+}
+
+Return ONLY valid JSON. No markdown fences.`,
+};
 const GP_API = {
   isElectron: GP_ELECTRON,
   async elevenlabsTTS(opts){
@@ -1534,62 +1735,106 @@ const GP_API = {
       const buf=await window.gp.elevenlabsTTS(opts);
       return new Blob([buf],{type:'audio/mpeg'});
     }
-    const res=await fetch('http://localhost:5050/tts',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
-    });
-    if(!res.ok) throw new Error('Proxy returned '+res.status);
-    return await res.blob();
+    // The /byok/* family covers Anthropic + OpenAI only — there is no
+    // ElevenLabs passthrough. Throw so VOICE._speakElevenLabsProxy falls back
+    // to OpenAI TTS / Web Speech (its catch already does this silently).
+    throw new Error('ElevenLabs voice is desktop-only — use OpenAI or Browser voice on the web app.');
   },
   async openaiTTS(opts){
     if(GP_ELECTRON){
       const buf=await window.gp.openaiTTS(opts);
       return new Blob([buf],{type:'audio/mpeg'});
     }
-    const res=await fetch('http://localhost:5050/oai-tts',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
-    });
-    if(!res.ok) throw new Error('Proxy returned '+res.status);
-    return await res.blob();
+    // Web BYOK → /byok/openai/speech (provider-native body; returns audio/mpeg).
+    return await BYOK._fetch('/byok/openai/speech','openai',{
+      model:opts.model||'tts-1',
+      input:opts.text,
+      voice:opts.voice||'nova',
+      speed:opts.speed??0.78,
+    },true);
   },
   async mirror(opts){
     if(GP_ELECTRON){
       return await window.gp.mirror(opts);
     }
-    const res=await fetch('http://localhost:5050/mirror',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
-    });
-    const data=await res.json();
-    if(!res.ok || data.error) throw new Error(data.error?.message||data.error||'Council unreachable');
-    return data;
+    // Web BYOK → /byok/anthropic/messages (full Messages-API body, not the old
+    // /mirror shape). Weave any semantically-retrieved past entries into the
+    // user content for long-term context — parity with main.js mirror-with-context.
+    let content='';
+    if(Array.isArray(opts.pastEntries) && opts.pastEntries.length){
+      content+='BACKGROUND — semantically-relevant past entries from this practitioner:\n\n';
+      opts.pastEntries.forEach((p,i)=>{
+        content+=`[${i+1}] ${p.date}${p.session?' · '+p.session:''}\n`;
+        (p.data||[]).forEach(d=>{ content+=`   ${d.prompt}: ${d.response}\n`; });
+        content+='\n';
+      });
+      content+='── Reference these only if genuinely relevant. The practitioner does not need to be told about every entry — only weave them in when they reveal a pattern. ──\n\n';
+    }
+    content+=`Here is my journal entry:\n\n${opts.entry}`;
+    // Return the raw Anthropic envelope — QM.consult does its own parse + retry.
+    return await BYOK.anthropic(COUNCIL_PROMPTS.mirror, content);
   },
   // V2 #2 — Adaptive Session Engine
   async preSession(opts){
     if(GP_ELECTRON){
       return await window.gp.preSession(opts); // already-parsed recommendation
     }
-    const res=await fetch('http://localhost:5050/pre-session',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(opts)
-    });
-    const data=await res.json();
-    if(!res.ok || data.error) throw new Error(data.error?.message||data.error||'Council unreachable');
-    return data;
+    const entries=opts.entries||[];
+    if(!Array.isArray(entries) || entries.length<2) throw new Error('Need at least 2 journal entries');
+    const dossier=entries.map((e,i)=>{
+      const when=e.date||'unknown date';
+      const ctx=e.session?` (during ${e.session})`:'';
+      const lines=(e.data||[]).map(d=>`  ${d.prompt}: ${d.response}`).join('\n');
+      return `─── Entry ${i+1} · ${when}${ctx} ───\n${lines}`;
+    }).join('\n\n');
+    return await BYOK.councilJSON(COUNCIL_PROMPTS.preSession, `Here are my last ${entries.length} journal entries:\n\n${dossier}`);
   },
-  // V4 — Electron-only Council features (no V1 proxy fallback; require window.gp)
+  // V4 — Council "deep intelligence" features. Electron → IPC; hosted web →
+  // /byok/anthropic/messages with the user's own key (no longer desktop-only).
   async monthlyPatterns(opts){
-    if(!GP_ELECTRON) throw new Error('Monthly patterns require the V2 desktop app');
-    return await window.gp.monthlyPatterns(opts);
+    if(GP_ELECTRON) return await window.gp.monthlyPatterns(opts);
+    const entries=opts.entries||[];
+    if(!Array.isArray(entries) || entries.length<3) throw new Error('Need at least 3 journal entries for monthly pattern analysis');
+    const dossier=entries.map((e,i)=>{
+      const when=e.date||'unknown';
+      const lines=(e.data||[]).map(d=>`  ${d.prompt}: ${d.response}`).join('\n');
+      return `─── Entry ${i+1} · ${when} ───\n${lines}`;
+    }).join('\n\n');
+    return await BYOK.councilJSON(COUNCIL_PROMPTS.monthly, `Practitioner's last ${entries.length} entries:\n\n${dossier}`, 1500);
   },
   async generateAffirmation(opts){
-    if(!GP_ELECTRON) throw new Error('Affirmation generator requires the V2 desktop app');
-    return await window.gp.generateAffirmation(opts);
+    if(GP_ELECTRON) return await window.gp.generateAffirmation(opts);
+    if(!opts.intention || !opts.code) throw new Error('Intention and code are required');
+    return await BYOK.councilJSON(COUNCIL_PROMPTS.affirmation, `Intention: ${opts.intention}\nActivation code: ${opts.code}\n\nWrite the affirmation.`, 512);
   },
   async shadowDialogue(opts){
-    if(!GP_ELECTRON) throw new Error('Shadow dialogue requires the V2 desktop app');
-    return await window.gp.shadowDialogue(opts);
+    if(GP_ELECTRON) return await window.gp.shadowDialogue(opts);
+    const messages=Array.isArray(opts.history)?opts.history.slice():[];
+    messages.push({role:'user',content:opts.message||'(beginning)'});
+    const env=await BYOK.anthropicMessages(COUNCIL_PROMPTS.shadow, messages, 512);
+    const raw=env.content?.[0]?.text||'';
+    // Free-text dialogue: parse the JSON shape, else treat the text as the reply.
+    return tryParseCouncil(raw) || { reply:raw.trim()||'Tell me more.', isComplete:false };
   },
   async analyzeSynchronicities(opts){
-    if(!GP_ELECTRON) throw new Error('Synchronicity analysis requires the V2 desktop app');
-    return await window.gp.analyzeSynchronicities(opts);
+    if(GP_ELECTRON) return await window.gp.analyzeSynchronicities(opts);
+    const syncs=opts.syncs||[];
+    if(!Array.isArray(syncs) || syncs.length<3) throw new Error('Need at least 3 synchronicity entries for pattern analysis');
+    const log=syncs.map((s,i)=>`${i+1}. [${s.date||'unknown'}] ${s.text}`).join('\n');
+    return await BYOK.councilJSON(COUNCIL_PROMPTS.synchronicity, `Practitioner's synchronicity log (${syncs.length} entries):\n\n${log}`, 1024);
+  },
+  // V7c — OpenAI embeddings for semantic journal memory. (Previously missing
+  // entirely — MEMORY.embedNewEntries/retrieve called GP_API.embed with no
+  // definition.) Electron → IPC; hosted web → /byok/openai/embeddings.
+  async embed(opts){
+    if(GP_ELECTRON) return await window.gp.embed(opts);
+    const env=await BYOK._fetch('/byok/openai/embeddings','openai',{
+      model:'text-embedding-3-small',
+      input:(opts.text||'').slice(0,8000),
+    },false);
+    const v=env.data?.[0]?.embedding;
+    if(!v) throw new Error('OpenAI embeddings: empty response');
+    return { vector:v, model:env.model, dim:v.length };
   },
   // Reminder settings (Electron only — uses native notifications)
   reminders:{
@@ -3275,8 +3520,9 @@ const VOICE={
 
   async _speakElevenLabsProxy(text){
     // In Electron: routes through window.gp.elevenlabsTTS over IPC, main.js
-    // makes the HTTPS call. In a plain browser: falls back to the V1 proxy
-    // on port 5050. Either way fails silent → Web Speech fallback.
+    // makes the HTTPS call. On the hosted web build there is no ElevenLabs
+    // /byok route, so GP_API.elevenlabsTTS throws → we fall through to Web
+    // Speech here. Either way fails silent → Web Speech fallback.
     this._stopAudio();
     try{
       const blob=await GP_API.elevenlabsTTS({text,voiceId:this.elVoiceId,model:this.elModel,stability:this.elStability,similarity:this.elSimilarity,key:this.elKey});
@@ -3777,9 +4023,13 @@ const QM={
       try{ pastEntries=await MEMORY.retrieve(entry, MEMORY.K); }catch(e){ /* silent */ }
 
       const callMirror=async(entryText)=>{
-        return (GP_ELECTRON && pastEntries.length)
-          ? await window.gp.mirrorWithContext({entry:entryText, pastEntries})
-          : await GP_API.mirror({entry:entryText, key:this._key});
+        if(GP_ELECTRON){
+          return pastEntries.length
+            ? await window.gp.mirrorWithContext({entry:entryText, pastEntries})
+            : await window.gp.mirror({entry:entryText});
+        }
+        // Web BYOK: GP_API.mirror weaves pastEntries into the request body itself.
+        return await GP_API.mirror({entry:entryText, pastEntries});
       };
 
       // Attempt 1
