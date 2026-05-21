@@ -58,6 +58,10 @@ jobs:
           fi
           echo "OK · no exposed keys"
 
+      - name: Verify vendored library checksums
+        working-directory: electron-app/renderer/vendor
+        run: sha256sum -c SHA256SUMS
+
       - name: npm install (electron-app)
         working-directory: electron-app
         run: npm ci --no-audit --no-fund
