@@ -2259,25 +2259,24 @@ const AMBIENT={
 
   stop(){
     if(!this._ctx)return;
-    try{
-      if(this._masterGain){
-        this._masterGain.gain.linearRampToValueAtTime(0,this._ctx.currentTime+2);
-      }
-      setTimeout(()=>{
-        // Tear down all sources: noise node + solfeggio osc + every harmonic pair
-        const sources=[this._noiseNode,this._solfOsc];
-        this._binPairs.forEach(p=>{ sources.push(p.L); sources.push(p.R); });
-        sources.forEach(n=>{
-          try{if(n&&n.stop)n.stop();}catch(e){}
-          try{if(n&&n.disconnect)n.disconnect();}catch(e){}
-        });
-        this._binPairs=[];
-        this._noiseNode=this._noiseGain=this._solfOsc=this._solfGain=null;
-        this._binGain=this._merger=this._masterGain=null;
-        this._running=false;
-        this._updateStateUI();
-      },2200);
-    }catch(e){}
+    const ctx=this._ctx, master=this._masterGain;
+    // Snapshot every source NOW, then null the instance refs immediately so a
+    // start() during the fade builds fresh nodes instead of being torn down
+    // by this timeout (the old code read this._* at fire time → restart race).
+    const sources=[this._noiseNode,this._solfOsc];
+    this._binPairs.forEach(p=>{ sources.push(p.L); sources.push(p.R); });
+    this._binPairs=[];
+    this._noiseNode=this._noiseGain=this._solfOsc=this._solfGain=null;
+    this._binGain=this._merger=this._masterGain=null;
+    this._running=false;
+    this._updateStateUI();
+    try{ if(master) master.gain.linearRampToValueAtTime(0,ctx.currentTime+1.5); }catch(e){}
+    setTimeout(()=>{
+      sources.forEach(n=>{
+        try{if(n&&n.stop)n.stop();}catch(e){}
+        try{if(n&&n.disconnect)n.disconnect();}catch(e){}
+      });
+    },1700);
   },
 
   preview(){
@@ -2572,14 +2571,29 @@ function toggleSolf(i,hz){
 }
 
 function stopSolf(){
-  if(oscillator){
-    gainNode.gain.linearRampToValueAtTime(0,audioCtx.currentTime+1);
-    setTimeout(()=>{ try{oscillator.stop();}catch(e){} },1100);
-    oscillator=null;
+  if(oscillator && gainNode && audioCtx){
+    // Capture the live nodes in locals. The old code nulled `oscillator`
+    // before the timeout fired, so the deferred .stop() hit null (or, if a
+    // new tone had started, stopped the WRONG oscillator) — the tone never
+    // actually stopped and the node leaked. Locals + disconnect fix both.
+    const osc=oscillator, g=gainNode, t=audioCtx.currentTime;
+    try{
+      g.gain.cancelScheduledValues(t);
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.linearRampToValueAtTime(0, t+0.4);
+    }catch(e){}
+    setTimeout(()=>{
+      try{ osc.stop(); }catch(e){}
+      try{ osc.disconnect(); }catch(e){}
+      try{ g.disconnect(); }catch(e){}
+    }, 480);
+    oscillator=null; gainNode=null;
   }
   if(activeSolf!==null){
-    document.getElementById('solf-'+activeSolf).classList.remove('active');
-    document.getElementById('solf-play-'+activeSolf).textContent='';
+    const el=document.getElementById('solf-'+activeSolf);
+    if(el) el.classList.remove('active');
+    const pl=document.getElementById('solf-play-'+activeSolf);
+    if(pl) pl.textContent='';
     activeSolf=null;
   }
   document.querySelectorAll('.ab').forEach(b=>b.classList.remove('playing'));
