@@ -348,6 +348,9 @@ body{
 .gp-cotd-code{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--gold2);letter-spacing:3px;line-height:1.1}
 .gp-cotd-intent{font-size:15px;color:var(--silver);letter-spacing:.5px;margin-top:.4rem;font-style:italic}
 .gp-cotd-text{font-size:15px;color:var(--muted);line-height:1.7;margin-top:.6rem;max-width:560px;font-family:'Cormorant Garamond',serif;font-style:italic}
+.gp-atmosphere{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:-.6rem 0 1.5rem;padding:0 .2rem;animation:gpRecFade .8s ease-out}
+.gp-atmosphere .gp-atmosphere-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pulse 3s ease-in-out infinite;flex:0 0 auto}
+.gp-atmosphere b{color:var(--gold2);font-weight:500}
 
 /* ═══ V4a · MONTHLY PATTERNS PANEL ═══ */
 .gp-patterns{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
@@ -625,6 +628,77 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
 @media (prefers-reduced-motion: reduce){
   .hero-title{animation:none}
 }
+
+/* ════════ V3 · SPATIAL DEPTH + REFINED MOTION ════════
+   Depth-of-field focus: when a wave card opens, its siblings recede and the
+   particle field calms, so attention pools on the open content — the way a
+   camera racks focus. Uses :has() (Chromium supports it). */
+.wave-list:has(.wave-card.open) .wave-card:not(.open){
+  opacity:.42;filter:saturate(.65);transition:opacity .45s ease,filter .45s ease;
+}
+body:has(#screen-waves.active .wave-card.open) #gp-three-canvas{
+  opacity:.45!important;transition:opacity .6s ease;
+}
+/* The open card lifts toward the viewer with a soft cast shadow */
+.wave-card.open{
+  transform:translateY(-2px);
+  box-shadow:0 18px 50px rgba(0,0,0,.5),0 0 0 .5px var(--border2),0 0 30px rgba(201,168,76,.10);
+  transition:transform .4s cubic-bezier(.22,.61,.36,1),box-shadow .4s ease;
+}
+/* Interactive cards get a subtle hover micro-lift (skipped under reduced motion) */
+.wave-card,.sess-card,.solf-card{transition:transform .25s cubic-bezier(.22,.61,.36,1),border-color .25s,box-shadow .25s,opacity .45s,filter .45s}
+body:not(.gp-reduced) .wave-card:not(.open):hover,
+body:not(.gp-reduced) .sess-card:hover,
+body:not(.gp-reduced) .solf-card:hover{transform:translateY(-3px)}
+/* Honor reduced-motion: no focus-dim, no lift */
+body.gp-reduced .wave-list:has(.wave-card.open) .wave-card:not(.open){opacity:1;filter:none}
+body.gp-reduced .wave-card.open{transform:none}
+
+/* ════════ V3 · RITUAL ARRIVAL ════════ */
+#gp-arrival{position:fixed;inset:0;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(2,2,12,.86),rgba(2,2,10,.97));
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-align:center;padding:2rem;}
+#gp-arrival.show{display:flex;animation:gpFadeIn .9s ease-out}
+#gp-arrival.closing{animation:gpArrivalOut 1s ease forwards}
+@keyframes gpArrivalOut{to{opacity:0;visibility:hidden}}
+#gp-arrival-skip{position:absolute;top:1.4rem;right:1.6rem;background:none;border:none;color:var(--muted);
+  font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;opacity:.7}
+#gp-arrival-skip:hover{color:var(--gold)}
+.gp-arrival-stage{display:flex;flex-direction:column;align-items:center;gap:1.6rem;max-width:560px}
+.gp-arrival-breath{width:140px;height:140px;border-radius:50%;border:1px solid var(--border2);
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 70%);display:flex;align-items:center;justify-content:center;
+  transition:transform 4s ease-in-out;transform:scale(.7)}
+.gp-arrival-breath.inhale{transform:scale(1.18)}
+#gp-arrival-breath-label{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.gp-arrival-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(20px,3.5vw,30px);color:var(--gold2);line-height:1.5;min-height:2.4em}
+.gp-arrival-prompt{display:none;flex-direction:column;gap:1rem;width:min(440px,86vw);animation:gpBootRise .8s ease-out}
+.gp-arrival-prompt.show{display:flex}
+#gp-arrival-intention{background:rgba(0,0,0,.4);border:.5px solid var(--border2);border-radius:3px;color:var(--text);
+  font-family:'Cormorant Garamond',serif;font-size:17px;padding:12px 14px;text-align:center;outline:none}
+#gp-arrival-intention:focus{border-color:var(--gold)}
+.gp-arrival-dismiss{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center;justify-content:center;cursor:pointer;margin-top:.4rem}
+.gp-arrival-dismiss input{accent-color:var(--gold)}
+body.gp-reduced .gp-arrival-breath{transition:none}
+
+/* ════════ V3 · FOCUS MODE + EARNED MINIMALISM ════════ */
+#gp-focus-toggle{position:fixed;bottom:1.4rem;right:1.4rem;z-index:90;width:42px;height:42px;border-radius:50%;
+  background:rgba(15,15,31,.7);border:.5px solid var(--border2);color:var(--gold);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .25s;backdrop-filter:blur(6px)}
+#gp-focus-toggle:hover{color:var(--gold2);border-color:var(--gold);box-shadow:0 0 18px rgba(201,168,76,.25)}
+/* Focus mode: shed everything but the active content + section title */
+body.gp-focus .hero,body.gp-focus .nav,body.gp-focus .gp-cotd,
+body.gp-focus #gp-atmosphere,body.gp-focus .gp-rec,body.gp-focus .gp-rec-loading,
+body.gp-focus .section-sub,body.gp-focus .divider{display:none!important}
+body.gp-focus #app{padding-top:3.5rem}
+body.gp-focus #gp-focus-toggle{background:rgba(201,168,76,.14);color:var(--gold2);border-color:var(--gold)}
+/* Earned minimalism: the deeper the tier, the quieter the chrome.
+   Tier 0–1 full; 2 dims the hero sub; 3 shrinks the hero; 4 (Sovereign)
+   removes hero ornamentation entirely — the interface gets out of the way. */
+body[data-tier="2"] .hero-sub{opacity:.5}
+body[data-tier="3"] .hero-eye{transform:scale(.7);opacity:.6}
+body[data-tier="3"] .hero-sub,body[data-tier="4"] .hero-sub{display:none}
+body[data-tier="4"] .hero-eye{display:none}
+body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
 </style>
 <!-- Three.js: bundled locally (vendor/three.min.js) so the app works offline
      and on first launch without a network call. Loaded synchronously so THREE
@@ -638,6 +712,23 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
 
 <!-- V3b · Cinematic mode exit hint (only visible when body.gp-cinematic) -->
 <div class="gp-cinematic-exit-hint" id="gp-cinematic-exit" onclick="CINEMATIC.exit()">Esc · exit cinematic</div>
+
+<!-- V3 · Focus mode toggle (also bound to the "f" key) -->
+<button id="gp-focus-toggle" onclick="FOCUS.toggle()" title="Focus mode (f) — hide everything but the practice">◎</button>
+
+<!-- V3 · Ritual arrival overlay — shown on launch (skippable, can be disabled) -->
+<div id="gp-arrival" aria-hidden="true">
+  <button id="gp-arrival-skip" onclick="ARRIVAL.skip()">Skip ·</button>
+  <div class="gp-arrival-stage">
+    <div class="gp-arrival-breath" id="gp-arrival-breath"><span id="gp-arrival-breath-label"></span></div>
+    <div class="gp-arrival-text" id="gp-arrival-text"></div>
+    <div class="gp-arrival-prompt" id="gp-arrival-prompt">
+      <input id="gp-arrival-intention" type="text" placeholder="Set one intention for this session… (optional)" autocomplete="off">
+      <button class="gp-btn primary" onclick="ARRIVAL.complete()">Enter</button>
+    </div>
+    <label class="gp-arrival-dismiss"><input type="checkbox" id="gp-arrival-never"> Don't show this on launch</label>
+  </div>
+</div>
 
 <!-- STARFIELD (V1 fallback — hidden via CSS when Three.js initializes) -->
 <div id="starfield"></div>
@@ -713,6 +804,9 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
       <div class="gp-cotd-intent" id="gp-cotd-intent"></div>
       <div class="gp-cotd-text" id="gp-cotd-text"></div>
     </div>
+
+    <!-- V3 · Adaptive atmosphere indicator — the field auto-attunes on open -->
+    <div class="gp-atmosphere" id="gp-atmosphere" style="display:none"></div>
 
     <!-- V2 #2: Council pre-session recommendation. Hidden until QM.requestPreSession resolves. -->
     <div class="gp-rec-loading" id="gp-rec-loading">
@@ -1224,6 +1318,10 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;color:var(--silver)">
           <input type="checkbox" id="gp-field-audio-toggle" style="accent-color:var(--gold)"> Enable
         </label>
+      </div>
+      <div class="gp-reminders-row" style="gap:10px;margin-top:.6rem">
+        <label style="color:var(--muted);min-width:90px">Presence</label>
+        <input type="range" id="gp-field-audio-vol" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--gold)">
       </div>
     </div>
 
@@ -1866,15 +1964,18 @@ const THREE_FIELD={
 // Off by default. Toggle persists in localStorage. Uses its own AudioContext
 // so it's independent of the session ambient engine.
 const FIELD_AUDIO={
-  KEY:'gp_field_audio',
-  _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_lfo:null,_lfoGain:null,
-  _enabled:false,_running:false,_ducked:false,
+  KEY:'gp_field_audio', VOL_KEY:'gp_field_audio_vol',
+  _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_oscOct:null,_lfo:null,_lfoGain:null,
+  _enabled:false,_running:false,_ducked:false,_userVol:1,
   _state:{freqNorm:0.4,breath:0,cinematic:false},
 
   init(){
     this._enabled = (localStorage.getItem(this.KEY)==='1');
+    const sv=parseFloat(localStorage.getItem(this.VOL_KEY)); if(!isNaN(sv)) this._userVol=Math.max(0,Math.min(1.5,sv));
     const box=document.getElementById('gp-field-audio-toggle');
     if(box){ box.checked=this._enabled; box.onchange=()=>this.setEnabled(box.checked); }
+    const slider=document.getElementById('gp-field-audio-vol');
+    if(slider){ slider.value=this._userVol; slider.oninput=()=>this.setPresence(+slider.value); }
     if(this._enabled){
       // AudioContext can't start without a user gesture — arm a one-shot resume.
       const arm=()=>{ this.start(); document.removeEventListener('pointerdown',arm); document.removeEventListener('keydown',arm); };
@@ -1898,8 +1999,13 @@ const FIELD_AUDIO={
 
   _baseFreq(){ return 80 + this._state.freqNorm*80; },          // 80–160Hz felt range
   _targetVol(){
-    if(this._ducked) return 0.004;
-    return this._state.cinematic ? 0.085 : 0.05;                 // deliberately low presence
+    if(this._ducked) return 0.004*this._userVol;
+    return (this._state.cinematic ? 0.085 : 0.05) * this._userVol; // deliberately low presence
+  },
+  setPresence(v){
+    this._userVol=Math.max(0,Math.min(1.5,v));
+    try{ localStorage.setItem(this.VOL_KEY, String(this._userVol)); }catch(e){}
+    this._applyVol();
   },
 
   start(){
@@ -1925,6 +2031,10 @@ const FIELD_AUDIO={
     this._oscFifth=ctx.createOscillator(); this._oscFifth.type='sine'; this._oscFifth.frequency.value=f*1.5;
     const g2=ctx.createGain(); g2.gain.value=0.2; this._oscFifth.connect(g2); g2.connect(this._filter); this._oscFifth.start();
 
+    // Octave above — adds air/shimmer without muddying the low fundamental
+    this._oscOct=ctx.createOscillator(); this._oscOct.type='triangle'; this._oscOct.frequency.value=f*2;
+    const g3=ctx.createGain(); g3.gain.value=0.10; this._oscOct.connect(g3); g3.connect(this._filter); this._oscOct.start();
+
     // Slow breathing LFO so it's alive even when no breath session drives it (~14s cycle)
     this._lfo=ctx.createOscillator(); this._lfo.type='sine'; this._lfo.frequency.value=0.07;
     this._lfoGain=ctx.createGain(); this._lfoGain.gain.value=0.015;
@@ -1935,10 +2045,10 @@ const FIELD_AUDIO={
     if(!this._running || !this._ctx) return;
     const ctx=this._ctx; this._running=false;
     if(this._master) this._master.gain.setTargetAtTime(0, ctx.currentTime, 1.2);
-    const nodes=[this._osc,this._oscFifth,this._lfo];
+    const nodes=[this._osc,this._oscFifth,this._oscOct,this._lfo];
     setTimeout(()=>{
       nodes.forEach(n=>{ try{n.stop();}catch(e){} try{n.disconnect();}catch(e){} });
-      this._osc=this._oscFifth=this._lfo=this._lfoGain=this._filter=this._master=null;
+      this._osc=this._oscFifth=this._oscOct=this._lfo=this._lfoGain=this._filter=this._master=null;
     },1500);
   },
 
@@ -1954,6 +2064,7 @@ const FIELD_AUDIO={
       const f=this._baseFreq();
       this._osc.frequency.setTargetAtTime(f, this._ctx.currentTime, 0.9);
       this._oscFifth.frequency.setTargetAtTime(f*1.5, this._ctx.currentTime, 0.9);
+      if(this._oscOct) this._oscOct.frequency.setTargetAtTime(f*2, this._ctx.currentTime, 0.9);
       this._filter.frequency.setTargetAtTime(500+this._state.freqNorm*900, this._ctx.currentTime, 0.9);
     }
   },
@@ -2603,6 +2714,11 @@ function init(){
   PROTOBUILD.render();
   // V7c: embed any pre-existing journal entries that haven't been embedded yet
   MEMORY.embedNewEntries().catch(()=>{});
+  // V3: attune the atmosphere to today (Council rec / code-of-day / HRV).
+  // Re-applies when the Council recommendation arrives (see PRESESSION._render).
+  ATMOSPHERE.apply();
+  // V3: focus mode (restore + keybind) + earned-minimalism tier attribute
+  FOCUS.init();
 }
 
 // ═══════════════════════════ STARS ═══════════════════════════
@@ -4015,6 +4131,7 @@ const PRESESSION={
 
   _render(rec,when){
     this._lastRec=rec;
+    if(typeof ATMOSPHERE!=='undefined') ATMOSPHERE.apply(); // V3: re-attune field to the fresh reading
     document.getElementById('gp-rec-intention').textContent='"'+(rec.intention||'')+'"';
     document.getElementById('gp-rec-rationale').textContent=rec.rationale||'';
 
@@ -4105,10 +4222,164 @@ const CODE_OF_DAY={
       try{ localStorage.setItem(this.KEY,JSON.stringify(saved)); }catch(e){}
     }
     const c=this.CODES[saved.idx];
+    this._current=c; // exposed for ATMOSPHERE
     document.getElementById('gp-cotd-code').textContent=c.code;
     document.getElementById('gp-cotd-intent').textContent=c.intent;
     document.getElementById('gp-cotd-text').textContent='"'+c.text+'"';
   }
+};
+
+// ═══════════════════════════ V3 · ADAPTIVE ATMOSPHERE ═══════════════════════════
+// The environment attunes to who you are today. On open (and after each new
+// journal entry), the particle field's color/intensity + the resonance pitch
+// are set from three signals already in the app:
+//   1. The Council's latest pre-session recommendation (recommendedFreq)
+//   2. Your HRV trend (improving coherence → brighter, calmer field)
+//   3. The Code of the Day (its frequency, when it has one)
+// Non-intrusive: it tints the field and (if Field Resonance is on) the drone.
+// It never starts audio on its own or forces a session.
+const ATMOSPHERE={
+  SOLF:[174,285,396,417,432,528,639,741,852,963],
+
+  // Pull a Hz out of strings like "528 Hz", "528", "Wave III · 528 Hz"
+  _hzFrom(v){
+    if(v==null) return null;
+    const m=String(v).match(/(\d{3})\s*hz/i) || String(v).match(/\b(\d{3})\b/);
+    if(!m) return null;
+    const n=parseInt(m[1],10);
+    return this.SOLF.includes(n)?n:null;
+  },
+
+  // Source priority: Council rec → code-of-day → default 528 (heart/coherence)
+  _chooseFrequency(){
+    const rec=(typeof PRESESSION!=='undefined') && PRESESSION._lastRec;
+    const fromRec=rec && this._hzFrom(rec.recommendedFreq);
+    if(fromRec) return {hz:fromRec, why:'attuned to the Council\'s reading of your recent entries'};
+    const cod=(typeof CODE_OF_DAY!=='undefined') && CODE_OF_DAY._current;
+    const fromCod=cod && this._hzFrom(cod.code);
+    if(fromCod) return {hz:fromCod, why:'set to today\'s code'};
+    return {hz:528, why:'resting at 528 Hz — heart coherence'};
+  },
+
+  // HRV trend → coherence 0..1 (improving/higher = more coherent)
+  _coherence(){
+    let arr=[]; try{ arr=JSON.parse(localStorage.getItem('gp_biometric')||'[]'); }catch(e){}
+    if(arr.length<2) return 0.5;
+    const s=arr.slice().sort((a,b)=>a.at-b.at);
+    const recent=s.slice(-5), prior=s.slice(-10,-5);
+    const avg=a=>a.reduce((t,x)=>t+x.hrv,0)/a.length;
+    const r=avg(recent), p=prior.length?avg(prior):r;
+    // Map improvement (-/+) into 0..1 around a 0.5 baseline
+    const delta=(r-p)/(p||1);
+    return Math.max(0,Math.min(1, 0.5 + delta*1.5));
+  },
+
+  apply(){
+    const {hz,why}=this._chooseFrequency();
+    const coherence=this._coherence();
+    // Drive the visual field (colors + intensity) and the resonance pitch
+    if(typeof THREE_FIELD!=='undefined'){
+      THREE_FIELD.setFrequency(hz,true);
+      if(THREE_FIELD._state){ THREE_FIELD._state.intensity=0.45+coherence*0.4; }
+    }
+    if(typeof FIELD_AUDIO!=='undefined') FIELD_AUDIO.setFrequency(hz,true);
+
+    // Subtle indicator on the home screen
+    const el=document.getElementById('gp-atmosphere');
+    if(el){
+      const feel = coherence>0.62 ? 'coherent' : coherence<0.38 ? 'settling' : 'attuned';
+      el.innerHTML=`<span class="gp-atmosphere-dot"></span>Today's field · <b>${hz} Hz</b> · ${why} · <b>${feel}</b>`;
+      el.style.display='flex';
+    }
+  }
+};
+
+// ═══════════════════════════ V3 · FOCUS MODE + EARNED MINIMALISM ═══════════════════════════
+const FOCUS={
+  KEY:'gp_focus',
+  init(){
+    // Restore last focus state
+    if(localStorage.getItem(this.KEY)==='1') document.body.classList.add('gp-focus');
+    // 'f' toggles focus when not typing in a field
+    document.addEventListener('keydown',(e)=>{
+      if(e.key!=='f'&&e.key!=='F') return;
+      const t=e.target.tagName;
+      if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT'||e.metaKey||e.ctrlKey) return;
+      this.toggle();
+    });
+    // Reflect the practitioner's tier so the chrome quiets as they advance
+    this.applyTier();
+  },
+  toggle(){
+    const on=document.body.classList.toggle('gp-focus');
+    try{ localStorage.setItem(this.KEY,on?'1':'0'); }catch(e){}
+    toast(on?'Focus mode — press f to exit':'Focus mode off');
+  },
+  applyTier(){
+    try{ document.body.dataset.tier=String((DB.load().tier)||0); }catch(e){}
+  }
+};
+
+// ═══════════════════════════ V3 · RITUAL ARRIVAL ═══════════════════════════
+// A short, skippable launch sequence: arrive → one guided breath → set a
+// single intention → the app reveals. Sets the tone instead of dumping you
+// on a dashboard. Remembered: a checkbox disables it on future launches.
+const ARRIVAL={
+  KEY:'gp_arrival_disabled',
+  _timers:[],
+  shouldShow(){ return localStorage.getItem(this.KEY)!=='1'; },
+
+  begin(){
+    if(!this.shouldShow()) return;
+    const ov=document.getElementById('gp-arrival'); if(!ov) return;
+    ov.classList.add('show'); ov.setAttribute('aria-hidden','false');
+    const breath=document.getElementById('gp-arrival-breath');
+    const label=document.getElementById('gp-arrival-breath-label');
+    const text=document.getElementById('gp-arrival-text');
+    const prompt=document.getElementById('gp-arrival-prompt');
+    const inp=document.getElementById('gp-arrival-intention');
+    const reduced=document.body.classList.contains('gp-reduced')||
+      (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const t=(fn,ms)=>{ this._timers.push(setTimeout(fn,ms)); };
+    if(inp) inp.onkeydown=(e)=>{ if(e.key==='Enter') this.complete(); };
+
+    if(reduced){
+      text.textContent='Arrive. Set one intention.'; label.textContent='∞';
+      prompt.classList.add('show'); inp&&inp.focus();
+      return;
+    }
+    // Guided single breath (4s in · ~1.5s hold · 4s out) → intention prompt
+    text.textContent='Arrive.';
+    t(()=>{ text.textContent='Breathe in…'; label.textContent='In'; breath.classList.add('inhale'); }, 1400);
+    t(()=>{ text.textContent='Hold.'; label.textContent='Hold'; }, 5500);
+    t(()=>{ text.textContent='And release…'; label.textContent='Out'; breath.classList.remove('inhale'); }, 7000);
+    t(()=>{ text.textContent='What is your intention?'; label.textContent='∞';
+            prompt.classList.add('show'); inp&&inp.focus(); }, 11200);
+  },
+
+  _finish(){
+    this._timers.forEach(clearTimeout); this._timers=[];
+    const never=document.getElementById('gp-arrival-never');
+    if(never&&never.checked){ try{ localStorage.setItem(this.KEY,'1'); }catch(e){} }
+    const ov=document.getElementById('gp-arrival');
+    ov.classList.add('closing'); ov.setAttribute('aria-hidden','true');
+    setTimeout(()=>ov.classList.remove('show','closing'),1000);
+  },
+
+  complete(){
+    const inp=document.getElementById('gp-arrival-intention');
+    const intention=((inp&&inp.value)||'').trim();
+    this._finish();
+    if(intention){
+      setTimeout(()=>{
+        const ta=document.querySelector('#journal-grid textarea');
+        if(ta && !ta.value) ta.value=intention; // seed the journal's first prompt
+        toast('Intention set · '+intention.slice(0,60));
+      },1100);
+    }
+  },
+
+  skip(){ this._finish(); }
 };
 
 // ═══════════════════════════ V4a · MONTHLY PATTERN RECOGNITION ═══════════════════════════
@@ -5313,6 +5584,8 @@ function confirmReset(){
   try{ await DB.hydrate(); }catch(e){ console.warn('Boot · DB hydrate:',e); }
   stats=DB.load(); // re-pull after hydrate in case IDB had fresher data
   init();
+  // V3: ritual arrival overlay (skippable; disabled via its own checkbox / Settings)
+  try{ ARRIVAL.begin(); }catch(e){ console.warn('Arrival:',e); }
   // V8 — check for a newer build after the UI has settled. Update checks
   // are informational, not blocking; if the server is unreachable or
   // not configured the banner just doesn't appear.
