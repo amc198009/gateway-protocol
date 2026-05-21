@@ -74,7 +74,13 @@ body{
 .nav-btn:hover,.nav-btn.active{border-color:var(--gold);color:var(--gold);background:var(--glow)}
 
 /* ═══ SCREENS ═══ */
-.screen{display:none}.screen.active{display:block}
+/* Each screen reveals with a soft fade + rise instead of a hard cut, so
+   navigation feels like a dissolve rather than a jump. The outgoing screen
+   is removed immediately (display:none can't tween); the incoming reveal
+   carries the transition. */
+.screen{display:none}
+.screen.active{display:block;animation:gpScreenIn .45s cubic-bezier(.22,.61,.36,1) both}
+@keyframes gpScreenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* ═══ SECTION TITLE ═══ */
 .section-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:.4rem}
@@ -483,6 +489,8 @@ body.gp-three-ready #geo-bg{display:none}
   .bp-btn.gp-recommended,.gp-rec-loading .gp-dot,.gp-shadow-thinking .gp-dot{
     animation:none!important
   }
+  /* Screen swaps become instant under reduced motion (no fade/rise). */
+  .screen.active{animation:none!important}
 }
 body.gp-reduced #starfield,body.gp-reduced #geo-bg,body.gp-reduced .council-dot,
 body.gp-reduced .gp-pulse-ring,body.gp-reduced .gp-net-status.live .dot,
