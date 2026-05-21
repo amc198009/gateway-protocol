@@ -354,13 +354,31 @@ function handleDownload(req, res, urlPath) {
   try { stat = fs.statSync(filePath); }
   catch (e) { return jsonResponse(res, 404, { error: 'not found' }); }
 
-  res.writeHead(200, {
+  const baseHeaders = {
     'Content-Type': 'application/x-apple-diskimage',
-    'Content-Length': stat.size,
     'Content-Disposition': `attachment; filename="${name}"`,
+    'Accept-Ranges': 'bytes',
     'Cache-Control': 'public, max-age=3600',
     'Access-Control-Allow-Origin': ALLOW_ORIGIN,
-  });
+  };
+
+  // Range support — a dropped 99MB download resumes instead of restarting.
+  const range = req.headers.range;
+  const m = range && /^bytes=(\d+)-(\d*)$/.exec(range);
+  if (m) {
+    const start = parseInt(m[1], 10);
+    const end = m[2] ? Math.min(parseInt(m[2], 10), stat.size - 1) : stat.size - 1;
+    if (start > end || start >= stat.size) {
+      res.writeHead(416, { ...baseHeaders, 'Content-Range': `bytes */${stat.size}` });
+      return res.end();
+    }
+    res.writeHead(206, { ...baseHeaders, 'Content-Range': `bytes ${start}-${end}/${stat.size}`, 'Content-Length': end - start + 1 });
+    if (req.method === 'HEAD') return res.end();
+    return fs.createReadStream(filePath, { start, end }).pipe(res);
+  }
+
+  res.writeHead(200, { ...baseHeaders, 'Content-Length': stat.size });
+  if (req.method === 'HEAD') return res.end(); // size probe — headers only
   fs.createReadStream(filePath).pipe(res);
 }
 
@@ -426,8 +444,9 @@ const server = http.createServer((req, res) => {
     if (rateLimited('feed_react', clientIp(req))) return jsonResponse(res, 429, { error: 'slow down' });
     return handleFeedReact(req, res, reactMatch[1]);
   }
-  // GET /download[...]  — direct .dmg distribution baked into the image.
-  if (req.method === 'GET' && (path === '/download' || path.startsWith('/download/'))) {
+  // GET|HEAD /download[...]  — direct .dmg distribution baked into the image.
+  // HEAD lets browsers/download managers probe size first.
+  if ((req.method === 'GET' || req.method === 'HEAD') && (path === '/download' || path.startsWith('/download/'))) {
     return handleDownload(req, res, path);
   }
   // GET /version — desktop app polls this to drive the "update available"
