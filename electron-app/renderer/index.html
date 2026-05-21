@@ -508,6 +508,23 @@ body.gp-reduced .ab.playing,body.gp-reduced .solf-card.gp-recommended,
 body.gp-reduced .wave-card.gp-recommended,body.gp-reduced .bp-btn.gp-recommended{
   animation:none!important
 }
+
+/* ═══ BOOT REVEAL ═══ */
+/* First-paint intro. The all-seeing eye resolves first, then the title
+   rises, then the subtitles and council badge, while the particle field
+   ignites from black. Plays once on load; instant under reduced motion. */
+.hero-eye{animation:gpBootRise 1.2s cubic-bezier(.22,.61,.36,1) both}
+.hero-tagline{animation:gpBootRise 1.2s cubic-bezier(.22,.61,.36,1) .28s both}
+.hero-sub{animation:gpBootRise 1.2s cubic-bezier(.22,.61,.36,1) .52s both}
+.council-badge{animation:gpBootRise 1.2s cubic-bezier(.22,.61,.36,1) .72s both}
+@keyframes gpBootRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* The field fades up from black the moment Three.js starts rendering. */
+body.gp-three-ready #gp-three-canvas{animation:gpFieldIgnite 2.6s ease-out both}
+@keyframes gpFieldIgnite{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .hero-eye,.hero-tagline,.hero-sub,.council-badge,
+  body.gp-three-ready #gp-three-canvas{animation:none!important}
+}
 </style>
 <!-- Three.js: bundled locally (vendor/three.min.js) so the app works offline
      and on first launch without a network call. Loaded synchronously so THREE
