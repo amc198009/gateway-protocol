@@ -178,6 +178,7 @@ body{
 .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
 .gp-btn{background:none;border:.5px solid var(--border);color:var(--silver);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:10px 20px;border-radius:2px;cursor:pointer;transition:all .2s}
 .gp-btn:hover{border-color:var(--gold);color:var(--gold)}
+.gp-btn.active{border-color:var(--gold);color:var(--gold);background:var(--glow)}
 .gp-btn.primary{border-color:var(--gold);color:var(--gold)}
 .gp-btn.primary:hover{background:var(--glow2)}
 
@@ -496,16 +497,15 @@ body.gp-three-ready #geo-bg{display:none}
   .bp-btn.gp-recommended,.gp-rec-loading .gp-dot,.gp-shadow-thinking .gp-dot{
     animation:none!important
   }
-  /* Screen swaps become instant under reduced motion (no fade/rise). */
-  .screen.active{animation:none!important}
-  /* Cinematic entry settles instantly under reduced motion. */
-  body.gp-cinematic #screen-sessions .timer-wrap,
-  body.gp-cinematic .timer-time{animation:none!important}
 }
 body.gp-reduced #starfield,body.gp-reduced #geo-bg,body.gp-reduced .council-dot,
 body.gp-reduced .gp-pulse-ring,body.gp-reduced .gp-net-status.live .dot,
 body.gp-reduced .ab.playing,body.gp-reduced .solf-card.gp-recommended,
-body.gp-reduced .wave-card.gp-recommended,body.gp-reduced .bp-btn.gp-recommended{
+body.gp-reduced .wave-card.gp-recommended,body.gp-reduced .bp-btn.gp-recommended,
+body.gp-reduced .gp-rec-loading .gp-dot,body.gp-reduced .gp-shadow-thinking .gp-dot,
+body.gp-reduced .screen.active,
+body.gp-reduced.gp-cinematic #screen-sessions .timer-wrap,
+body.gp-reduced.gp-cinematic .timer-time{
   animation:none!important
 }
 
@@ -1079,6 +1079,33 @@ body.gp-three-ready #gp-three-canvas{animation:gpFieldIgnite 2.6s ease-out both}
     <div class="section-title">Settings</div>
     <div class="section-sub">Reminders, data management, and app info. Voice + ambient settings stay on the Sessions screen — they're context-coupled to the timer.</div>
 
+    <!-- Visuals -->
+    <div class="gp-reminders">
+      <div class="gp-reminders-title">◈ Visuals</div>
+      <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:160px">
+          <div style="color:var(--silver)">Field quality</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5;margin-top:2px">High glows the particle field; Low uses hard points for weaker GPUs.</div>
+        </div>
+        <div class="btn-row" style="margin:0">
+          <button id="gp-vis-q-high" class="gp-btn" onclick="VISUALS.setQuality('high')">High</button>
+          <button id="gp-vis-q-low" class="gp-btn" onclick="VISUALS.setQuality('low')">Low</button>
+        </div>
+      </div>
+      <div class="divider" style="margin:.9rem 0"></div>
+      <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:160px">
+          <div style="color:var(--silver)">Motion</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5;margin-top:2px">Auto follows your system's Reduce Motion setting. Calm freezes ambient animation, the breathing field, and screen transitions.</div>
+        </div>
+        <div class="btn-row" style="margin:0">
+          <button id="gp-vis-m-auto" class="gp-btn" onclick="VISUALS.setMotion('auto')">Auto</button>
+          <button id="gp-vis-m-full" class="gp-btn" onclick="VISUALS.setMotion('full')">Full</button>
+          <button id="gp-vis-m-calm" class="gp-btn" onclick="VISUALS.setMotion('calm')">Calm</button>
+        </div>
+      </div>
+    </div>
+
     <!-- V4f · Practice Reminders -->
     <div class="gp-reminders">
       <div class="gp-reminders-title">◈ Practice Reminders · Native Notifications</div>
@@ -1527,6 +1554,10 @@ const THREE_FIELD={
     return new THREE.CanvasTexture(c);
   },
 
+  // Calm flag (authoritative value computed by VISUALS). When on, _animate
+  // renders a near-static field.
+  setCalm(on){ this._reduced=!!on; },
+
   // Live quality swap (no restart). 'high' = glowing sprites, 'low' = hard
   // points for weak GPUs. Persisted so it survives relaunch.
   setQuality(q){
@@ -1595,13 +1626,11 @@ const THREE_FIELD={
     this._resize();
     window.addEventListener('resize',()=>this._resize());
 
-    // Reduced-motion: when the OS asks for less motion (or body.gp-reduced is
-    // set) we render a near-static field — slow drift only, no breath pulsing
-    // or camera dolly. Tracked live so toggling the OS setting takes effect.
-    const mq=window.matchMedia('(prefers-reduced-motion: reduce)');
-    this._reduced=mq.matches;
-    const onMq=(e)=>{ this._reduced=e.matches; };
-    mq.addEventListener ? mq.addEventListener('change',onMq) : mq.addListener(onMq);
+    // Reduced-motion ("calm"): renders a near-static field — slow drift only,
+    // no breath pulse or camera dolly. The authoritative calm flag is owned by
+    // VISUALS (which reconciles the OS prefers-reduced-motion setting with the
+    // user's explicit Settings → Visuals → Motion choice) and pushed in via
+    // setCalm(). Default false until VISUALS.init() runs a tick later.
 
     // Visibility pause: stop the rAF entirely when the window is hidden so we
     // don't burn GPU/battery rendering a field nobody can see. Resume on show.
@@ -2295,6 +2324,9 @@ function init(){
   // body.gp-three-ready, which hides the legacy starfield + SVG via CSS.
   // On failure (e.g. WebGL unavailable), the legacy visuals stay live.
   THREE_FIELD.init();
+  // Apply saved visual prefs + reconcile OS reduce-motion. Must run after
+  // THREE_FIELD.init so setQuality/setCalm reach the live field.
+  VISUALS.init();
   VOICE.init();
   QM.init();
   buildStars();
@@ -2828,9 +2860,8 @@ const VOICE={
     el.textContent=text;el.style.opacity='1';
     // Blur-in reveal — the cue resolves into focus rather than blinking on.
     // In cinematic mode this is the focal element, so the polish matters
-    // most there. Skipped under reduced motion.
-    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(!reduced && el.animate){
+    // most there. Skipped in calm mode.
+    if(!isReducedMotion() && el.animate){
       el.animate(
         [{opacity:0,filter:'blur(8px)'},{opacity:1,filter:'blur(0)'}],
         {duration:700,easing:'cubic-bezier(.22,.61,.36,1)'}
@@ -4889,6 +4920,59 @@ const UPDATE_CHECK={
       el.remove();
     };
     document.getElementById('gp-upd-later').onclick=()=>{ el.remove(); };
+  }
+};
+
+// Single source of truth for "is motion calmed right now". Driven by the
+// body.gp-reduced class that VISUALS manages, so both the OS preference and
+// the manual Settings toggle flow through one check.
+function isReducedMotion(){ return document.body.classList.contains('gp-reduced'); }
+
+// ═══════════════════════════ VISUALS (Settings → Visuals) ═══════════════════════════
+// Owns two app-wide visual preferences:
+//   Quality: high (glowing sprite field) | low (hard points, weak GPUs)
+//   Motion : auto (follow OS reduce setting) | full | calm
+// Reconciles the OS prefers-reduced-motion setting with the user's explicit
+// choice and is the only thing that toggles body.gp-reduced + THREE_FIELD calm.
+const VISUALS={
+  _quality:'high',
+  _motion:'auto',
+  init(){
+    try{ this._quality=localStorage.getItem('gp_field_quality')||'high'; }catch(e){}
+    try{ this._motion=localStorage.getItem('gp_motion')||'auto'; }catch(e){}
+    // React to OS-level changes while in 'auto'.
+    const mq=window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMq=()=>{ if(this._motion==='auto') this._applyMotion(); };
+    mq.addEventListener ? mq.addEventListener('change',onMq) : mq.addListener(onMq);
+    this._applyMotion();
+    this._syncUI();
+  },
+  _osReduced(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; },
+  _calm(){ return this._motion==='calm' || (this._motion==='auto' && this._osReduced()); },
+  _applyMotion(){
+    const calm=this._calm();
+    document.body.classList.toggle('gp-reduced',calm);
+    if(typeof THREE_FIELD!=='undefined' && THREE_FIELD.setCalm) THREE_FIELD.setCalm(calm);
+  },
+  setMotion(m){
+    this._motion=(m==='calm'||m==='full'||m==='auto')?m:'auto';
+    try{ localStorage.setItem('gp_motion',this._motion); }catch(e){}
+    this._applyMotion();
+    this._syncUI();
+  },
+  setQuality(q){
+    this._quality=(q==='low')?'low':'high';
+    try{ localStorage.setItem('gp_field_quality',this._quality); }catch(e){}
+    if(typeof THREE_FIELD!=='undefined' && THREE_FIELD.setQuality) THREE_FIELD.setQuality(this._quality);
+    this._syncUI();
+  },
+  _syncUI(){
+    const set=(id,on)=>{const el=document.getElementById(id);if(el)el.classList.toggle('active',on);};
+    set('gp-vis-q-high',this._quality!=='low');
+    set('gp-vis-q-low', this._quality==='low');
+    set('gp-vis-m-auto',this._motion==='auto');
+    set('gp-vis-m-full',this._motion==='full');
+    set('gp-vis-m-calm',this._motion==='calm');
   }
 };
 
