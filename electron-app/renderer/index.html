@@ -2395,6 +2395,40 @@ const THREE_FIELD={
 //   • Session    → ducks to near-silence so it doesn't fight AMBIENT, restores after
 // Off by default. Toggle persists in localStorage. Uses its own AudioContext
 // so it's independent of the session ambient engine.
+// ── iOS / mobile audio unlock ("tap to begin") ──────────────────────────
+// Mobile browsers — iOS Safari especially — keep ALL audio suspended until a
+// real user gesture, and forbid timer-driven autoplay. On the hosted web build
+// the Ritual Arrival overlay's "Enter"/"Skip" tap (or the first tap anywhere)
+// is the "tap to begin" gate: on that first pointer/touch/key event we resume
+// every AudioContext the app has created and prime a muted silent <audio> so
+// the later timer-driven TTS cues are allowed to play. Idempotent and harmless
+// on desktop/Electron, where contexts start unsuspended (resume() is a no-op).
+const AUDIO_UNLOCK={
+  unlocked:false,
+  _ctxs:new Set(),
+  // Register a context as it's created. If we've already unlocked, resume it now.
+  track(ctx){
+    if(ctx){ this._ctxs.add(ctx); if(this.unlocked && ctx.state==='suspended') ctx.resume().catch(()=>{}); }
+    return ctx;
+  },
+  unlock(){
+    if(this.unlocked) return;
+    this.unlocked=true;
+    this._ctxs.forEach(c=>{ try{ if(c.state==='suspended') c.resume(); }catch(e){} });
+    // Prime a silent element so iOS permits later programmatic TTS playback.
+    try{
+      const a=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      a.muted=true; const p=a.play(); if(p&&p.catch) p.catch(()=>{});
+    }catch(e){}
+  },
+  init(){
+    // Only the first gesture matters; unlock() is idempotent so the leftover
+    // once-listeners are harmless if a different event type fires first.
+    const fire=()=>this.unlock();
+    ['pointerdown','touchend','keydown'].forEach(ev=>document.addEventListener(ev,fire,{once:true,passive:true}));
+  },
+};
+
 const FIELD_AUDIO={
   KEY:'gp_field_audio', VOL_KEY:'gp_field_audio_vol',
   _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_oscOct:null,_lfo:null,_lfoGain:null,
@@ -2424,7 +2458,7 @@ const FIELD_AUDIO={
   },
 
   _ensureCtx(){
-    if(!this._ctx) this._ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(!this._ctx) this._ctx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
     if(this._ctx.state==='suspended') this._ctx.resume();
     return this._ctx;
   },
@@ -2861,7 +2895,7 @@ const AMBIENT={
   binVol:0.18,
 
   _ensureCtx(){
-    if(!this._ctx)this._ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(!this._ctx)this._ctx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
     if(this._ctx.state==='suspended')this._ctx.resume();
     return this._ctx;
   },
@@ -3119,6 +3153,7 @@ function init(){
   VISUALS.init();
   VOICE.init();
   QM.init();
+  AUDIO_UNLOCK.init(); // iOS/mobile: arm the first-gesture "tap to begin" audio unlock
   KEYS.hydrate(); // populate the unified API-key fields from loaded state (web: localStorage)
   buildStars();
   buildWaves();
@@ -3353,7 +3388,8 @@ function toggleSolf(i,hz){
   document.getElementById('solf-play-'+i).textContent='♦ Playing';
   document.querySelectorAll('.ab').forEach(b=>b.classList.add('playing'));
   reactGeometry(hz,true);
-  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(!audioCtx)audioCtx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
+  if(audioCtx.state==='suspended')audioCtx.resume();
   oscillator=audioCtx.createOscillator();
   gainNode=audioCtx.createGain();
   oscillator.connect(gainNode);
