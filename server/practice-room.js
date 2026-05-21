@@ -170,9 +170,12 @@ function renderLanding(stats) {
   .cta{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--gold);padding:14px 22px;border-radius:2px;text-decoration:none;transition:all .25s}
   .cta:hover{background:rgba(201,168,76,.08);color:var(--gold2);border-color:var(--gold2)}
   .cta.primary{background:rgba(201,168,76,.06)}
-  .install-note{margin-top:18px;text-align:center;font-size:12px;line-height:1.7;color:var(--muted);max-width:560px;margin-left:auto;margin-right:auto}
+  .install-note{margin-top:18px;text-align:center;font-size:12px;line-height:1.7;color:var(--muted);max-width:580px;margin-left:auto;margin-right:auto}
   .install-note strong{color:var(--silver);font-weight:400}
-  .install-note em{color:var(--gold);font-style:normal}
+  .install-note em{color:var(--gold);font-style:italic}
+  .install-steps{text-align:left;max-width:520px;margin:14px auto 0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .install-steps li{font-size:12px;line-height:1.6;color:var(--silver)}
+  .install-steps code{font-size:11px;word-break:break-all}
   footer{margin-top:60px;padding-top:30px;border-top:.5px solid var(--border);text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
   footer a{color:var(--muted);text-decoration:none;border-bottom:.5px solid transparent;transition:.2s}
   footer a:hover{color:var(--gold);border-color:var(--gold)}
@@ -217,17 +220,22 @@ function renderLanding(stats) {
 
   <div class="ctas">
     <a class="cta primary" href="/download">Download for macOS ↓</a>
-    <a class="cta" href="https://github.com/amc198009/gateway-protocol/tree/${COMMIT}" target="_blank" rel="noopener">View source on GitHub ↗</a>
   </div>
-  <p class="install-note">
-    <strong>macOS Intel x64</strong> (Apple Silicon runs via Rosetta — native arm64 build still on the roadmap). The .dmg is unsigned, so the first launch will trigger a Gatekeeper warning. The workaround: drag the app to Applications, then right-click it and choose <em>Open</em> → <em>Open</em>. After that it launches normally.<br>
-    <strong>Linux / Windows:</strong> clone the repo and run <code>npm run install:v2 &amp;&amp; npm start</code> — packaged builds aren't shipped yet.
-  </p>
+  <div class="install-note">
+    <strong>macOS Intel x64.</strong> Apple Silicon runs via Rosetta; native arm64 is on the roadmap.
+    The app is unsigned (no Apple Developer certificate yet), so the first launch shows
+    <em>“Gateway Protocol cannot be opened because the developer cannot be verified.”</em>
+    That's expected. To open it once:
+    <ol class="install-steps">
+      <li>Drag <strong>Gateway Protocol</strong> to your Applications folder.</li>
+      <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll down, and click <strong>Open Anyway</strong> next to the Gateway Protocol notice.</li>
+      <li>Or, in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/Gateway Protocol.app"</code></li>
+    </ol>
+    It launches normally after that — the prompt only appears once.
+  </div>
 
   <footer>
-    Gateway Protocol · Reference Server ·
-    <a href="https://github.com/amc198009/gateway-protocol/tree/${COMMIT}" target="_blank">Source (${COMMIT_SHORT})</a> ·
-    <a href="https://github.com/amc198009/gateway-protocol/blob/${COMMIT}/DRAFT_PRIVACY.md" target="_blank">Privacy (draft)</a>
+    Gateway Protocol · Reference Server · build ${COMMIT_SHORT}
   </footer>
 
 </div>
