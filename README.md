@@ -158,7 +158,11 @@ See [PROGRESS.md](PROGRESS.md) for the per-feature breakdown.
 
 ## License
 
-Currently UNLICENSED — see `electron-app/package.json`. This is a personal practice tool; if you want to use, fork, or extend it, open an issue and let's talk.
+[GNU AGPL-3.0-only](./LICENSE) · Copyright © 2026 Arturo Morales.
+
+This means you can run it, copy it, modify it, and redistribute it — including running a fork as a public service — provided you also offer the same freedoms to anyone who interacts with your fork. In practical terms: if you stand up a Practice Rooms / Transmission Feed server based on this code and let anyone hit it over the network, you must publish your source. Closed-source SaaS forks are not allowed; community-served forks are welcome. See [LICENSE](./LICENSE) for the full text and [the GNU AGPL FAQ](https://www.gnu.org/licenses/gpl-faq.html) for plain-English notes.
+
+The "Council of Five" prompts synthesize the published frameworks of real people (Monroe, Lipton, Dispenza, Tesla, Jung). Their names appear for narrative coherence; this project is not endorsed by, affiliated with, or licensed by the Monroe Institute, any of the named individuals, or their estates. Use accordingly.
 
 ---
 

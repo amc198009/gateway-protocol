@@ -2,6 +2,8 @@
   "name": "gateway-protocol-root",
   "version": "2.0.0",
   "private": true,
+  "license": "AGPL-3.0-only",
+  "author": "Arturo Morales <artmor30@gmail.com>",
   "description": "Root delegator — V1 (proxy.js) lives at root, V2 (Electron) lives in electron-app/. These scripts let you run either from here.",
   "scripts": {
     "start":   "cd electron-app && npm start",
