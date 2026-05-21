@@ -25,13 +25,15 @@
   --card:#0f0f22;
   --gold:#c9a84c;
   --gold2:#f0d88a;
-  --silver:#a0a8c0;
+  --silver:#bcc2d6;
   --glow:rgba(201,168,76,0.12);
   --glow2:rgba(201,168,76,0.25);
-  --border:rgba(201,168,76,0.15);
-  --border2:rgba(201,168,76,0.35);
-  --text:#ddd8cc;
-  --muted:#6a6458;
+  --border:rgba(201,168,76,0.20);
+  --border2:rgba(201,168,76,0.40);
+  --text:#ece7da;
+  /* Secondary text. Lifted from #6a6458 (~3.4:1, failed WCAG AA) to clear
+     AA out of the box — readability shouldn't depend on the opt-in toggle. */
+  --muted:#928974;
   --danger:#c04040;
 }
 html{scroll-behavior:smooth}
@@ -101,7 +103,7 @@ body{
 .gp-rec-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
 .gp-rec-chip{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:.5px solid rgba(201,168,76,.3);padding:5px 11px;border-radius:14px;background:rgba(201,168,76,.04)}
 .gp-rec-chip-label{color:var(--muted);font-size:9px}
-.gp-rec-rationale{font-size:12px;color:#8a8478;line-height:1.8;margin-bottom:1rem}
+.gp-rec-rationale{font-size:12px;color:#b3aa92;line-height:1.85;margin-bottom:1rem}
 .gp-rec-apply{background:none;border:.5px solid var(--gold);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:9px 20px;cursor:pointer;border-radius:2px;transition:all .2s}
 .gp-rec-apply:hover{background:rgba(201,168,76,.1);color:var(--gold2)}
 .gp-rec-loading{display:none;align-items:center;gap:10px;color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:1.25rem 1.5rem;margin-bottom:1.5rem;border:.5px solid var(--border);border-radius:4px}
@@ -135,7 +137,7 @@ body{
 .phase-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem}
 .phase-name{font-size:12px;font-weight:500;color:var(--text);letter-spacing:.5px}
 .phase-freq{font-size:10px;color:var(--gold);opacity:.7;letter-spacing:1px;text-align:right}
-.phase-desc{font-size:12px;color:#8a8478;line-height:1.8}
+.phase-desc{font-size:12.5px;color:#b3aa92;line-height:1.85}
 .phase-dur{display:inline-block;margin-top:.6rem;font-size:10px;color:var(--muted);letter-spacing:1.5px;border:.5px solid var(--border);padding:2px 8px;border-radius:10px}
 .wave-start-btn{width:100%;margin-top:1rem;background:none;border:.5px solid var(--border2);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;border-radius:2px;transition:all .2s}
 .wave-start-btn:hover{background:var(--glow2)}
@@ -515,15 +517,19 @@ body.gp-reduced.gp-cinematic .timer-time{
    without abandoning the aesthetic. --muted #6a6458 (~3.4:1, fails AA) → a
    brighter sand (~6.4:1). Cascades everywhere via the CSS custom properties. */
 body.gp-readable{
-  --muted:#9b927f;
-  --text:#ece7db;
-  --silver:#bcc2d6;
-  --border:rgba(201,168,76,0.30);
-  --border2:rgba(201,168,76,0.5);
+  --muted:#bdb29a;
+  --text:#f6f2e8;
+  --silver:#ccd2e4;
+  --border:rgba(201,168,76,0.34);
+  --border2:rgba(201,168,76,0.55);
 }
+/* Nudge the thin display serif up a weight so long-form copy stays crisp. */
+body.gp-readable{font-weight:400}
 body.gp-readable .phase-desc,
+body.gp-readable .gp-rec-rationale,
 body.gp-readable .step-desc,
-body.gp-readable .gp-cotd-text{color:#9b927f}
+body.gp-readable .gp-cotd-text{color:#c8bfa6}
+body.gp-readable .j-block textarea::placeholder{color:#5a5340}
 
 /* ═══ BOOT REVEAL ═══ */
 /* First-paint intro. The all-seeing eye resolves first, then the title
