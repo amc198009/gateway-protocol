@@ -14,6 +14,15 @@
 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss: http://localhost:* ws://localhost:*; img-src 'self' data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Gateway Protocol — Consciousness Evolution System</title>
+<!-- PWA: only meaningful on the hosted web build (served at /app over http(s)).
+     Harmless in Electron (file://) — the manifest/icon links just 404 silently
+     and the service worker registration is guarded to http(s) below. -->
+<meta name="theme-color" content="#02020a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gateway">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -6291,6 +6300,12 @@ function confirmReset(){
   // are informational, not blocking; if the server is unreachable or
   // not configured the banner just doesn't appear.
   setTimeout(()=>UPDATE_CHECK.run(), 2500);
+  // PWA: register the service worker on the hosted web build only. Guarded to
+  // http(s) so it never runs in Electron (file://), where there's no SW + no
+  // need for an offline shell (the app is already local).
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    window.addEventListener('load',()=>{ navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
+  }
 })();
 </script>
 </body>

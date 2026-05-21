@@ -1,0 +1,17 @@
+{
+  "name": "Gateway Protocol",
+  "short_name": "Gateway",
+  "description": "Consciousness, healing, and the Gateway Process — your sovereign practice field. Bring your own key; your data stays yours.",
+  "id": "/app",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#02020a",
+  "theme_color": "#02020a",
+  "categories": ["health", "lifestyle", "education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
