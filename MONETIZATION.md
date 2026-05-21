@@ -6,12 +6,20 @@
 > **phased**: ship the sovereign product first, add the managed tier only when
 > demand pulls.
 >
-> **Phase A (now):** The desktop app + a BYOK PWA stay **free and sovereign**
-> (keys local, no data on our servers). Monetization is a *voluntary*
-> **"Founder's Supporter"** pay-what-you-want (suggested amount, $0 floor) —
-> honor-system support, not a gate. This is consistent with "free forever"
-> AND with AGPL (a license that makes hard gating pointless anyway). It also
-> reaches phones without us holding keys or journals.
+> **Phase A (now):** The desktop app + a BYOK PWA stay **sovereign** (keys
+> local, no data on our servers) and **free to build/run yourself forever**.
+> The prebuilt, notarized "Founder's Edition" build is **pay-what-you-want
+> with a suggested ~$15–25 and a $0 floor honored** — you pay for the
+> convenient build, not for capability. This is the only framing that's
+> literally true under **AGPL** (source builds are free anyway), it keeps the
+> sovereign moat intact, and a non-zero *suggested* anchor gives a real early
+> willingness-to-pay read (what % pay, and how far above the suggestion) that
+> a pure $0 floor would not. It also reaches phones without us holding keys
+> or journals.
+>
+> *Principle #1 softens, it does not break:* "the local app stays free
+> forever" → **"free to build and run yourself forever; the prebuilt build
+> is pay-what-you-want."**
 >
 > **Phase B (later, demand-gated):** The **$9 "Connected"** managed tier
 > (hosted Council, no API keys) — the tiers below. We build accounts + Stripe
