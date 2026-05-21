@@ -680,6 +680,20 @@ body.gp-reduced .wave-card.open{transform:none}
 .gp-arrival-dismiss input{accent-color:var(--gold)}
 body.gp-reduced .gp-arrival-breath{transition:none}
 
+/* ════════ V3.1 · VIEW TRANSITIONS ════════
+   A soft cross-fade + lift between screens. The default ::view-transition
+   cross-fades the root snapshot; we shape it and lengthen it slightly.
+   When a transition is active the per-screen rise animation is suppressed
+   so the two don't compound. */
+::view-transition-old(root){animation:gpVtOut .38s ease both}
+::view-transition-new(root){animation:gpVtIn .5s cubic-bezier(.22,.61,.36,1) both}
+@keyframes gpVtOut{to{opacity:0}}
+@keyframes gpVtIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* The View Transition already animates the incoming screen — drop the
+   built-in .screen.active rise (via a JS-toggled class) so motion doesn't
+   double up. */
+body.gp-vt .screen.active{animation:none}
+
 /* ════════ V3 · FOCUS MODE + EARNED MINIMALISM ════════ */
 #gp-focus-toggle{position:fixed;bottom:1.4rem;right:1.4rem;z-index:90;width:42px;height:42px;border-radius:50%;
   background:rgba(15,15,31,.7);border:.5px solid var(--border2);color:var(--gold);font-size:16px;cursor:pointer;
@@ -699,6 +713,23 @@ body[data-tier="3"] .hero-eye{transform:scale(.7);opacity:.6}
 body[data-tier="3"] .hero-sub,body[data-tier="4"] .hero-sub{display:none}
 body[data-tier="4"] .hero-eye{display:none}
 body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
+
+/* ════════ V3.4 · ORBITAL NAVIGATION (experimental) ════════ */
+#gp-orbital{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(2,2,12,.55),rgba(2,2,10,.9));
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);perspective:1200px;cursor:grab;overflow:hidden}
+#gp-orbital.show{display:flex;animation:gpFadeIn .5s ease}
+#gp-orbital:active{cursor:grabbing}
+.gp-orbital-scene{position:relative;width:1px;height:1px;transform-style:preserve-3d}
+.gp-orbital-ring{position:absolute;left:0;top:0;width:1px;height:1px;transform-style:preserve-3d;will-change:transform}
+.gp-orbital-node{position:absolute;left:50%;top:50%;width:168px;margin:-30px 0 0 -84px;
+  font-family:'Cormorant Garamond',serif;font-size:19px;letter-spacing:2px;color:var(--gold2);
+  background:rgba(15,15,31,.72);border:.5px solid var(--border2);border-radius:34px;padding:16px 0;text-align:center;
+  cursor:pointer;transition:color .2s,border-color .2s,background .2s,box-shadow .2s}
+.gp-orbital-node:hover{color:#fff;border-color:var(--gold);background:rgba(201,168,76,.2);box-shadow:0 0 28px rgba(201,168,76,.4)}
+.gp-orbital-close{position:fixed;top:1.4rem;right:1.7rem;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;z-index:2}
+.gp-orbital-close:hover{color:var(--gold)}
+.gp-orbital-hint{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);opacity:.8;z-index:2}
 </style>
 <!-- Three.js: bundled locally (vendor/three.min.js) so the app works offline
      and on first launch without a network call. Loaded synchronously so THREE
@@ -715,6 +746,13 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
 
 <!-- V3 · Focus mode toggle (also bound to the "f" key) -->
 <button id="gp-focus-toggle" onclick="FOCUS.toggle()" title="Focus mode (f) — hide everything but the practice">◎</button>
+
+<!-- V3.4 · Orbital navigation (experimental) — sections as nodes in a 3D ring -->
+<div id="gp-orbital" aria-hidden="true">
+  <button class="gp-orbital-close" onclick="ORBITAL.close()" aria-label="Close">×</button>
+  <div class="gp-orbital-scene"><div class="gp-orbital-ring" id="gp-orbital-ring"></div></div>
+  <div class="gp-orbital-hint">Drag or ← → to rotate · Esc to close</div>
+</div>
 
 <!-- V3 · Ritual arrival overlay — shown on launch (skippable, can be disabled) -->
 <div id="gp-arrival" aria-hidden="true">
@@ -1194,6 +1232,14 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <button class="gp-btn primary" onclick="SYNC.add()" style="align-self:flex-end">Anchor</button>
     </div>
 
+    <!-- V3.2 · Synchronicity Field — each sync plotted by time-of-day (angle)
+         and recency (radius); temporal clusters glow brighter. Living data. -->
+    <div id="gp-sync-field-wrap" style="display:none;background:var(--card);border:.5px solid var(--border);border-radius:6px;padding:1rem;margin-bottom:1.5rem;text-align:center">
+      <div style="font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem">◈ The Field</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:.6rem">Inner ring = today · outer = older · angle = time of day</div>
+      <canvas id="gp-sync-field" width="320" height="320" style="width:300px;height:300px;max-width:100%;display:block;margin:0 auto"></canvas>
+    </div>
+
     <div class="gp-patterns" style="margin-bottom:1.5rem">
       <div class="gp-patterns-head">
         <span class="gp-patterns-title">◈ Field Reading · Council of Five</span>
@@ -1330,6 +1376,16 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <div class="gp-reminders-row" style="gap:10px;margin-top:.6rem">
         <label style="color:var(--muted);min-width:90px">Presence</label>
         <input type="range" id="gp-field-audio-vol" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--gold)">
+      </div>
+      <div class="divider" style="margin:.9rem 0"></div>
+      <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:160px">
+          <div style="color:var(--silver)">Orbital navigation <span style="font-size:11px;color:var(--gold);opacity:.8">· experimental</span></div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-top:2px">An alternative 3D ring of sections floating over the field. The standard nav stays default. When on, press <b style="color:var(--gold)">O</b> to open it; drag or ← → to rotate.</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;color:var(--silver)">
+          <input type="checkbox" id="gp-orbital-toggle" style="accent-color:var(--gold)"> Enable
+        </label>
       </div>
     </div>
 
@@ -2729,6 +2785,8 @@ function init(){
   FOCUS.init();
   // V3: living-data consciousness signature (draws only when Progress is visible)
   SIGNATURE.start();
+  // V3.4: orbital navigation (experimental, opt-in, press O)
+  ORBITAL.init();
 }
 
 // ═══════════════════════════ STARS ═══════════════════════════
@@ -2744,22 +2802,38 @@ function buildStars(){
 }
 
 // ═══════════════════════════ NAVIGATION ═══════════════════════════
-function show(id){
+// V3.1 · Screen navigation wrapped in the View Transitions API for a smooth
+// cross-fade/morph between screens instead of an instant swap. Falls back to
+// a plain swap where the API is unavailable or reduced-motion is on.
+function _swapScreen(id, navBtn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
-  event.target.classList.add('active');
+  const scr=document.getElementById('screen-'+id);
+  if(scr) scr.classList.add('active');
+  if(navBtn) navBtn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
-// V6d: programmatic version for use outside click handlers (e.g. inline links).
-// Same effect as show() but matches the nav button by its onclick attribute.
+function _navTo(id, navBtn){
+  const reduced=document.body.classList.contains('gp-reduced')||
+    (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if(document.startViewTransition && !reduced){
+    document.body.classList.add('gp-vt'); // suppress the per-screen rise during the VT
+    const vt=document.startViewTransition(()=>_swapScreen(id,navBtn));
+    vt.finished.finally(()=>document.body.classList.remove('gp-vt'));
+  } else {
+    _swapScreen(id,navBtn);
+  }
+}
+function show(id){
+  // Capture the clicked nav button NOW — the VT callback runs async, after
+  // the global `event` is gone.
+  const btn=(typeof event!=='undefined' && event) ? event.target : null;
+  _navTo(id, btn);
+}
+// V6d: programmatic version for inline links / non-click callers.
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
   const btn=Array.from(document.querySelectorAll('.nav-btn')).find(b=>(b.getAttribute('onclick')||'').includes("'"+id+"'"));
-  if(btn) btn.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  _navTo(id, btn);
 }
 
 // ═══════════════════════════ WAVES ═══════════════════════════
@@ -3432,6 +3506,8 @@ function toggleTimer(){
         document.getElementById('timer-phase').textContent=currentPhase;
       }
       renderTimer();
+      // V3.3: adaptive atmosphere evolves through the session (calmer as you descend)
+      ATMOSPHERE.sessionTick(timerMax?timerSeconds/timerMax:0);
       // V7a: broadcast timer ticks to practice room (no-op if not hosting)
       NETWORK.broadcastTimer({timerSeconds,phase:currentPhase,sessionName:selectedSess.name,timerMax});
       if(timerSeconds>=timerMax){
@@ -3452,6 +3528,7 @@ function toggleTimer(){
         updateStats();
         clearCues();
         AMBIENT.stop();
+        ATMOSPHERE.apply(); // V3.3: restore the resting atmosphere after the session
         triggerReturnCeremony();
       }
     },1000);
@@ -3460,6 +3537,7 @@ function toggleTimer(){
     clearCues();
     AMBIENT.stop();
     CINEMATIC.exit(); // V3b: leave cinematic on pause
+    ATMOSPHERE.apply(); // V3.3: restore resting atmosphere on pause
     NETWORK.broadcastTimerStop(); // V7a: tell practice room participants
   }
 }
@@ -3469,6 +3547,7 @@ function resetTimer(){
   clearCues();
   AMBIENT.stop();
   CINEMATIC.exit(); // V3b: leave cinematic on reset
+  ATMOSPHERE.apply(); // V3.3: restore resting atmosphere on reset
   timerRunning=false;timerSeconds=0;
   document.getElementById('timer-btn').textContent='Begin';
   document.getElementById('guidance-cue').textContent='';
@@ -4301,6 +4380,21 @@ const ATMOSPHERE={
       el.innerHTML=`<span class="gp-atmosphere-dot"></span>Today's field · <b>${hz} Hz</b> · ${why} · <b>${feel}</b>`;
       el.style.display='flex';
     }
+  },
+
+  // V3.3 · mid-session evolution. Called each second of a running session
+  // with pct 0..1. The field calms and refines as the practitioner descends
+  // (brighter/denser at entry → quieter/finer in deep theta). Color stays
+  // tied to the real active frequency (reactGeometry owns that) so we only
+  // shape intensity + particle size here — non-conflicting.
+  sessionTick(pct){
+    pct=Math.max(0,Math.min(1,pct));
+    if(typeof THREE_FIELD!=='undefined' && THREE_FIELD._ready){
+      if(THREE_FIELD._state) THREE_FIELD._state.intensity = 0.82 - pct*0.46;   // 0.82 → 0.36
+      if(THREE_FIELD._points && THREE_FIELD._points.material){
+        THREE_FIELD._points.material.size = 0.62 + (1-pct)*0.34;               // denser feel early
+      }
+    }
   }
 };
 
@@ -4407,6 +4501,83 @@ const FOCUS={
   },
   applyTier(){
     try{ document.body.dataset.tier=String((DB.load().tier)||0); }catch(e){}
+  }
+};
+
+// ═══════════════════════════ V3.4 · ORBITAL NAVIGATION (experimental) ═══════════════════════════
+// An opt-in 3D ring of section nodes floating over the particle field. The
+// flat nav stays the default; this is an alternative launcher (press "o"
+// when enabled in Settings → Visuals). A genuine prototype — a standard
+// CSS-3D carousel rather than full WebGL raycasting, kept honest about its
+// experimental status.
+const ORBITAL={
+  KEY:'gp_orbital',
+  _open:false,_angle:0,_target:0,_nodes:[],_raf:null,_drag:null,_R:340,
+  enabled(){ return localStorage.getItem(this.KEY)==='1'; },
+  setEnabled(on){ try{ localStorage.setItem(this.KEY,on?'1':'0'); }catch(e){}
+    toast(on?'Orbital nav on — press O to open':'Orbital nav off'); if(!on&&this._open) this.close(); },
+  init(){
+    const box=document.getElementById('gp-orbital-toggle');
+    if(box){ box.checked=this.enabled(); box.onchange=()=>this.setEnabled(box.checked); }
+    document.addEventListener('keydown',(e)=>{
+      const t=e.target.tagName, typing=(t==='INPUT'||t==='TEXTAREA'||t==='SELECT');
+      if((e.key==='o'||e.key==='O') && this.enabled() && !typing && !e.metaKey && !e.ctrlKey){ this.toggle(); }
+      if(this._open && e.key==='Escape') this.close();
+      if(this._open && e.key==='ArrowLeft'){ this._target += 360/Math.max(1,this._nodes.length); }
+      if(this._open && e.key==='ArrowRight'){ this._target -= 360/Math.max(1,this._nodes.length); }
+    });
+  },
+  _build(){
+    const ring=document.getElementById('gp-orbital-ring'); if(!ring) return;
+    ring.innerHTML='';
+    const navs=Array.from(document.querySelectorAll('.nav .nav-btn'));
+    this._R=Math.min(window.innerWidth,window.innerHeight)*0.36;
+    const n=navs.length;
+    this._nodes=navs.map((b,i)=>{
+      const m=(b.getAttribute('onclick')||'').match(/show\('([^']+)'\)/);
+      const id=m?m[1]:null;
+      const node=document.createElement('button');
+      node.className='gp-orbital-node';
+      node.textContent=b.textContent.trim();
+      const baseAngle=(i/n)*360;
+      node.style.transform=`rotateY(${baseAngle}deg) translateZ(${this._R}px)`;
+      node.onclick=(ev)=>{ ev.stopPropagation(); this.close(); if(id) showScreen(id); };
+      ring.appendChild(node);
+      return {node,baseAngle};
+    });
+  },
+  toggle(){ this._open?this.close():this.open(); },
+  open(){
+    if(this._open) return; this._open=true;
+    const ov=document.getElementById('gp-orbital'); if(!ov) return;
+    ov.classList.add('show'); ov.setAttribute('aria-hidden','false');
+    this._build();
+    ov.onpointerdown=(e)=>{ this._drag={x:e.clientX,a:this._target}; };
+    window.addEventListener('pointermove',this._onMove=(e)=>{ if(this._drag) this._target=this._drag.a+(e.clientX-this._drag.x)*0.4; });
+    window.addEventListener('pointerup',this._onUp=()=>{ this._drag=null; });
+    this._spin();
+  },
+  close(){
+    if(!this._open) return; this._open=false;
+    const ov=document.getElementById('gp-orbital');
+    ov.classList.remove('show'); ov.setAttribute('aria-hidden','true'); ov.onpointerdown=null;
+    if(this._raf){ cancelAnimationFrame(this._raf); this._raf=null; }
+    if(this._onMove) window.removeEventListener('pointermove',this._onMove);
+    if(this._onUp) window.removeEventListener('pointerup',this._onUp);
+    this._drag=null;
+  },
+  _spin(){
+    this._raf=requestAnimationFrame(()=>this._spin());
+    if(!this._drag) this._target+=0.12;                 // gentle auto-rotate
+    this._angle += (this._target-this._angle)*0.1;
+    const ring=document.getElementById('gp-orbital-ring');
+    if(ring) ring.style.transform=`translateZ(-${this._R}px) rotateY(${this._angle}deg)`;
+    // Fade nodes at the back so the front reads clearly
+    this._nodes.forEach(o=>{
+      const world=((o.baseAngle+this._angle)%360+360)%360;
+      const facing=Math.cos(world*Math.PI/180);         // 1 front, -1 back
+      o.node.style.opacity=(0.30+0.70*((facing+1)/2)).toFixed(3);
+    });
   }
 };
 
@@ -4717,6 +4888,8 @@ const SYNC={
     const list=document.getElementById('gp-sync-list');
     if(!syncs.length){
       list.innerHTML='<div style="font-size:15px;color:var(--muted);font-style:italic;padding:1rem;text-align:center">No syncs yet. The field becomes visible the moment you start watching.</div>';
+      const wrap=document.getElementById('gp-sync-field-wrap'); if(wrap) wrap.style.display='none';
+      this._stopField();
       return;
     }
     list.innerHTML=syncs.map(s=>{
@@ -4728,6 +4901,65 @@ const SYNC={
         <div class="meta">${date}<br>${time}<br><a href="#" onclick="SYNC.remove(${s.id});return false" style="color:var(--muted);text-decoration:none;font-size:13px">remove</a></div>
       </div>`;
     }).join('');
+    // V3.2 · render the living Synchronicity Field
+    const wrap=document.getElementById('gp-sync-field-wrap'); if(wrap) wrap.style.display='block';
+    this._startField();
+  },
+
+  // ── V3.2 · Synchronicity Field (generative) ──
+  _fieldRaf:null,_fieldT:0,
+  _startField(){
+    const cv=document.getElementById('gp-sync-field'); if(!cv) return;
+    this._fieldCtx=cv.getContext('2d');
+    if(this._fieldRaf) cancelAnimationFrame(this._fieldRaf);
+    this._fieldLoop();
+  },
+  _stopField(){ if(this._fieldRaf){ cancelAnimationFrame(this._fieldRaf); this._fieldRaf=null; } },
+  _fieldLoop(){
+    this._fieldRaf=requestAnimationFrame(()=>this._fieldLoop());
+    const scr=document.getElementById('screen-synchronicity');
+    if(!scr||!scr.classList.contains('active')) return; // only draw when visible
+    const c=this._fieldCtx, cv=c&&c.canvas; if(!c) return;
+    const W=cv.width,H=cv.height,cx=W/2,cy=H/2,maxR=Math.min(W,H)/2-16;
+    const syncs=(DB.load().synchronicities||[]);
+    this._fieldT+=0.004;
+    c.clearRect(0,0,W,H);
+
+    // Concentric guide rings (today → older)
+    c.strokeStyle='rgba(201,168,76,0.08)'; c.lineWidth=1;
+    for(let r=1;r<=3;r++){ c.beginPath(); c.arc(cx,cy,maxR*r/3,0,Math.PI*2); c.stroke(); }
+
+    const now=Date.now(), span=30*24*3600*1000; // 30-day window for radius
+    const pts=syncs.map(s=>{
+      const dt=new Date(s.date);
+      const tod=(dt.getHours()*60+dt.getMinutes())/1440;          // 0..1 time of day → angle
+      const age=Math.min(1,(now-dt.getTime())/span);              // 0(new)..1(old) → radius
+      const ang=tod*Math.PI*2 - Math.PI/2;
+      const rad=20 + age*(maxR-20);
+      return {x:cx+Math.cos(ang)*rad, y:cy+Math.sin(ang)*rad, age, t:dt.getTime()};
+    });
+
+    // Connect temporally-near syncs (clusters) with faint lines
+    c.lineWidth=1;
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        if(Math.abs(pts[i].t-pts[j].t) < 6*3600*1000){           // within 6h
+          c.strokeStyle='rgba(201,168,76,0.10)';
+          c.beginPath(); c.moveTo(pts[i].x,pts[i].y); c.lineTo(pts[j].x,pts[j].y); c.stroke();
+        }
+      }
+    }
+    // Points — newer = brighter/larger, with a soft twinkle
+    pts.forEach((p,i)=>{
+      const tw=0.6+Math.sin(this._fieldT*2+i)*0.4;
+      const a=(1-p.age)*0.8+0.2;
+      const sz=2 + (1-p.age)*3;
+      const glow=c.createRadialGradient(p.x,p.y,0,p.x,p.y,sz*3);
+      glow.addColorStop(0,`rgba(240,216,138,${a*tw})`);
+      glow.addColorStop(1,'rgba(240,216,138,0)');
+      c.fillStyle=glow; c.beginPath(); c.arc(p.x,p.y,sz*3,0,Math.PI*2); c.fill();
+      c.fillStyle=`rgba(255,245,210,${a})`; c.beginPath(); c.arc(p.x,p.y,sz*0.6,0,Math.PI*2); c.fill();
+    });
   },
   async analyze(){
     const syncs=DB.load().synchronicities||[];

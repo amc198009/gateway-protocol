@@ -13,6 +13,15 @@ The V3 vision was "the interface becomes the practice" — the UI stops being a 
 | T5 | **Focus mode + earned minimalism** | `f` / ◎ button strips chrome to the practice. `body[data-tier]` quiets the hero as you advance (tier 4 = bare field + content). |
 | T6 | **Consciousness Signature** | Living-data mandala on the Progress screen, generated from your waves/sessions/journal/HRV/frequency. Evolves as you do. |
 
+## ✅ Shipped — second wave (the previously-deferred items)
+
+| Feature | What it does |
+|---|---|
+| **View Transitions** | Screen navigation wrapped in `document.startViewTransition()` — a soft cross-fade + lift between screens instead of an instant swap. Reduced-motion + no-API fallbacks. |
+| **Living data: Synchronicity Field** | A generative canvas plotting every sync by time-of-day (angle) and recency (radius), with faint lines linking temporal clusters and a soft twinkle. Renders on the Synchronicity screen. |
+| **Adaptive Atmosphere v2** | The atmosphere now evolves *during* a session, not just at open: the field calms and refines (intensity + particle size ease down) as the practitioner descends through the session, then restores on end/pause/reset. |
+| **Orbital navigation (experimental)** | Opt-in 3D ring of section nodes floating over the field (Settings → Visuals → enable, press **O**). Drag or ← → to rotate, click a node to navigate. The flat nav stays the default. A CSS-3D carousel prototype — see note below on the full WebGL version. |
+
 ## 🟡 Deferred — genuinely large, honest about why
 
 ### Living data (fuller version)
@@ -21,8 +30,10 @@ The Consciousness Signature is the first instance. The full vision renders the *
 ### Adaptive atmosphere → full sensory environment
 T2 attunes color + resonance. The fuller version also drives **particle density, camera behavior, and ambient layering** from state, and shifts **between** atmospheres as you move through a session (not just at open). **Why deferred:** needs a proper state→environment mapping layer and careful tuning so it's felt, not gimmicky. T2 is the foundation it builds on.
 
-### 🔴 The torus IS the navigation
-The big one. Today the Three.js field is a reactive *background*. The vision: sections live as nodes **on** the torus; you rotate and dive through 3D space to navigate. **Why deferred — honestly:** this is a ground-up rebuild of the navigation model (3D raycasting for clicks, camera choreography, accessibility fallback for keyboard/screen-reader nav, a 2D fallback for weak GPUs). It's weeks of work and a real risk to usability if rushed. It should be its own dedicated effort, prototyped behind a flag, not bolted on. The current flat nav is fast and accessible; replacing it is a bet, not a polish.
+### 🟡 The torus IS the navigation — prototype shipped, full version still ahead
+The **Orbital navigation** above is the prototype: an opt-in CSS-3D carousel of section nodes over the field, behind a flag, with the flat nav kept as default. It delivers the *feel* of navigating through space.
+
+The **full** version — nodes mapped onto the actual Three.js torus geometry with WebGL raycasting for clicks, camera fly-through choreography, and depth-sorted occlusion — is still a dedicated effort. **Why still deferred:** raycasting + camera choreography + a screen-reader-accessible fallback is weeks of careful work, and the CSS-3D prototype already covers the experience for anyone who wants it. Promoting it from "experimental flag" to "default nav" is a usability bet to make with real user feedback, not a rushed swap.
 
 ### 🔴 Touch & haptics
 Trackpad Force Touch + haptic pulses synced to breath. **Why deferred:** Electron's haptic access on macOS is limited/private-API territory; reliable haptics really want the **iOS companion app** (also deferred — see `LAUNCH_CHECKLIST.md §4a`). Not buildable well from the desktop renderer today.
