@@ -57,7 +57,14 @@ In the desktop app, go to **Settings → Network** and set the server URL to `ht
 ```bash
 # In /server/
 fly launch --no-deploy
-fly deploy
+
+# Deploy with the current git HEAD baked in as COMMIT_SHA — the landing
+# page footer links source to that exact commit instead of the moving
+# `main` ref.
+npm run deploy
+
+# (equivalent to:)
+# fly deploy --remote-only --build-arg COMMIT_SHA=$(git -C .. rev-parse HEAD)
 ```
 
 `fly.toml` (create this):

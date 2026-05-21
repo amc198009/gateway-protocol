@@ -7,7 +7,8 @@
   "author": "Arturo Morales <artmor30@gmail.com>",
   "scripts": {
     "start": "node practice-room.js",
-    "dev": "node --watch practice-room.js"
+    "dev": "node --watch practice-room.js",
+    "deploy": "fly deploy --remote-only --build-arg COMMIT_SHA=$(git -C .. rev-parse HEAD)"
   },
   "engines": {
     "node": ">=18"

@@ -32,6 +32,12 @@ const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*';
 const FEED_MAX = parseInt(process.env.FEED_MAX || '500', 10);
 const ROOM_IDLE_MS = 30 * 60 * 1000; // 30min after last participant — gc
 
+// Commit pin: baked in at build time via the COMMIT_SHA Docker build-arg
+// (see Dockerfile + the fly deploy command in server/README.md). Falls back
+// to 'main' when running locally without the build pipeline.
+const COMMIT = process.env.FLY_COMMIT_SHA || process.env.COMMIT_SHA || 'main';
+const COMMIT_SHORT = COMMIT === 'main' ? 'main' : COMMIT.slice(0, 7);
+
 // Mutating routes require this header. Because it's a non-CORS-safelisted
 // header, browsers issue a CORS preflight, and the preflight only succeeds
 // for our explicit Allow-Headers list. A drive-by CSRF form on a random
@@ -185,8 +191,8 @@ function renderLanding(stats) {
 
   <footer>
     Gateway Protocol · Reference Server ·
-    <a href="https://github.com/amc198009/gateway-protocol/blob/main/server/practice-room.js" target="_blank">Source</a> ·
-    <a href="https://github.com/amc198009/gateway-protocol/blob/main/DRAFT_PRIVACY.md" target="_blank">Privacy (draft)</a>
+    <a href="https://github.com/amc198009/gateway-protocol/tree/${COMMIT}" target="_blank">Source (${COMMIT_SHORT})</a> ·
+    <a href="https://github.com/amc198009/gateway-protocol/blob/${COMMIT}/DRAFT_PRIVACY.md" target="_blank">Privacy (draft)</a>
   </footer>
 
 </div>
