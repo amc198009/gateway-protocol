@@ -2,44 +2,45 @@
 
 ---
 
-## 🔻 OPEN HANDOFF → renderer session (2026-05-21)
+## ✅ DONE — renderer BYOK web mode (2026-05-21) → HANDOFF back to server session
 
-**Task: make the renderer run as a deployed BYOK web PWA.** The server side is
-done; this is renderer-only work.
+**Task complete: the renderer now runs as a deployed BYOK web PWA.** All work
+was renderer-only, in `electron-app/renderer/index.html`. The `/byok/*`
+contract fit cleanly — **no server-side shape change was needed.**
 
-**Decision context (settled):** Phase-A monetization is **sovereign BYOK** —
-the web app holds the *user's own* key, the server never does. The desktop
-app stays the encrypted-key Electron build; this adds a browser sibling.
+**What was done** (all on the `!window.gp` web path; Electron path untouched):
+1. New `BYOK` transport object: same-origin `\`${location.origin}/byok/...\``
+   (replaces the hardcoded `http://localhost:5050`), sending `X-BYOK-Key`
+   (user's own key) + `X-Gateway-Client: 1` on every call.
+2. New route shapes — the web client now builds the **full provider-native
+   bodies** itself (the old V1 proxy built them server-side): the Anthropic
+   Messages-API body to `/byok/anthropic/messages`, plus `/byok/openai/speech`
+   and `/byok/openai/embeddings`. Council system prompts are inlined verbatim
+   in the renderer (parity with `main.js`); `COUNCIL_PROMPTS` + a note to keep
+   the two copies in sync (or extract a shared module per MOBILE.md §Phase-2).
+3. Browser key storage: reuses the existing localStorage slots
+   (`gp_anthropic_key`, `gp_voice.oaiKey`) the V1 browser build already used —
+   `QM`/`VOICE` mirror them into memory. No new entry UI needed.
+4. V4 Council features (monthly patterns, affirmation, shadow dialogue,
+   synchronicities) are **no longer desktop-only** — they route through
+   `/byok/anthropic/messages` on web instead of throwing. Semantic memory
+   (`GP_API.embed`, previously *undefined* and silently broken even in
+   Electron) is implemented for both paths.
+5. ElevenLabs has no `/byok` route, so web `elevenlabsTTS` throws cleanly →
+   `VOICE` degrades to OpenAI TTS / Web Speech automatically.
 
-**What's already built (server, on `main`):** a stateless `/byok/*` passthrough
-on the Fly server. Client sends its own key per request via `X-BYOK-Key`; the
-server forwards to the provider and pipes the response back — no server key, no
-governor, no spend. Routes + full contract are in **`server/MOBILE.md`**
-(section "The `/byok/*` passthrough"). Verified end-to-end.
+**Verified:** all inline scripts parse; smoke-tested every `/byok/*` route
+against a local server instance — status, CSRF gate (403), missing-key (401),
+missing-model (400), and a full client-shaped passthrough that reached
+Anthropic + OpenAI for real (genuine upstream auth errors on a fake key, i.e.
+the body shapes are accepted). A 200-path test needs real provider keys (your
+interactive step).
 
-**What the renderer must do** (in `electron-app/renderer/index.html`, only on
-the non-Electron path, i.e. when `!window.gp`):
-1. Point the web fallback at **same-origin** `\`${location.origin}/byok/...\``
-   instead of the hardcoded `http://localhost:5050` (lines ~1537–1570).
-2. Switch to the new route **shapes**: `/byok/anthropic/messages` (Anthropic
-   Messages-API body, not the old `/mirror` shape), `/byok/openai/speech`,
-   `/byok/openai/embeddings`.
-3. Send headers `X-BYOK-Key: <user key>` and `X-Gateway-Client: 1` on each call.
-4. Add a browser key-entry/-storage path (localStorage/IndexedDB) for the web
-   build — `window.gp.keys` only exists in Electron.
-5. Provide web fallbacks **or** graceful "desktop-only" disables for the V4
-   Council features that are currently Electron-only (monthly patterns,
-   affirmations, shadow dialogue, synchronicities — they call `window.gp.*`
-   with no fetch fallback and will throw in a browser).
-
-**Do NOT expect `/app` to work yet** — it is intentionally **not** served. The
-server route to serve the renderer at `/app` is a trivial add that the server
-session will land *once the above is done*; serving it before then yields a
-page that calls a nonexistent `localhost:5050` and fails.
-
-**Coordination:** if the `/byok/*` contract needs a shape change to fit the
-renderer cleanly, leave a note here and the server session will adjust it —
-don't fork the contract.
+**🔻 NOW UNBLOCKED → server session:** serving the renderer at `/app` is no
+longer gated — the web build no longer calls `localhost:5050`. Add the static
+`/app` route (copy `electron-app/renderer/` into the Docker image at build) and
+the PWA can go live. Remaining Phase-2 items (responsive pass, PWA
+manifest/service worker, iOS audio gate) are still per `server/MOBILE.md`.
 
 ---
 
