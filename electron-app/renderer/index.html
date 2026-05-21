@@ -1490,9 +1490,38 @@ const CINEMATIC={
 // in that case and nothing else hooks in.
 const THREE_FIELD={
   _scene:null,_renderer:null,_camera:null,_points:null,_basePos:null,
-  _ready:false,_raf:null,_reduced:false,
+  _ready:false,_raf:null,_reduced:false,_quality:'high',
   _state:{ breath:0, freqNorm:0.4, intensity:0.45, cinematic:false },
   _hue:{ r:0.78, g:0.66, b:0.30 }, // gold default — matches --gold #c9a84c
+
+  // Soft radial-gradient sprite used as the point texture in high quality.
+  // White core fading to transparent — tinted by material.color, brightened
+  // where motes overlap (additive blending) → a bloom-like glow.
+  _makeSprite(){
+    const c=document.createElement('canvas');
+    c.width=c.height=64;
+    const ctx=c.getContext('2d');
+    const g=ctx.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(0.25,'rgba(255,255,255,0.7)');
+    g.addColorStop(0.5,'rgba(255,255,255,0.25)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,64,64);
+    return new THREE.CanvasTexture(c);
+  },
+
+  // Live quality swap (no restart). 'high' = glowing sprites, 'low' = hard
+  // points for weak GPUs. Persisted so it survives relaunch.
+  setQuality(q){
+    this._quality = q==='low' ? 'low' : 'high';
+    try{ localStorage.setItem('gp_field_quality',this._quality); }catch(e){}
+    if(!this._ready || !this._points) return;
+    const high=this._quality!=='low';
+    const m=this._points.material;
+    if(high && !m.map){ m.map=this._makeSprite(); m.size=1.7; }
+    else if(!high && m.map){ m.map.dispose?.(); m.map=null; m.size=0.6; }
+    m.needsUpdate=true;
+  },
 
   init(){
     if(typeof THREE==='undefined'){ console.warn('THREE not loaded — keeping CSS fallback'); return false; }
@@ -1525,8 +1554,15 @@ const THREE_FIELD={
     const geo=new THREE.BufferGeometry();
     geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
 
+    // Quality: 'high' gives each point a soft radial-gradient sprite so
+    // overlapping motes bloom into glowing light (a cheap bloom that needs
+    // no EffectComposer — works with the bundled core three). 'low' falls
+    // back to hard square points for weak GPUs. Persisted in localStorage.
+    try{ this._quality=localStorage.getItem('gp_field_quality')||'high'; }catch(e){ this._quality='high'; }
+    const high=this._quality!=='low';
     const mat=new THREE.PointsMaterial({
-      size:0.6,
+      size: high ? 1.7 : 0.6,        // soft sprites read larger
+      map: high ? this._makeSprite() : null,
       color:new THREE.Color(this._hue.r,this._hue.g,this._hue.b),
       transparent:true,opacity:0.55,
       blending:THREE.AdditiveBlending,
