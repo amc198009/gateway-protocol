@@ -34,6 +34,24 @@ const crypto = require('crypto');
 // directly at /download — no GitHub repo round-trip needed.
 const DOWNLOAD_DIR = joinPath(__dirname, 'download');
 
+// Latest-version metadata for the desktop auto-update notifier. The
+// desktop app polls GET /version on launch; if its package.json version
+// is older it shows a banner whose "Get update" link points at /download.
+// We read the file fresh per request so bumping version.json + redeploying
+// is enough to notify everyone (no server restart needed once the new
+// image is live).
+const VERSION_FILE = joinPath(__dirname, 'version.json');
+function readVersion() {
+  try {
+    const data = JSON.parse(fs.readFileSync(VERSION_FILE, 'utf8'));
+    return {
+      version: String(data.version || ''),
+      releasedAt: data.releasedAt || null,
+      notes: typeof data.notes === 'string' ? data.notes.slice(0, 1000) : '',
+    };
+  } catch (e) { return null; }
+}
+
 const PORT = process.env.PORT || 7070;
 const HOST = process.env.HOST || '0.0.0.0';
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*';
@@ -189,6 +207,7 @@ function renderLanding(stats) {
     <div class="endpoints">
       <div class="endpoint"><span class="method">GET</span><span><code>/</code></span><span class="ep-desc">this page</span></div>
       <div class="endpoint"><span class="method">GET</span><span><code>/download</code></span><span class="ep-desc">desktop app .dmg</span></div>
+      <div class="endpoint"><span class="method">GET</span><span><code>/version</code></span><span class="ep-desc">latest desktop version (drives in-app update banner)</span></div>
       <div class="endpoint"><span class="method">GET</span><span><code>/feed?wave=&code=&limit=</code></span><span class="ep-desc">list transmissions</span></div>
       <div class="endpoint"><span class="method">POST</span><span><code>/feed</code></span><span class="ep-desc">publish a transmission</span></div>
       <div class="endpoint"><span class="method">POST</span><span><code>/feed/:id/react</code></span><span class="ep-desc">+1 reaction</span></div>
@@ -410,6 +429,14 @@ const server = http.createServer((req, res) => {
   // GET /download[...]  — direct .dmg distribution baked into the image.
   if (req.method === 'GET' && (path === '/download' || path.startsWith('/download/'))) {
     return handleDownload(req, res, path);
+  }
+  // GET /version — desktop app polls this to drive the "update available"
+  // banner. Edit version.json before deploying a new build to flip it on
+  // for every running app on next launch.
+  if (req.method === 'GET' && path === '/version') {
+    const v = readVersion();
+    if (!v) return jsonResponse(res, 404, { error: 'version info not configured' });
+    return jsonResponse(res, 200, { ...v, downloadUrl: '/download' });
   }
 
   jsonResponse(res, 404, { error: 'not found' });

@@ -1,0 +1,5 @@
+{
+  "version": "3.0.0",
+  "releasedAt": "2026-05-20T23:36:15Z",
+  "notes": "V7 — Practice Rooms, Transmission Feed, Semantic Memory, Certifications, Custom Protocols. Plus security hardening (CSP, vault-only key storage, CSRF + rate limits on the server)."
+}

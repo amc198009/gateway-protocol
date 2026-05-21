@@ -65,6 +65,9 @@ contextBridge.exposeInMainWorld('gp', {
   // V7c — Mirror call with retrieved past entries as context
   mirrorWithContext: (opts) => ipcRenderer.invoke('gp:mirror-with-context', opts),
 
+  // V8 — Desktop auto-update notifier (polls the configured server's /version)
+  checkUpdate: () => ipcRenderer.invoke('gp:check-update'),
+
   // Encrypted API key storage (electron-store backed)
   keys: {
     get: (name)        => ipcRenderer.invoke('gp:key-get', name),

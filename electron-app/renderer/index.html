@@ -4690,6 +4690,66 @@ const PROTOBUILD={
   }
 };
 
+// ═══════════════════════════ V8 · UPDATE NOTIFIER ═══════════════════════════
+// Manual-install update flow. The app polls the configured network server's
+// /version endpoint on launch; if the deployed version is newer than this
+// build's, a low-key top banner offers a "Get update" link that opens
+// /download in the user's real browser via setWindowOpenHandler. There's
+// no silent self-update because the .dmg is unsigned — Squirrel/electron-
+// updater requires code signing on macOS to relaunch a fresh app bundle.
+const UPDATE_CHECK={
+  SKIP_KEY:'gp_update_skip',
+  async run(){
+    if(!GP_ELECTRON || !window.gp.checkUpdate) return;
+    let r;
+    try{ r=await window.gp.checkUpdate(); }catch(e){ return; }
+    if(!r || !r.updateAvailable) return;
+    let skipped=null;
+    try{ skipped=localStorage.getItem(this.SKIP_KEY); }catch(_){}
+    if(skipped===r.latest) return; // user explicitly skipped this version
+    this._show(r);
+  },
+  _show(r){
+    if(document.getElementById('gp-update-banner')) return;
+    const css=document.createElement('style');
+    css.textContent=
+      '#gp-update-banner{position:fixed;top:0;left:0;right:0;z-index:9999;'+
+        'background:rgba(15,15,18,.96);backdrop-filter:blur(8px);'+
+        'border-bottom:.5px solid var(--gold);'+
+        'font-family:Montserrat,system-ui,sans-serif;font-size:11px;letter-spacing:1.5px;'+
+        'color:var(--silver);text-transform:uppercase;'+
+        'display:flex;justify-content:center;align-items:center;gap:18px;'+
+        'padding:10px 16px;animation:gp-upd-in .35s ease-out}'+
+      '#gp-update-banner .glyph{color:var(--gold);font-family:"Cormorant Garamond",serif;font-size:14px;text-transform:none;letter-spacing:0}'+
+      '#gp-update-banner a{color:var(--gold);text-decoration:none;border-bottom:.5px solid var(--gold);padding-bottom:1px}'+
+      '#gp-update-banner a:hover{color:var(--gold2);border-color:var(--gold2)}'+
+      '#gp-update-banner button{background:transparent;border:none;color:var(--muted);'+
+        'font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;padding:0 6px}'+
+      '#gp-update-banner button:hover{color:var(--silver)}'+
+      '@keyframes gp-upd-in{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}';
+    document.head.appendChild(css);
+    const el=document.createElement('div');
+    el.id='gp-update-banner';
+    el.innerHTML=
+      '<span class="glyph">◈</span>'+
+      '<span>Version '+escapeHTML(r.latest)+' is available</span>'+
+      '<a href="#" id="gp-upd-get">Get update</a>'+
+      '<button id="gp-upd-skip" title="Don\'t show again for this version">Skip</button>'+
+      '<button id="gp-upd-later" title="Remind me on next launch">×</button>';
+    document.body.appendChild(el);
+    document.getElementById('gp-upd-get').onclick=(e)=>{
+      e.preventDefault();
+      // setWindowOpenHandler in main.js routes this to shell.openExternal
+      window.open(r.downloadUrl,'_blank','noopener');
+    };
+    document.getElementById('gp-upd-skip').onclick=()=>{
+      try{ localStorage.setItem(this.SKIP_KEY, r.latest); }catch(_){}
+      el.remove();
+    };
+    document.getElementById('gp-upd-later').onclick=()=>{ el.remove(); };
+  }
+};
+
 // Tiny escape helper used by V4 panels
 function escapeHTML(s){
   return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -4753,6 +4813,10 @@ function confirmReset(){
   try{ await DB.hydrate(); }catch(e){ console.warn('Boot · DB hydrate:',e); }
   stats=DB.load(); // re-pull after hydrate in case IDB had fresher data
   init();
+  // V8 — check for a newer build after the UI has settled. Update checks
+  // are informational, not blocking; if the server is unreachable or
+  // not configured the banner just doesn't appear.
+  setTimeout(()=>UPDATE_CHECK.run(), 2500);
 })();
 </script>
 </body>

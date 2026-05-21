@@ -596,6 +596,61 @@ ipcMain.handle('gp:network-set', (_evt, cfg) => {
   return true;
 });
 
+// ── IPC: V8 · Desktop update check ───────────────────────────────────
+// Manual-install update flow (Squirrel/electron-updater requires code
+// signing, which we don't have). We poll the configured network
+// server's /version endpoint and surface a banner in the renderer if
+// the deployed version is newer than this build's. The user clicks
+// "Get update" → opens /download in their real browser → drags the
+// new .dmg over the old one.
+function versionGT(a, b) {
+  const pa = String(a || '').split('.').map(n => parseInt(n, 10) || 0);
+  const pb = String(b || '').split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    if ((pa[i] || 0) > (pb[i] || 0)) return true;
+    if ((pa[i] || 0) < (pb[i] || 0)) return false;
+  }
+  return false;
+}
+
+ipcMain.handle('gp:check-update', async () => {
+  const cfg = store.get(NETWORK_KEY) || {};
+  if (!cfg.serverUrl) return { configured: false };
+
+  const base = cfg.serverUrl.replace(/\/+$/, '');
+  const versionUrl = base + '/version';
+  const lib = versionUrl.startsWith('https:') ? https : require('http');
+
+  // Resolve (not reject) on any failure so the renderer can degrade
+  // silently — update checks are nice-to-have, never blocking.
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (val) => { if (!settled) { settled = true; resolve(val); } };
+    const req = lib.get(versionUrl, { timeout: 5000 }, (res) => {
+      const chunks = [];
+      res.on('data', (d) => chunks.push(d));
+      res.on('end', () => {
+        try {
+          const data = JSON.parse(Buffer.concat(chunks).toString());
+          const current = app.getVersion();
+          const latest = String(data.version || '');
+          done({
+            configured: true,
+            current,
+            latest,
+            releasedAt: data.releasedAt || null,
+            notes: data.notes || '',
+            downloadUrl: base + (data.downloadUrl || '/download'),
+            updateAvailable: !!(latest && versionGT(latest, current)),
+          });
+        } catch (e) { done({ configured: true, error: 'parse: ' + e.message }); }
+      });
+    });
+    req.on('error', (e) => done({ configured: true, error: e.message }));
+    req.on('timeout', () => { req.destroy(); done({ configured: true, error: 'timeout' }); });
+  });
+});
+
 // ── IPC: V7c · OpenAI embeddings (for semantic journal memory) ───────
 ipcMain.handle('gp:embed', async (_evt, { text }) => {
   const key = store.get('openai');
