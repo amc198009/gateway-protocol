@@ -2030,7 +2030,7 @@ const THREE_FIELD={
 const FIELD_AUDIO={
   KEY:'gp_field_audio', VOL_KEY:'gp_field_audio_vol',
   _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_oscOct:null,_lfo:null,_lfoGain:null,
-  _enabled:false,_running:false,_ducked:false,_userVol:1,
+  _enabled:false,_running:false,_ducked:false,_userVol:1,_gen:0,
   _state:{freqNorm:0.4,breath:0,cinematic:false},
 
   init(){
@@ -2076,6 +2076,7 @@ const FIELD_AUDIO={
     if(this._running || !this._enabled) return;
     const ctx=this._ensureCtx();
     this._running=true;
+    this._gen++; // new generation of nodes — invalidates any pending stop() teardown
 
     this._master=ctx.createGain();
     this._master.gain.value=0;
@@ -2108,11 +2109,17 @@ const FIELD_AUDIO={
   stop(){
     if(!this._running || !this._ctx) return;
     const ctx=this._ctx; this._running=false;
+    const gen=this._gen; // tag this teardown to the current node generation
     if(this._master) this._master.gain.setTargetAtTime(0, ctx.currentTime, 1.2);
     const nodes=[this._osc,this._oscFifth,this._oscOct,this._lfo];
     setTimeout(()=>{
       nodes.forEach(n=>{ try{n.stop();}catch(e){} try{n.disconnect();}catch(e){} });
-      this._osc=this._oscFifth=this._oscOct=this._lfo=this._lfoGain=this._filter=this._master=null;
+      // Only clear the instance refs if no start() ran since — otherwise a fast
+      // toggle off→on (or the gesture-arm firing mid-fade) would null out the
+      // NEW generation's live nodes, orphaning unstoppable oscillators.
+      if(this._gen===gen){
+        this._osc=this._oscFifth=this._oscOct=this._lfo=this._lfoGain=this._filter=this._master=null;
+      }
     },1500);
   },
 
