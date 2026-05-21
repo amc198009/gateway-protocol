@@ -23,6 +23,7 @@
  */
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const { join: joinPath } = require('path');
 const { WebSocketServer } = require('ws');
@@ -74,7 +75,7 @@ const CLIENT_HEADER = 'x-gateway-client';
 // fill the ring buffer or game the reactions counter. Production should
 // use a real rate-limit middleware backed by Redis.
 const RL_WINDOW_MS = 60 * 1000;
-const RL_LIMITS = { feed_post: 10, feed_react: 30 };
+const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20 };
 const rlBuckets = new Map(); // key: `${kind}:${ip}` → { count, resetAt }
 function rateLimited(kind, ip) {
   const key = kind + ':' + (ip || 'unknown');
@@ -402,6 +403,102 @@ function requireClient(req, res) {
   return true;
 }
 
+// ── /api/* · LLM + TTS relay (the mobile/PWA backend) ─────────────────────
+// Phones can't make the Council/TTS/embed calls the desktop app makes
+// (Electron holds the keys; there's no localhost proxy on a phone). This is
+// the "managed tier" backend: the server injects ITS OWN keys and forwards
+// to the providers, so the client never holds a key.
+//
+// SECURITY — this is an authenticated-spend surface. It is OFF unless
+// ENABLE_API_PROXY=1 AND the relevant provider key env var is set. Even
+// then it's protected by: the X-Gateway-Client header (CSRF), a per-IP
+// rate limit (RL_LIMITS.api), a request-body cap, a model allowlist, and a
+// max_tokens ceiling to bound per-call cost. A truly public deployment
+// still needs real auth + billing before launch (see MOBILE.md §Security).
+const API_PROXY_ON = process.env.ENABLE_API_PROXY === '1';
+const API_KEYS = {
+  anthropic: process.env.ANTHROPIC_API_KEY || '',
+  openai: process.env.OPENAI_API_KEY || '',
+  elevenlabs: process.env.ELEVENLABS_API_KEY || '',
+};
+const ANTHROPIC_MODELS = new Set(['claude-sonnet-4-20250514']);
+const OPENAI_TTS_MODELS = new Set(['tts-1', 'tts-1-hd']);
+const OPENAI_EMBED_MODELS = new Set(['text-embedding-3-small', 'text-embedding-3-large']);
+
+function readBody(req, max) {
+  return new Promise((resolve, reject) => {
+    let data = '', over = false;
+    req.on('data', c => { if (over) return; data += c; if (data.length > max) { over = true; reject(new Error('too large')); } });
+    req.on('end', () => { if (!over) resolve(data); });
+    req.on('error', reject);
+  });
+}
+
+// Forward a POST upstream with server-injected auth; pipe the response back
+// (works for JSON and binary/audio alike — content-type is copied through).
+function httpsRelay({ hostname, path: upPath, headers, body }, clientRes) {
+  const up = https.request({ hostname, path: upPath, method: 'POST', headers }, r => {
+    clientRes.writeHead(r.statusCode, {
+      'Content-Type': r.headers['content-type'] || 'application/json',
+      'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+      'Cache-Control': 'no-store',
+    });
+    r.pipe(clientRes);
+  });
+  up.on('error', e => { try { jsonResponse(clientRes, 502, { error: 'upstream: ' + e.message }); } catch (_) {} });
+  up.write(body); up.end();
+}
+
+async function handleApiAnthropic(req, res) {
+  if (!API_KEYS.anthropic) return jsonResponse(res, 503, { error: 'anthropic not configured' });
+  let body;
+  try { body = JSON.parse(await readBody(req, 64 * 1024)); }
+  catch (e) { return jsonResponse(res, e.message === 'too large' ? 413 : 400, { error: e.message === 'too large' ? 'body too large' : 'invalid JSON' }); }
+  if (!ANTHROPIC_MODELS.has(body.model)) body.model = 'claude-sonnet-4-20250514';
+  body.max_tokens = Math.min(parseInt(body.max_tokens, 10) || 1024, 1500); // cost ceiling
+  const out = JSON.stringify(body);
+  httpsRelay({
+    hostname: 'api.anthropic.com', path: '/v1/messages',
+    headers: { 'x-api-key': API_KEYS.anthropic, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(out) },
+    body: out,
+  }, res);
+}
+
+async function handleApiEmbeddings(req, res) {
+  if (!API_KEYS.openai) return jsonResponse(res, 503, { error: 'openai not configured' });
+  let body;
+  try { body = JSON.parse(await readBody(req, 64 * 1024)); }
+  catch (e) { return jsonResponse(res, e.message === 'too large' ? 413 : 400, { error: e.message === 'too large' ? 'body too large' : 'invalid JSON' }); }
+  if (!OPENAI_EMBED_MODELS.has(body.model)) body.model = 'text-embedding-3-small';
+  if (typeof body.input === 'string') body.input = body.input.slice(0, 8000);
+  const out = JSON.stringify({ model: body.model, input: body.input });
+  httpsRelay({
+    hostname: 'api.openai.com', path: '/v1/embeddings',
+    headers: { 'Authorization': 'Bearer ' + API_KEYS.openai, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(out) },
+    body: out,
+  }, res);
+}
+
+async function handleApiSpeech(req, res) {
+  if (!API_KEYS.openai) return jsonResponse(res, 503, { error: 'openai not configured' });
+  let body;
+  try { body = JSON.parse(await readBody(req, 16 * 1024)); }
+  catch (e) { return jsonResponse(res, e.message === 'too large' ? 413 : 400, { error: e.message === 'too large' ? 'body too large' : 'invalid JSON' }); }
+  if (!OPENAI_TTS_MODELS.has(body.model)) body.model = 'tts-1';
+  const out = JSON.stringify({
+    model: body.model,
+    input: String(body.input || '').slice(0, 4000),
+    voice: body.voice || 'nova',
+    speed: Math.max(0.25, Math.min(2, Number(body.speed) || 0.9)),
+    response_format: 'mp3',
+  });
+  httpsRelay({
+    hostname: 'api.openai.com', path: '/v1/audio/speech',
+    headers: { 'Authorization': 'Bearer ' + API_KEYS.openai, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(out) },
+    body: out,
+  }, res);
+}
+
 // ── HTTP server (also hosts the WS upgrade) ───────────────────────────
 const server = http.createServer((req, res) => {
   // CORS preflight — must echo the same Allow-Headers as actual responses
@@ -464,6 +561,24 @@ const server = http.createServer((req, res) => {
     const v = readVersion();
     if (!v) return jsonResponse(res, 404, { error: 'version info not configured' });
     return jsonResponse(res, 200, { ...v, downloadUrl: '/download' });
+  }
+
+  // /api/* — managed LLM/TTS relay for the mobile/PWA client.
+  if (path.startsWith('/api/')) {
+    if (!API_PROXY_ON) return jsonResponse(res, 503, { error: 'api proxy disabled on this server' });
+    // GET /api/status — lets the web client feature-detect which providers
+    // are available (no key, no spend; safe to leave open).
+    if (req.method === 'GET' && path === '/api/status') {
+      return jsonResponse(res, 200, { anthropic: !!API_KEYS.anthropic, openai: !!API_KEYS.openai, elevenlabs: !!API_KEYS.elevenlabs });
+    }
+    if (req.method === 'POST') {
+      if (!requireClient(req, res)) return;
+      if (rateLimited('api', clientIp(req))) return jsonResponse(res, 429, { error: 'slow down' });
+      if (path === '/api/anthropic/messages') return handleApiAnthropic(req, res);
+      if (path === '/api/openai/embeddings') return handleApiEmbeddings(req, res);
+      if (path === '/api/openai/speech') return handleApiSpeech(req, res);
+    }
+    return jsonResponse(res, 404, { error: 'unknown api route' });
   }
 
   jsonResponse(res, 404, { error: 'not found' });
