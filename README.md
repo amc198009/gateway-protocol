@@ -106,7 +106,7 @@ gateway-protocol/
 
 ## Requirements
 
-- **macOS 10.15+** (Catalina or later). Linux/Windows builds not yet configured but possible — see `forge.config.js`.
+- **macOS 10.15+** (Catalina or later) → `.dmg`. **Windows** → Squirrel `Setup.exe`. **Linux** → `.deb` + `.rpm`. All three are configured in `forge.config.js`, but each artifact must be built **on its own OS** (Windows Squirrel needs Windows/wine; `.deb`/`.rpm` need `dpkg`/`rpmbuild`) — a CI matrix (macos/windows/ubuntu runners) is the clean way to produce all three from one tag. All builds are currently unsigned.
 - **Node 14+** (only for local development; the .dmg ships its own Node runtime inside Electron).
 - **API keys (BYOK):**
   - [OpenAI](https://platform.openai.com/api-keys) for TTS · `sk-proj-...`
