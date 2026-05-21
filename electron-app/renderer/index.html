@@ -280,10 +280,47 @@ body{
 @keyframes bar-dance{from{height:4px}to{height:var(--h,20px)}}
 
 /* ═══ RESPONSIVE ═══ */
+/* ═══ Responsive / mobile-PWA layout pass ═══
+   The app is desktop-first (900px centered column). On phone viewports the
+   nav becomes a single horizontal scroll strip instead of wrapping into a
+   tall block, the hero + timer scale down, settings rows stack label-over-
+   input, and full-screen overlays (shadow dialogue) fill the viewport. */
 @media(max-width:600px){
+  #app{padding:0 .7rem 3rem}
+  .hero{padding:2rem .75rem 1.25rem}
+  .hero-eye{width:60px;height:60px;margin-bottom:1rem}
   .hero-tagline{font-size:24px;letter-spacing:2px}
-  .timer-time{font-size:42px}
+  .hero-sub{font-size:12px;letter-spacing:1.5px}
+  .timer-time{font-size:42px;letter-spacing:4px}
   .solf-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* Nav: edge-to-edge horizontal scroll strip (no wrap → no tall nav block) */
+  .nav{flex-wrap:nowrap;justify-content:flex-start;gap:6px;
+       margin:0 -.7rem;padding:0 .7rem 1.1rem;
+       -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+  .nav-btn{padding:8px 12px;font-size:12px;letter-spacing:1.5px;scroll-snap-align:start;flex:0 0 auto}
+
+  /* Settings/reminders rows: let label sit above a full-width control */
+  .gp-reminders{padding:1rem}
+  .gp-reminders-row{flex-wrap:wrap;gap:8px}
+  .gp-reminders-row > input[type=text],
+  .gp-reminders-row > input[type=password]{flex:1 1 100%;min-width:0}
+  .gp-room-form input,.gp-room-form select{flex:1 1 100%}
+  .gp-room-code{font-size:28px;letter-spacing:5px}
+  .gp-bio-input{flex-wrap:wrap}
+  .gp-bio-input input[type=number]{flex:1 1 100%;width:auto}
+
+  /* Shadow dialogue: full-screen on a phone */
+  .gp-shadow-frame{width:100vw;height:100dvh;max-height:100dvh;border-radius:0;border-left:none;border-right:none;margin:0}
+  .gp-shadow-msg{max-width:90%}
+
+  /* Cinematic timer: keep the 96px hero from overflowing a narrow screen */
+  body.gp-cinematic .timer-time{font-size:64px!important;letter-spacing:6px!important}
+
+  /* Orbital nav (experimental): smaller ring nodes for touch */
+  .gp-orbital-node{width:140px;margin:-26px 0 0 -70px;font-size:13px}
+
+  .btn-row{gap:8px}
 }
 
 /* ═══ V7 · NETWORK (Practice Rooms + Feed) ═══ */
@@ -1087,7 +1124,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <div style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:.6rem">Required once. Get free key at <strong style="color:var(--silver)">console.anthropic.com</strong> → API Keys.</div>
       <input type="password" id="anthropic-key-input" placeholder="sk-ant-..."
         style="width:100%;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
-        oninput="QM.saveKey(this.value)">
+        oninput="KEYS.set('anthropic',this.value,this)">
     </div>
 
     <!-- Mirror output panel — hidden until response arrives -->
@@ -1325,7 +1362,33 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
   <!-- ════ SCREEN: SETTINGS (V6d) ════ -->
   <div id="screen-settings" class="screen">
     <div class="section-title">Settings</div>
-    <div class="section-sub">Reminders, data management, and app info. Voice + ambient settings stay on the Sessions screen — they're context-coupled to the timer.</div>
+    <div class="section-sub">API keys, visuals, reminders, network, biometric, and data — all in one place. Voice engine + ambient controls stay on the Sessions screen (context-coupled to the timer); the keys below stay in sync with them.</div>
+
+    <!-- API Keys (unified — two-way synced with the inline Sessions/Council inputs) -->
+    <div class="gp-reminders">
+      <div class="gp-reminders-title">◈ API Keys</div>
+      <div style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+        <strong style="color:var(--silver)">Anthropic</strong> powers the Council, <strong style="color:var(--silver)">OpenAI</strong> drives voice + semantic journal memory, and <strong style="color:var(--silver)">ElevenLabs</strong> is premium voice. <span id="keys-storage-note"></span> Edits here sync with the inline fields on the Sessions and Journal screens.
+      </div>
+      <div class="gp-reminders-row" style="gap:10px">
+        <label style="width:110px;flex-shrink:0;color:var(--silver)">Anthropic</label>
+        <input type="password" id="set-key-anthropic" placeholder="sk-ant-..." autocomplete="off"
+          style="flex:1;min-width:0;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
+          oninput="KEYS.set('anthropic',this.value,this)">
+      </div>
+      <div class="gp-reminders-row" style="gap:10px;margin-top:.5rem">
+        <label style="width:110px;flex-shrink:0;color:var(--silver)">OpenAI</label>
+        <input type="password" id="set-key-openai" placeholder="sk-..." autocomplete="off"
+          style="flex:1;min-width:0;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
+          oninput="KEYS.set('openai',this.value,this)">
+      </div>
+      <div class="gp-reminders-row" style="gap:10px;margin-top:.5rem">
+        <label style="width:110px;flex-shrink:0;color:var(--silver)">ElevenLabs <span id="set-key-el-note" style="font-size:12px;color:var(--gold);opacity:.8"></span></label>
+        <input type="password" id="set-key-elevenlabs" placeholder="sk-..." autocomplete="off"
+          style="flex:1;min-width:0;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
+          oninput="KEYS.set('elevenlabs',this.value,this)">
+      </div>
+    </div>
 
     <!-- Visuals -->
     <div class="gp-reminders">
@@ -1885,8 +1948,55 @@ const GP_API = {
         const inp=document.getElementById('anthropic-key-input');
         if(inp) inp.value=ant;
       }
+      // Reflect the vault-loaded keys into the unified Settings inputs.
+      if(typeof KEYS!=='undefined') KEYS.hydrate();
     }catch(e){ console.warn('Key hydration failed:',e); }
   }
+};
+
+// ═══════════════════════════ API KEYS (unified) ═══════════════════════════
+// One source of truth per provider, surfaced in two places: the inline fields
+// (Anthropic on the Journal/Mirror panel, OpenAI/ElevenLabs in the Sessions
+// voice panel) and the consolidated "◈ API Keys" block on the Settings screen.
+// Editing either keeps the other in sync. Persistence is unchanged — QM.saveKey
+// and VOICE._save still own it (encrypted electron-store vault on desktop,
+// localStorage on the web build, which is exactly what the BYOK transport reads
+// to send X-BYOK-Key).
+const KEYS={
+  // provider → every input id that displays this key
+  _inputs:{
+    anthropic:['set-key-anthropic','anthropic-key-input'],
+    openai:['set-key-openai','oai-key-input'],
+    elevenlabs:['set-key-elevenlabs','el-key-input'],
+  },
+  // Called from every key input's oninput. `src` is the element being typed in
+  // — we never write back into it (would jump the caret).
+  set(provider, value, src){
+    value=(value||'').trim();
+    if(provider==='anthropic'){ if(typeof QM!=='undefined') QM.saveKey(value); }
+    else if(provider==='openai'){ if(typeof VOICE!=='undefined'){ VOICE.oaiKey=value; VOICE._save(); } }
+    else if(provider==='elevenlabs'){ if(typeof VOICE!=='undefined'){ VOICE.elKey=value; VOICE._save(); } }
+    (this._inputs[provider]||[]).forEach(id=>{
+      const el=document.getElementById(id);
+      if(el && el!==src && el.value!==value) el.value=value;
+    });
+  },
+  // Populate the Settings inputs from current in-memory state + set the
+  // storage/availability notes. Safe to call anytime (skips missing elements).
+  hydrate(){
+    let ant=(typeof QM!=='undefined' && QM._key)||'';
+    if(!ant){ try{ ant=localStorage.getItem('gp_anthropic_key')||''; }catch(e){} }
+    const oai=(typeof VOICE!=='undefined' && VOICE.oaiKey)||'';
+    const el =(typeof VOICE!=='undefined' && VOICE.elKey )||'';
+    const put=(id,v)=>{ const n=document.getElementById(id); if(n && document.activeElement!==n) n.value=v; };
+    put('set-key-anthropic',ant); put('set-key-openai',oai); put('set-key-elevenlabs',el);
+    const note=document.getElementById('keys-storage-note');
+    if(note) note.textContent = GP_ELECTRON
+      ? 'Stored encrypted on this device (electron-store) — they never leave your machine.'
+      : 'Stored in this browser only and sent with your own requests as X-BYOK-Key; the server never keeps them.';
+    const elNote=document.getElementById('set-key-el-note');
+    if(elNote) elNote.textContent = GP_ELECTRON ? '' : '· desktop only';
+  },
 };
 
 // ═══════════════════════════ V3d · HRV COHERENCE VISUALIZER ═══════════════════════════
@@ -2136,7 +2246,11 @@ const THREE_FIELD={
     // overlapping motes bloom into glowing light (a cheap bloom that needs
     // no EffectComposer — works with the bundled core three). 'low' falls
     // back to hard square points for weak GPUs. Persisted in localStorage.
-    try{ this._quality=localStorage.getItem('gp_field_quality')||'high'; }catch(e){ this._quality='high'; }
+    // Honor an explicit saved choice; otherwise default to 'low' on small /
+    // mobile viewports (weaker GPUs, per server/MOBILE.md §2) and 'high' on desktop.
+    let savedQ=null; try{ savedQ=localStorage.getItem('gp_field_quality'); }catch(e){}
+    const smallScreen=(typeof window!=='undefined' && window.matchMedia && window.matchMedia('(max-width:600px)').matches);
+    this._quality = savedQ || (smallScreen ? 'low' : 'high');
     const high=this._quality!=='low';
     const mat=new THREE.PointsMaterial({
       size: high ? 1.7 : 0.6,        // soft sprites read larger
@@ -2996,6 +3110,7 @@ function init(){
   VISUALS.init();
   VOICE.init();
   QM.init();
+  KEYS.hydrate(); // populate the unified API-key fields from loaded state (web: localStorage)
   buildStars();
   buildWaves();
   buildSolfeggio();
@@ -3063,6 +3178,8 @@ function _swapScreen(id, navBtn){
   const scr=document.getElementById('screen-'+id);
   if(scr) scr.classList.add('active');
   if(navBtn) navBtn.classList.add('active');
+  // Keep the unified API-key fields current whenever Settings opens.
+  if(id==='settings' && typeof KEYS!=='undefined') KEYS.hydrate();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function _navTo(id, navBtn){
@@ -3429,7 +3546,7 @@ const VOICE={
     <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
     <input type="password" id="el-key-input" placeholder="sk-..." value="${this.elKey}"
       style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:5px 8px;border-radius:2px;outline:none"
-      oninput="VOICE.elKey=this.value;VOICE._save()">
+      oninput="KEYS.set('elevenlabs',this.value,this)">
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
@@ -3457,7 +3574,7 @@ const VOICE={
     <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
     <input type="password" id="oai-key-input" placeholder="sk-..." value="${this.oaiKey}"
       style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:5px 8px;border-radius:2px;outline:none"
-      oninput="VOICE.oaiKey=this.value;VOICE._save()">
+      oninput="KEYS.set('openai',this.value,this)">
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
@@ -6049,7 +6166,12 @@ const VISUALS={
   _motion:'auto',
   _readable:'standard',
   init(){
-    try{ this._quality=localStorage.getItem('gp_field_quality')||'high'; }catch(e){}
+    // Mirror THREE_FIELD.init's default exactly (deterministic, not persisted):
+    // honor an explicit saved choice, else 'low' on small/mobile viewports so
+    // the High/Low buttons match the field that actually rendered.
+    let savedQ=null; try{ savedQ=localStorage.getItem('gp_field_quality'); }catch(e){}
+    const smallScreen=(window.matchMedia && window.matchMedia('(max-width:600px)').matches);
+    this._quality = savedQ || (smallScreen ? 'low' : 'high');
     try{ this._motion=localStorage.getItem('gp_motion')||'auto'; }catch(e){}
     try{ this._readable=localStorage.getItem('gp_readable')||'standard'; }catch(e){}
     // React to OS-level changes while in 'auto'.
