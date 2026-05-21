@@ -80,7 +80,7 @@ const CLIENT_HEADER = 'x-gateway-client';
 // fill the ring buffer or game the reactions counter. Production should
 // use a real rate-limit middleware backed by Redis.
 const RL_WINDOW_MS = 60 * 1000;
-const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20 };
+const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20, byok: 30 };
 const rlBuckets = new Map(); // key: `${kind}:${ip}` → { count, resetAt }
 function rateLimited(kind, ip) {
   const key = kind + ':' + (ip || 'unknown');
@@ -571,6 +571,67 @@ async function handleApiSpeech(req, res) {
   }, res);
 }
 
+// ── /byok/* · stateless Bring-Your-Own-Key passthrough ────────────────────
+// The sovereign PWA backend (Phase A). Same provider relay as /api/*, but the
+// CLIENT supplies its OWN key per request via the X-BYOK-Key header. The
+// server NEVER stores the key, NEVER uses its own, and the usage governor /
+// budget does NOT apply — the user pays their own provider bill. Upstream
+// destinations are hardcoded to the two providers, so this is NOT an open
+// proxy (a caller can't redirect it elsewhere). It carries no spend liability
+// for the operator, so it's ON by default; set ENABLE_BYOK_PROXY=0 to disable.
+//
+// It still keeps the non-spend rails: the X-Gateway-Client CSRF header, a
+// per-IP burst limit (RL_LIMITS.byok), and a request-body cap.
+const BYOK_PROXY_ON = process.env.ENABLE_BYOK_PROXY !== '0';
+
+function byokKey(req, res) {
+  const k = (req.headers['x-byok-key'] || '').toString().trim();
+  if (!k) { jsonResponse(res, 401, { error: 'missing X-BYOK-Key header (bring your own key)' }); return null; }
+  return k;
+}
+
+async function handleByok(req, res, kind) {
+  const key = byokKey(req, res);
+  if (!key) return;
+  const maxBody = kind === 'speech' ? 16 * 1024 : 256 * 1024; // Council context can be large
+  let body;
+  try { body = JSON.parse(await readBody(req, maxBody)); }
+  catch (e) { return jsonResponse(res, e.message === 'too large' ? 413 : 400, { error: e.message === 'too large' ? 'body too large' : 'invalid JSON' }); }
+  if (typeof body.model !== 'string' || !body.model) return jsonResponse(res, 400, { error: 'model required' });
+
+  if (kind === 'anthropic') {
+    body.max_tokens = Math.min(parseInt(body.max_tokens, 10) || 1024, 8192); // server-resource sanity cap, not a cost gate
+    const out = JSON.stringify(body);
+    return httpsRelay({
+      hostname: 'api.anthropic.com', path: '/v1/messages',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(out) },
+      body: out,
+    }, res);
+  }
+  if (kind === 'embeddings') {
+    const out = JSON.stringify({ model: body.model, input: body.input });
+    return httpsRelay({
+      hostname: 'api.openai.com', path: '/v1/embeddings',
+      headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(out) },
+      body: out,
+    }, res);
+  }
+  if (kind === 'speech') {
+    const out = JSON.stringify({
+      model: body.model,
+      input: String(body.input || '').slice(0, 4000),
+      voice: body.voice || 'nova',
+      speed: clamp(body.speed, 0.25, 2, 0.9),
+      response_format: 'mp3',
+    });
+    return httpsRelay({
+      hostname: 'api.openai.com', path: '/v1/audio/speech',
+      headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(out) },
+      body: out,
+    }, res);
+  }
+}
+
 // ── HTTP server (also hosts the WS upgrade) ───────────────────────────
 const server = http.createServer((req, res) => {
   // CORS preflight — must echo the same Allow-Headers as actual responses
@@ -579,7 +640,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': ALLOW_ORIGIN,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization, X-BYOK-Key',
     });
     return res.end();
   }
@@ -666,6 +727,29 @@ const server = http.createServer((req, res) => {
       if (kind === 'speech') return handleApiSpeech(req, res);
     }
     return jsonResponse(res, 404, { error: 'unknown api route' });
+  }
+
+  // /byok/* — stateless BYOK passthrough for the sovereign PWA. The client
+  // brings its own provider key (X-BYOK-Key); no server key, no governor.
+  if (path.startsWith('/byok/')) {
+    if (!BYOK_PROXY_ON) return jsonResponse(res, 503, { error: 'byok proxy disabled on this server' });
+    // GET /byok/status — feature-detect (no key, no spend, no auth).
+    if (req.method === 'GET' && path === '/byok/status') {
+      return jsonResponse(res, 200, {
+        ok: true, mode: 'byok', providers: ['anthropic', 'openai'],
+        keyHeader: 'X-BYOK-Key', note: 'bring your own provider key per request',
+      });
+    }
+    if (req.method === 'POST') {
+      if (!requireClient(req, res)) return;       // CSRF header (parity with /api)
+      if (rateLimited('byok', clientIp(req))) return jsonResponse(res, 429, { error: 'slow down' });
+      const kind = path === '/byok/anthropic/messages' ? 'anthropic'
+        : path === '/byok/openai/speech' ? 'speech'
+        : path === '/byok/openai/embeddings' ? 'embeddings' : null;
+      if (!kind) return jsonResponse(res, 404, { error: 'unknown byok route' });
+      return handleByok(req, res, kind);
+    }
+    return jsonResponse(res, 404, { error: 'unknown byok route' });
   }
 
   jsonResponse(res, 404, { error: 'not found' });

@@ -74,6 +74,56 @@ the limits, and **remaining credits** (global + yours) so the client can show
 
 ---
 
+## The `/byok/*` passthrough (BUILT) — the sovereign PWA backend
+
+The Phase-A monetization decision (see `../MONETIZATION.md`) is **sovereign
+BYOK**: the web app holds the user's own key and the server never does. So
+alongside the managed `/api/*` relay there's a parallel **bring-your-own-key**
+family. Same plumbing, opposite key source: the **client** sends its key per
+request in the `X-BYOK-Key` header; the server forwards it to the provider and
+pipes the response back. **No server key, no governor, no budget** — the user
+pays their own provider bill.
+
+| Method | Route | Forwards to | Notes |
+|---|---|---|---|
+| GET | `/byok/status` | — | `{providers, keyHeader}` for feature-detect. No key, no auth. |
+| POST | `/byok/anthropic/messages` | `api.anthropic.com/v1/messages` | Pass `model` through; `max_tokens` clamped ≤8192 (server-resource sanity, not a cost gate). |
+| POST | `/byok/openai/embeddings` | `api.openai.com/v1/embeddings` | Pass `model`+`input` through. |
+| POST | `/byok/openai/speech` | `api.openai.com/v1/audio/speech` | `input` ≤4k chars; returns `audio/mpeg`. |
+
+- **Auth:** none of the server's. Send the user's provider key as
+  `X-BYOK-Key: <key>`. Missing key → `401`.
+- **Still requires** the `X-Gateway-Client` header (CSRF parity) and is
+  per-IP rate limited (`RL_LIMITS.byok = 30`), body-capped (256k; 16k for
+  speech).
+- **Not an open proxy:** upstream hosts are hardcoded to the two providers;
+  a caller cannot redirect it elsewhere.
+- **On by default** (no spend liability for the operator). Disable with
+  `ENABLE_BYOK_PROXY=0`. Independent of `ENABLE_API_PROXY`.
+
+### Renderer handoff — what the web build must do to use this
+
+The renderer's web fallback (`electron-app/renderer/index.html`) currently
+`fetch()`es `http://localhost:5050/...` (the old local `proxy.js`) with
+endpoint shapes `/mirror`, `/tts`, `/pre-session`. To run as a deployed PWA it
+must instead, **when `!window.gp`** (non-Electron):
+
+1. Target **same-origin** relative URLs (`{origin}/byok/...`), not
+   `localhost:5050`.
+2. Use the routes above (the `/byok/anthropic/messages` Messages-API shape,
+   not the old `/mirror` shape).
+3. Collect the user's key in the browser (localStorage/IndexedDB) and send it
+   as `X-BYOK-Key`, plus `X-Gateway-Client: 1`.
+4. Provide web fallbacks (or graceful "desktop-only" disables) for the V4
+   Council features that are currently Electron-only (monthly patterns,
+   affirmations, shadow dialogue, synchronicities).
+
+Once that's done, serving the renderer at `/app` is a trivial static route to
+add here. **`/app` is intentionally NOT served yet** — it would call a
+nonexistent `localhost:5050` and fail until the above is wired.
+
+---
+
 ## Security model (read before exposing publicly)
 
 This is an **authenticated-spend surface** — every call costs the server
