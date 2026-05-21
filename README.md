@@ -129,6 +129,17 @@ npm run v1             # runs the V1 browser+proxy mode for comparison
 
 The renderer feature-detects `window.gp` — so `electron-app/renderer/index.html` works in both Electron (uses IPC) and a plain browser via `proxy.js` (falls back to `fetch()` against `localhost:5050`). One file, two runtimes.
 
+### Cutting a release
+
+Tag a version and push the tag — the [`Release` workflow](.github/workflows/release.yml) builds on macOS, Windows, and Linux runners and attaches every artifact (`.dmg`, `.zip`, `Setup.exe`, `.deb`, `.rpm`) to the matching GitHub Release automatically:
+
+```bash
+# bump electron-app/package.json + server/version.json first, then:
+git tag v3.1.0 && git push origin v3.1.0
+```
+
+To smoke-test a build without releasing, run the workflow manually (`workflow_dispatch`) — it produces the same binaries as downloadable workflow artifacts but doesn't touch any Release. After releasing, bump `server/version.json` and `npm run deploy` from `server/` so the in-app update banner points users at the new build.
+
 ---
 
 ## Versions / Changelog

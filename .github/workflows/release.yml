@@ -1,0 +1,96 @@
+name: Release
+
+# Builds the desktop app for macOS, Windows, and Linux and attaches the
+# artifacts to the GitHub Release for the pushed tag.
+#
+#   Tag a release:   git tag v3.1.0 && git push origin v3.1.0
+#   → this workflow builds on three runners and uploads:
+#       macOS   .dmg + .zip   (x64 — runs on Apple Silicon via Rosetta)
+#       Windows Setup.exe + .nupkg
+#       Linux   .deb + .rpm + .zip
+#
+# workflow_dispatch (manual run) builds the same matrix but only uploads
+# the binaries as workflow artifacts — it does NOT touch any Release, so
+# you can smoke-test a build without cutting a tag.
+#
+# All builds are UNSIGNED (Gatekeeper / SmartScreen warnings expected).
+# Signing is a separate, paid step — see TODO.md.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to attach files to the Release
+
+jobs:
+  build:
+    name: Build · ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-13        # Intel runner → native x64 .dmg
+            platform: macos
+          - os: windows-latest
+            platform: windows
+          - os: ubuntu-latest
+            platform: linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron-app/package-lock.json
+
+      # maker-deb needs dpkg (present) + fakeroot; maker-rpm needs rpmbuild.
+      - name: Install Linux packaging tools
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y fakeroot rpm
+
+      - name: Install dependencies
+        working-directory: electron-app
+        run: npm ci --no-audit --no-fund
+
+      - name: Build (electron-forge make · x64)
+        working-directory: electron-app
+        run: npm run make -- --arch=x64
+
+      - name: List built artifacts
+        shell: bash
+        run: ls -laR electron-app/out/make || true
+
+      # Always publish the binaries as downloadable workflow artifacts so a
+      # manual (workflow_dispatch) run is testable without a Release.
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-protocol-${{ matrix.platform }}
+          path: |
+            electron-app/out/make/**/*.dmg
+            electron-app/out/make/**/*.zip
+            electron-app/out/make/**/*.exe
+            electron-app/out/make/**/*.deb
+            electron-app/out/make/**/*.rpm
+          if-no-files-found: warn
+
+      # On a tag push, attach this platform's binaries to the matching
+      # Release (created if it doesn't exist). Each matrix job appends its
+      # own files; fail_on_unmatched_files:false because each OS only emits
+      # its own artifact types.
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            electron-app/out/make/**/*.dmg
+            electron-app/out/make/**/*.zip
+            electron-app/out/make/**/*.exe
+            electron-app/out/make/**/*.deb
+            electron-app/out/make/**/*.rpm
+          fail_on_unmatched_files: false
