@@ -87,6 +87,131 @@ const feed = []; // ring buffer, oldest at index 0
  */
 
 // ── REST handlers (feed) ──────────────────────────────────────────────
+// Styled landing page rendered when a browser hits `GET /`. Matches the
+// desktop app's dark + gold aesthetic. Auto-refreshes the live stats
+// every 15s via a tiny inline script that re-fetches `/` with JSON Accept.
+function renderLanding(stats) {
+  const fmtUptime = s => {
+    const d = Math.floor(s/86400), h = Math.floor((s%86400)/3600);
+    const m = Math.floor((s%3600)/60);
+    if (d) return `${d}d ${h}h`;
+    if (h) return `${h}h ${m}m`;
+    return `${m}m ${s%60}s`;
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gateway Protocol · Network</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="The reference network server for Gateway Protocol — Community Practice Rooms and the Transmission Feed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0d;--card:#13131a;--border:rgba(201,168,76,.15);--gold:#c9a84c;--gold2:#f0d88a;--text:#e8e2d4;--muted:#7a7264;--silver:#c5bdab}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:Montserrat,system-ui,sans-serif;font-weight:300;line-height:1.6;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(201,168,76,.06),transparent 60%),radial-gradient(ellipse at bottom,rgba(201,168,76,.03),transparent 70%);pointer-events:none;z-index:0}
+  .wrap{max-width:780px;margin:0 auto;padding:80px 24px;position:relative;z-index:1}
+  .hero{text-align:center;margin-bottom:60px}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--border);padding:6px 14px;border-radius:20px;margin-bottom:24px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(36px,7vw,64px);letter-spacing:6px;color:var(--gold2);margin-bottom:12px;line-height:1.1}
+  .tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--silver);letter-spacing:1px;max-width:520px;margin:0 auto}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border);border:.5px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:48px}
+  .stat{background:var(--card);padding:24px 16px;text-align:center}
+  .stat-val{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:36px;color:var(--gold2);letter-spacing:2px;line-height:1}
+  .stat-lbl{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .card{background:var(--card);border:.5px solid var(--border);border-radius:6px;padding:32px 28px;margin-bottom:24px}
+  .card h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+  .card p{font-size:14px;color:var(--silver);line-height:1.8;margin-bottom:14px}
+  .card p:last-child{margin-bottom:0}
+  .card em{color:var(--gold2);font-style:italic}
+  code{font-family:'SF Mono',Menlo,monospace;font-size:12px;background:rgba(0,0,0,.4);padding:2px 8px;border-radius:3px;color:var(--gold);border:.5px solid var(--border)}
+  .endpoints{display:flex;flex-direction:column;gap:10px;font-family:'SF Mono',Menlo,monospace;font-size:12px}
+  .endpoint{display:flex;gap:14px;align-items:baseline;color:var(--silver);padding:6px 0}
+  .method{font-weight:400;color:var(--gold);min-width:48px}
+  .ep-desc{color:var(--muted);font-size:11px;margin-left:auto;font-family:Montserrat,sans-serif;letter-spacing:.5px}
+  .ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:40px}
+  .cta{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--gold);padding:14px 22px;border-radius:2px;text-decoration:none;transition:all .25s}
+  .cta:hover{background:rgba(201,168,76,.08);color:var(--gold2);border-color:var(--gold2)}
+  .cta.primary{background:rgba(201,168,76,.06)}
+  footer{margin-top:60px;padding-top:30px;border-top:.5px solid var(--border);text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  footer a{color:var(--muted);text-decoration:none;border-bottom:.5px solid transparent;transition:.2s}
+  footer a:hover{color:var(--gold);border-color:var(--gold)}
+  @media (max-width:560px){.wrap{padding:48px 18px}.stats{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="badge"><span class="dot"></span>Network · Online</div>
+    <h1>Gateway Protocol</h1>
+    <div class="tagline">The reference network for Community Practice Rooms and the Transmission Feed. <em>Owned, not subscribed.</em></div>
+  </div>
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-val" data-stat="rooms">${stats.rooms}</div><div class="stat-lbl">Active Rooms</div></div>
+    <div class="stat"><div class="stat-val" data-stat="feed">${stats.feedSize}</div><div class="stat-lbl">Feed Items</div></div>
+    <div class="stat"><div class="stat-val" data-stat="uptime">${fmtUptime(stats.uptime)}</div><div class="stat-lbl">Server Uptime</div></div>
+  </div>
+
+  <div class="card">
+    <h2>What this is</h2>
+    <p>This URL isn't a website — it's the <em>backend</em> for the Gateway Protocol desktop app. Practitioners running the app can opt in to two community features that route through here:</p>
+    <p><em>Community Practice Rooms.</em> Multiple practitioners doing the same Gateway Wave at the same time. The first joiner hosts; everyone else mirrors the host's timer and phase. Anonymous presence count only — no chat, no video, no identifiers.</p>
+    <p><em>Transmission Feed.</em> Opt-in anonymous Council transmissions, filterable by wave / frequency / activation code. A living map of the work the community is doing this week.</p>
+    <p>The desktop app itself is fully sovereign. It works <em>without</em> this server — pointing at it just adds the network layer.</p>
+  </div>
+
+  <div class="card">
+    <h2>Endpoints</h2>
+    <div class="endpoints">
+      <div class="endpoint"><span class="method">GET</span><span><code>/</code></span><span class="ep-desc">this page</span></div>
+      <div class="endpoint"><span class="method">GET</span><span><code>/feed?wave=&code=&limit=</code></span><span class="ep-desc">list transmissions</span></div>
+      <div class="endpoint"><span class="method">POST</span><span><code>/feed</code></span><span class="ep-desc">publish a transmission</span></div>
+      <div class="endpoint"><span class="method">POST</span><span><code>/feed/:id/react</code></span><span class="ep-desc">+1 reaction</span></div>
+      <div class="endpoint"><span class="method">WSS</span><span><code>/room/:code</code></span><span class="ep-desc">join a practice room</span></div>
+    </div>
+  </div>
+
+  <div class="ctas">
+    <a class="cta primary" href="https://github.com/amc198009/gateway-protocol/releases/latest" target="_blank">Download the desktop app ↓</a>
+    <a class="cta" href="https://github.com/amc198009/gateway-protocol" target="_blank">View source on GitHub ↗</a>
+  </div>
+
+  <footer>
+    Gateway Protocol · Reference Server ·
+    <a href="https://github.com/amc198009/gateway-protocol/blob/main/server/practice-room.js" target="_blank">Source</a> ·
+    <a href="https://github.com/amc198009/gateway-protocol/blob/main/DRAFT_PRIVACY.md" target="_blank">Privacy (draft)</a>
+  </footer>
+
+</div>
+
+<script>
+// Auto-refresh stats every 15s. Uses Accept: application/json so the
+// server returns the raw stats payload, not this whole HTML page.
+async function refresh(){
+  try{
+    const r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
+    const s = await r.json();
+    document.querySelector('[data-stat="rooms"]').textContent = s.rooms;
+    document.querySelector('[data-stat="feed"]').textContent  = s.feedSize;
+    const u = s.uptime|0;
+    const d = (u/86400|0), h = ((u%86400)/3600|0), m = ((u%3600)/60|0), sec = u%60;
+    document.querySelector('[data-stat="uptime"]').textContent =
+      d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s');
+  }catch(e){}
+}
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>`;
+}
+
 function jsonResponse(res, status, body) {
   res.writeHead(status, {
     'Content-Type': 'application/json',
@@ -189,11 +314,24 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const path = url.pathname;
 
-  // GET / — health/status
+  // GET / — content-negotiated health/landing
+  // Browsers send Accept: text/html → serve a styled landing page.
+  // The desktop app's fetch() sends Accept: */* → serve JSON unchanged.
   if (req.method === 'GET' && path === '/') {
-    return jsonResponse(res, 200, {
-      ok: true, service: 'gateway-protocol-server', rooms: rooms.size, feedSize: feed.length, uptime: Math.round(process.uptime()),
-    });
+    const accept = req.headers.accept || '';
+    const wantsHTML = accept.includes('text/html') && !accept.startsWith('application/json');
+    const stats = {
+      ok: true, service: 'gateway-protocol-server',
+      rooms: rooms.size, feedSize: feed.length, uptime: Math.round(process.uptime()),
+    };
+    if (wantsHTML) {
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      });
+      return res.end(renderLanding(stats));
+    }
+    return jsonResponse(res, 200, stats);
   }
   // GET /feed
   if (req.method === 'GET' && path === '/feed') return handleFeedGet(req, res, url);
