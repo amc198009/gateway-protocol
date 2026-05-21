@@ -468,6 +468,28 @@ body.gp-cinematic .gp-cinematic-exit-hint{display:block;animation:gpFadeIn .8s e
    This hides the legacy CSS starfield and SVG sacred geometry so they don't compete. */
 body.gp-three-ready #starfield{display:none}
 body.gp-three-ready #geo-bg{display:none}
+
+/* ═══ REDUCED MOTION ═══ */
+/* Calm mode for vestibular / photosensitive users (and anyone who just
+   wants stillness). Driven by the OS "reduce motion" setting OR a manual
+   body.gp-reduced toggle. We kill DECORATIVE ambient motion (twinkle,
+   geo-spin, pulse rings, council dot, audio bars, recommendation pulse)
+   but keep FUNCTIONAL motion like the breath orb and screen fades — those
+   carry meaning. The Three.js field is throttled separately in JS. */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  #starfield,#geo-bg,.council-dot,.gp-pulse-ring,.gp-net-status.live .dot,
+  .ab.playing,.solf-card.gp-recommended,.wave-card.gp-recommended,
+  .bp-btn.gp-recommended,.gp-rec-loading .gp-dot,.gp-shadow-thinking .gp-dot{
+    animation:none!important
+  }
+}
+body.gp-reduced #starfield,body.gp-reduced #geo-bg,body.gp-reduced .council-dot,
+body.gp-reduced .gp-pulse-ring,body.gp-reduced .gp-net-status.live .dot,
+body.gp-reduced .ab.playing,body.gp-reduced .solf-card.gp-recommended,
+body.gp-reduced .wave-card.gp-recommended,body.gp-reduced .bp-btn.gp-recommended{
+  animation:none!important
+}
 </style>
 <!-- Three.js: bundled locally (vendor/three.min.js) so the app works offline
      and on first launch without a network call. Loaded synchronously so THREE
@@ -1450,7 +1472,7 @@ const CINEMATIC={
 // in that case and nothing else hooks in.
 const THREE_FIELD={
   _scene:null,_renderer:null,_camera:null,_points:null,_basePos:null,
-  _ready:false,
+  _ready:false,_raf:null,_reduced:false,
   _state:{ breath:0, freqNorm:0.4, intensity:0.45, cinematic:false },
   _hue:{ r:0.78, g:0.66, b:0.30 }, // gold default — matches --gold #c9a84c
 
@@ -1502,10 +1524,33 @@ const THREE_FIELD={
     this._resize();
     window.addEventListener('resize',()=>this._resize());
 
+    // Reduced-motion: when the OS asks for less motion (or body.gp-reduced is
+    // set) we render a near-static field — slow drift only, no breath pulsing
+    // or camera dolly. Tracked live so toggling the OS setting takes effect.
+    const mq=window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._reduced=mq.matches;
+    const onMq=(e)=>{ this._reduced=e.matches; };
+    mq.addEventListener ? mq.addEventListener('change',onMq) : mq.addListener(onMq);
+
+    // Visibility pause: stop the rAF entirely when the window is hidden so we
+    // don't burn GPU/battery rendering a field nobody can see. Resume on show.
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden){ this._pause(); }
+      else if(this._ready){ this._resume(); }
+    });
+
     this._ready=true;
     document.body.classList.add('gp-three-ready');
-    this._animate();
+    this._resume();
     return true;
+  },
+
+  _pause(){
+    if(this._raf){ cancelAnimationFrame(this._raf); this._raf=null; }
+  },
+  _resume(){
+    if(this._raf) return; // already looping
+    this._animate();
   },
 
   _resize(){
@@ -1517,8 +1562,24 @@ const THREE_FIELD={
 
   _animate(){
     if(!this._ready) return;
-    requestAnimationFrame(()=>this._animate());
+    this._raf=requestAnimationFrame(()=>this._animate());
     const t=performance.now()*0.001;
+
+    // Reduced motion: a barely-there drift, no breath pulse or dolly. Still
+    // renders (the field is the backdrop) but nothing that could provoke
+    // vestibular discomfort.
+    if(this._reduced){
+      this._points.rotation.y += 0.0002;
+      this._points.scale.setScalar(1);
+      this._camera.position.z = 95;
+      const fr=this._state.freqNorm;
+      const rr = fr<0.5 ? 0.25+fr*1.1 : 0.80-(fr-0.5)*0.15;
+      const gr = fr<0.5 ? 0.30+fr*0.7 : 0.65-(fr-0.5)*0.5;
+      const br = fr<0.5 ? 0.65-fr*0.7 : 0.30+(fr-0.5)*0.9;
+      this._points.material.color.setRGB(rr,gr,br);
+      this._renderer.render(this._scene,this._camera);
+      return;
+    }
 
     // Hz-reactive rotation: low Hz=slow contemplative, high Hz=brisk
     const rotSpeed=0.04+this._state.freqNorm*0.25;
