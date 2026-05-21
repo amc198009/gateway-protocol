@@ -441,7 +441,14 @@ body.gp-cinematic #screen-sessions .timer-wrap{
   position:fixed;inset:0;width:100vw;height:100vh;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:1.5rem;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
   z-index:50;
+  /* Entering immersion is the signature moment — the vignette darkens in
+     and the whole panel settles rather than snapping. */
+  animation:gpCinematicIn .8s ease-out both;
 }
+@keyframes gpCinematicIn{from{opacity:0}to{opacity:1}}
+/* The big timer scales up from slightly small as you enter cinematic mode. */
+body.gp-cinematic .timer-time{animation:gpCinematicTimerIn .9s cubic-bezier(.22,.61,.36,1) both}
+@keyframes gpCinematicTimerIn{from{opacity:0;transform:scale(.9)}to{opacity:.92;transform:scale(1)}}
 body.gp-cinematic .timer-session{font-size:11px!important;letter-spacing:6px!important;color:var(--gold)!important;opacity:.7;margin:0!important}
 #cinematic-wave-context{display:none}
 body.gp-cinematic #cinematic-wave-context{display:block;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--gold2);opacity:.6;letter-spacing:2.5px;margin-top:2px}
@@ -491,6 +498,9 @@ body.gp-three-ready #geo-bg{display:none}
   }
   /* Screen swaps become instant under reduced motion (no fade/rise). */
   .screen.active{animation:none!important}
+  /* Cinematic entry settles instantly under reduced motion. */
+  body.gp-cinematic #screen-sessions .timer-wrap,
+  body.gp-cinematic .timer-time{animation:none!important}
 }
 body.gp-reduced #starfield,body.gp-reduced #geo-bg,body.gp-reduced .council-dot,
 body.gp-reduced .gp-pulse-ring,body.gp-reduced .gp-net-status.live .dot,
@@ -2763,6 +2773,16 @@ const VOICE={
     const el=document.getElementById('guidance-cue');
     if(!el)return;
     el.textContent=text;el.style.opacity='1';
+    // Blur-in reveal — the cue resolves into focus rather than blinking on.
+    // In cinematic mode this is the focal element, so the polish matters
+    // most there. Skipped under reduced motion.
+    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduced && el.animate){
+      el.animate(
+        [{opacity:0,filter:'blur(8px)'},{opacity:1,filter:'blur(0)'}],
+        {duration:700,easing:'cubic-bezier(.22,.61,.36,1)'}
+      );
+    }
     clearTimeout(this._cueFade);
     this._cueFade=setTimeout(()=>{el.style.opacity='0';},8000);
   },
