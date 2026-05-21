@@ -1,5 +1,48 @@
 # Gateway Protocol — Claude Code Handoff Document
 
+---
+
+## 🔻 OPEN HANDOFF → renderer session (2026-05-21)
+
+**Task: make the renderer run as a deployed BYOK web PWA.** The server side is
+done; this is renderer-only work.
+
+**Decision context (settled):** Phase-A monetization is **sovereign BYOK** —
+the web app holds the *user's own* key, the server never does. The desktop
+app stays the encrypted-key Electron build; this adds a browser sibling.
+
+**What's already built (server, on `main`):** a stateless `/byok/*` passthrough
+on the Fly server. Client sends its own key per request via `X-BYOK-Key`; the
+server forwards to the provider and pipes the response back — no server key, no
+governor, no spend. Routes + full contract are in **`server/MOBILE.md`**
+(section "The `/byok/*` passthrough"). Verified end-to-end.
+
+**What the renderer must do** (in `electron-app/renderer/index.html`, only on
+the non-Electron path, i.e. when `!window.gp`):
+1. Point the web fallback at **same-origin** `\`${location.origin}/byok/...\``
+   instead of the hardcoded `http://localhost:5050` (lines ~1537–1570).
+2. Switch to the new route **shapes**: `/byok/anthropic/messages` (Anthropic
+   Messages-API body, not the old `/mirror` shape), `/byok/openai/speech`,
+   `/byok/openai/embeddings`.
+3. Send headers `X-BYOK-Key: <user key>` and `X-Gateway-Client: 1` on each call.
+4. Add a browser key-entry/-storage path (localStorage/IndexedDB) for the web
+   build — `window.gp.keys` only exists in Electron.
+5. Provide web fallbacks **or** graceful "desktop-only" disables for the V4
+   Council features that are currently Electron-only (monthly patterns,
+   affirmations, shadow dialogue, synchronicities — they call `window.gp.*`
+   with no fetch fallback and will throw in a browser).
+
+**Do NOT expect `/app` to work yet** — it is intentionally **not** served. The
+server route to serve the renderer at `/app` is a trivial add that the server
+session will land *once the above is done*; serving it before then yields a
+page that calls a nonexistent `localhost:5050` and fails.
+
+**Coordination:** if the `/byok/*` contract needs a shape change to fit the
+renderer cleanly, leave a note here and the server session will adjust it —
+don't fork the contract.
+
+---
+
 ## What this is
 The most advanced personal consciousness and Gateway Process platform ever built as a single HTML file + Node.js proxy. Built iteratively with a 5-agent council (Monroe, Dispenza, Lipton, Tesla, Jung) as the knowledge foundation.
 
