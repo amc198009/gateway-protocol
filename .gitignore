@@ -53,6 +53,15 @@ gateway-protocol-keys.json
 **/gateway-protocol-keys.json
 config.local.*
 
+# ── Server deploy artifacts ──
+# The hosted web app: a copy of electron-app/renderer/ synced into server/app
+# at deploy time (npm run sync:app). Build artifact, never committed (avoids a
+# 1 MB duplicate + drift). The renderer source-of-truth stays in electron-app/.
+server/app/
+# The .dmg dropped into server/download/ before `fly deploy` (already covered by
+# *.dmg, but ignore the dir's contents too).
+server/download/
+
 # ── Runtime / cache ──
 .cache/
 *.tsbuildinfo

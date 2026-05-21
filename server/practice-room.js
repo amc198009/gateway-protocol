@@ -35,6 +35,41 @@ const crypto = require('crypto');
 // directly at /download — no GitHub repo round-trip needed.
 const DOWNLOAD_DIR = joinPath(__dirname, 'download');
 
+// ── Hosted web app (sovereign BYOK PWA) + PWA assets ───────────────────
+// The renderer is copied into ./app at deploy time (`npm run deploy` runs
+// `sync:app`, mirroring how ./download carries the .dmg). PWA assets
+// (manifest, service worker, icons) live in ./pwa and ship in the image.
+// Every served path is a fixed allowlist — no user-controlled fs access, so
+// this can't be turned into a path-traversal read.
+const APP_DIR = joinPath(__dirname, 'app');
+const PWA_DIR = joinPath(__dirname, 'pwa');
+const STATIC_ROUTES = {
+  '/app':                  { file: joinPath(APP_DIR, 'index.html'),             type: 'text/html; charset=utf-8',  cache: 'no-cache' },
+  '/vendor/three.min.js':  { file: joinPath(APP_DIR, 'vendor', 'three.min.js'), type: 'application/javascript',     cache: 'public, max-age=86400' },
+  '/audio-worklet.js':     { file: joinPath(APP_DIR, 'audio-worklet.js'),       type: 'application/javascript',     cache: 'public, max-age=86400' },
+  '/manifest.webmanifest': { file: joinPath(PWA_DIR, 'manifest.webmanifest'),   type: 'application/manifest+json',  cache: 'public, max-age=3600' },
+  '/sw.js':                { file: joinPath(PWA_DIR, 'sw.js'),                   type: 'application/javascript',     cache: 'no-cache', swScope: true },
+  '/icons/icon-192.png':   { file: joinPath(PWA_DIR, 'icons', 'icon-192.png'),  type: 'image/png',                  cache: 'public, max-age=604800' },
+  '/icons/icon-512.png':   { file: joinPath(PWA_DIR, 'icons', 'icon-512.png'),  type: 'image/png',                  cache: 'public, max-age=604800' },
+  '/icons/icon-180.png':   { file: joinPath(PWA_DIR, 'icons', 'icon-180.png'),  type: 'image/png',                  cache: 'public, max-age=604800' },
+};
+function serveStatic(res, entry, path) {
+  fs.readFile(entry.file, (err, data) => {
+    if (err) {
+      // A missing /app almost always means a local run without `npm run deploy`
+      // (which copies the renderer into ./app). Be explicit about the fix.
+      const msg = path === '/app'
+        ? 'web app build not present — run `npm run deploy` from server/ (it syncs the renderer into ./app), then redeploy'
+        : 'not found';
+      return jsonResponse(res, 404, { error: msg });
+    }
+    const headers = { 'Content-Type': entry.type, 'Cache-Control': entry.cache };
+    if (entry.swScope) headers['Service-Worker-Allowed'] = '/'; // allow root-scope SW
+    res.writeHead(200, headers);
+    res.end(data);
+  });
+}
+
 // Latest-version metadata for the desktop auto-update notifier. The
 // desktop app polls GET /version on launch; if its package.json version
 // is older it shows a banner whose "Get update" link points at /download.
@@ -647,6 +682,9 @@ const server = http.createServer((req, res) => {
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const path = url.pathname;
+
+  // Hosted web app + PWA assets (fixed allowlist; GET only).
+  if (req.method === 'GET' && STATIC_ROUTES[path]) return serveStatic(res, STATIC_ROUTES[path], path);
 
   // GET / — content-negotiated health/landing
   // Browsers send Accept: text/html → serve a styled landing page.

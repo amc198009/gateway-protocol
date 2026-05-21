@@ -14,6 +14,15 @@
 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss: http://localhost:* ws://localhost:*; img-src 'self' data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Gateway Protocol — Consciousness Evolution System</title>
+<!-- PWA: only meaningful on the hosted web build (served at /app over http(s)).
+     Harmless in Electron (file://) — the manifest/icon links just 404 silently
+     and the service worker registration is guarded to http(s) below. -->
+<meta name="theme-color" content="#02020a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gateway">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -2386,6 +2395,40 @@ const THREE_FIELD={
 //   • Session    → ducks to near-silence so it doesn't fight AMBIENT, restores after
 // Off by default. Toggle persists in localStorage. Uses its own AudioContext
 // so it's independent of the session ambient engine.
+// ── iOS / mobile audio unlock ("tap to begin") ──────────────────────────
+// Mobile browsers — iOS Safari especially — keep ALL audio suspended until a
+// real user gesture, and forbid timer-driven autoplay. On the hosted web build
+// the Ritual Arrival overlay's "Enter"/"Skip" tap (or the first tap anywhere)
+// is the "tap to begin" gate: on that first pointer/touch/key event we resume
+// every AudioContext the app has created and prime a muted silent <audio> so
+// the later timer-driven TTS cues are allowed to play. Idempotent and harmless
+// on desktop/Electron, where contexts start unsuspended (resume() is a no-op).
+const AUDIO_UNLOCK={
+  unlocked:false,
+  _ctxs:new Set(),
+  // Register a context as it's created. If we've already unlocked, resume it now.
+  track(ctx){
+    if(ctx){ this._ctxs.add(ctx); if(this.unlocked && ctx.state==='suspended') ctx.resume().catch(()=>{}); }
+    return ctx;
+  },
+  unlock(){
+    if(this.unlocked) return;
+    this.unlocked=true;
+    this._ctxs.forEach(c=>{ try{ if(c.state==='suspended') c.resume(); }catch(e){} });
+    // Prime a silent element so iOS permits later programmatic TTS playback.
+    try{
+      const a=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      a.muted=true; const p=a.play(); if(p&&p.catch) p.catch(()=>{});
+    }catch(e){}
+  },
+  init(){
+    // Only the first gesture matters; unlock() is idempotent so the leftover
+    // once-listeners are harmless if a different event type fires first.
+    const fire=()=>this.unlock();
+    ['pointerdown','touchend','keydown'].forEach(ev=>document.addEventListener(ev,fire,{once:true,passive:true}));
+  },
+};
+
 const FIELD_AUDIO={
   KEY:'gp_field_audio', VOL_KEY:'gp_field_audio_vol',
   _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_oscOct:null,_lfo:null,_lfoGain:null,
@@ -2415,7 +2458,7 @@ const FIELD_AUDIO={
   },
 
   _ensureCtx(){
-    if(!this._ctx) this._ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(!this._ctx) this._ctx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
     if(this._ctx.state==='suspended') this._ctx.resume();
     return this._ctx;
   },
@@ -2852,7 +2895,7 @@ const AMBIENT={
   binVol:0.18,
 
   _ensureCtx(){
-    if(!this._ctx)this._ctx=new(window.AudioContext||window.webkitAudioContext)();
+    if(!this._ctx)this._ctx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
     if(this._ctx.state==='suspended')this._ctx.resume();
     return this._ctx;
   },
@@ -3110,6 +3153,7 @@ function init(){
   VISUALS.init();
   VOICE.init();
   QM.init();
+  AUDIO_UNLOCK.init(); // iOS/mobile: arm the first-gesture "tap to begin" audio unlock
   KEYS.hydrate(); // populate the unified API-key fields from loaded state (web: localStorage)
   buildStars();
   buildWaves();
@@ -3344,7 +3388,8 @@ function toggleSolf(i,hz){
   document.getElementById('solf-play-'+i).textContent='♦ Playing';
   document.querySelectorAll('.ab').forEach(b=>b.classList.add('playing'));
   reactGeometry(hz,true);
-  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(!audioCtx)audioCtx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
+  if(audioCtx.state==='suspended')audioCtx.resume();
   oscillator=audioCtx.createOscillator();
   gainNode=audioCtx.createGain();
   oscillator.connect(gainNode);
@@ -6291,6 +6336,12 @@ function confirmReset(){
   // are informational, not blocking; if the server is unreachable or
   // not configured the banner just doesn't appear.
   setTimeout(()=>UPDATE_CHECK.run(), 2500);
+  // PWA: register the service worker on the hosted web build only. Guarded to
+  // http(s) so it never runs in Electron (file://), where there's no SW + no
+  // need for an offline shell (the app is already local).
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    window.addEventListener('load',()=>{ navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
+  }
 })();
 </script>
 </body>

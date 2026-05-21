@@ -118,9 +118,13 @@ must instead, **when `!window.gp`** (non-Electron):
    Council features that are currently Electron-only (monthly patterns,
    affirmations, shadow dialogue, synchronicities).
 
-Once that's done, serving the renderer at `/app` is a trivial static route to
-add here. **`/app` is intentionally NOT served yet** — it would call a
-nonexistent `localhost:5050` and fail until the above is wired.
+**✅ Now done.** The renderer is served at **`/app`** (fixed-allowlist static
+routes in `practice-room.js`: `/app`, `/vendor/three.min.js`,
+`/audio-worklet.js`), and it no longer references `localhost:5050` — the web
+build talks to same-origin `/byok/*`. The renderer is copied into `server/app/`
+at deploy time by `npm run sync:app` (wired into `npm run deploy`, mirroring how
+`server/download/` carries the `.dmg`); `server/app/` is git-ignored to avoid a
+1 MB duplicate of the source-of-truth in `electron-app/renderer/`.
 
 ---
 
@@ -179,13 +183,14 @@ whoever owns the renderer (to avoid concurrent-edit collisions). Precise spec:
    nav, panels, modals (shadow dialogue, orbital nav), and cinematic mode on
    a phone viewport. Default to **Field Quality: Low** on mobile GPUs.
 
-3. **PWA assets.** `manifest.webmanifest` (name, icons, `display:standalone`,
-   theme color `#02020a`) + a service worker (cache-first for the shell +
-   `three.min.js`/fonts, network-only for `/api/*`). Register the SW from the
-   renderer. Add the manifest `<link>` + theme-color meta. Serve all of these
-   from this server (they live under `server/` so they ship in the Docker
-   image; serving the renderer itself means copying it into the image at
-   build, like the `.dmg`).
+3. ✅ **PWA assets — done.** `server/pwa/manifest.webmanifest`
+   (`display:standalone`, theme `#02020a`, 192/512 maskable icons),
+   `server/pwa/sw.js` (cache-first shell + Google Fonts, **network-only for
+   `/byok/*`, `/api/*`, `/feed`, `/room`, `/version`** so keys/live state are
+   never cached), and `server/pwa/icons/`. The renderer registers the SW
+   (http(s)-guarded so it no-ops in Electron) and carries the manifest `<link>`
+   + theme-color + apple-touch-icon. Served via the fixed-allowlist routes
+   above; `/sw.js` sends `Service-Worker-Allowed: /` for root scope.
 
 4. **iOS gotchas:**
    - **Audio needs a user gesture** — the AudioContext (Solfeggio, binaural,
@@ -199,11 +204,17 @@ whoever owns the renderer (to avoid concurrent-edit collisions). Precise spec:
      Safari — test and fall back to a CSS-only immersive layout.
 
 ### Suggested phase order
-1. Renderer web-mode adapter (points at the relay — backend already exists).
-2. Serve the renderer at `/app` from the server (+ copy into Docker image).
-3. PWA manifest + service worker + install prompt.
-4. Responsive pass + iOS audio gate.
-5. (Launch-gating) auth + per-user metering + billing on `/api/*`.
+1. ✅ Renderer web-mode adapter (BYOK, same-origin `/byok/*`).
+2. ✅ Serve the renderer at `/app` from the server (+ sync into the image).
+3. ✅ PWA manifest + service worker. *(Install prompt UI — the `beforeinstallprompt`
+   custom button — still optional polish.)*
+4. ⏳ Responsive pass ✅ done; **iOS audio "tap to begin" gate still TODO** (item 4
+   above) — the one remaining renderer-coupled gap before this is phone-clean.
+5. ⏳ (Launch-gating) auth + per-user metering + billing on `/api/*`.
+
+**Deploy reminder:** the live server must be **redeployed** to pick up `/byok/*`
+and `/app` — run `npm run deploy` from `server/` (it runs `sync:app` then
+`fly deploy`). A bare `fly deploy` skips the renderer sync and `/app` will 404.
 
 ---
 
