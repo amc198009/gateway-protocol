@@ -1113,6 +1113,14 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     <div class="section-title">Your Trajectory</div>
     <div class="section-sub">Consistency is the protocol. The field responds to commitment.</div>
 
+    <!-- V3 · Consciousness Signature — a generative mandala drawn from your
+         own practice data (sessions, waves, journal, HRV). Unique to you. -->
+    <div style="background:var(--card);border:.5px solid var(--border);border-radius:6px;padding:1.25rem;margin-bottom:1.5rem;text-align:center">
+      <div style="font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem">◈ Consciousness Signature</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1rem;max-width:480px;margin-left:auto;margin-right:auto">A living mandala generated from your practice — rings for waves mastered, orbital density for sessions, hue from your dominant frequency, motion from your coherence. It evolves as you do.</div>
+      <canvas id="gp-signature" width="320" height="320" style="width:280px;height:280px;max-width:100%;display:block;margin:0 auto"></canvas>
+    </div>
+
     <!-- Tier badge -->
     <div id="tier-display" style="text-align:center;margin-bottom:1.5rem"></div>
 
@@ -2719,6 +2727,8 @@ function init(){
   ATMOSPHERE.apply();
   // V3: focus mode (restore + keybind) + earned-minimalism tier attribute
   FOCUS.init();
+  // V3: living-data consciousness signature (draws only when Progress is visible)
+  SIGNATURE.start();
 }
 
 // ═══════════════════════════ STARS ═══════════════════════════
@@ -4291,6 +4301,86 @@ const ATMOSPHERE={
       el.innerHTML=`<span class="gp-atmosphere-dot"></span>Today's field · <b>${hz} Hz</b> · ${why} · <b>${feel}</b>`;
       el.style.display='flex';
     }
+  }
+};
+
+// ═══════════════════════════ V3 · CONSCIOUSNESS SIGNATURE (living data) ═══════════════════════════
+// A generative mandala drawn entirely from the practitioner's own data:
+//   • orbital rings        = waves mastered (waveCompletions ≥ unlock threshold)
+//   • points per ring      = scaled by total sessions
+//   • hue                  = dominant frequency (ATMOSPHERE's chosen Hz)
+//   • rotation speed       = HRV coherence
+//   • journal count        = inner bloom petals
+// Animates softly. This is "living data" — your practice rendered as art.
+const SIGNATURE={
+  _raf:null,_canvas:null,_ctx:null,_t:0,
+  start(){
+    this._canvas=document.getElementById('gp-signature'); if(!this._canvas) return;
+    this._ctx=this._canvas.getContext('2d');
+    if(this._raf) cancelAnimationFrame(this._raf);
+    this._loop();
+  },
+  stop(){ if(this._raf){ cancelAnimationFrame(this._raf); this._raf=null; } },
+  _data(){
+    const d=DB.load();
+    const waves=(d.waveCompletions||[]).filter(c=>c>=3).length;        // mastered waves
+    const sessions=d.sessions||0;
+    const journal=(d.journal||[]).length;
+    const reqs=[0,3,5,7,5,5,3];
+    const rings=Math.max(1, waves||1) + 2;                              // always show a few rings
+    const hz=(typeof ATMOSPHERE!=='undefined') ? (ATMOSPHERE._chooseFrequency().hz) : 528;
+    const coherence=(typeof ATMOSPHERE!=='undefined') ? ATMOSPHERE._coherence() : 0.5;
+    return {waves,sessions,journal,rings,hz,coherence};
+  },
+  _hue(hz){ // map 174–963Hz to a hue arc (indigo→gold→violet feel)
+    const n=Math.max(0,Math.min(1,(hz-174)/(963-174)));
+    return 250 - n*210; // 250(indigo) → 40(gold)
+  },
+  _loop(){
+    this._raf=requestAnimationFrame(()=>this._loop());
+    const c=this._ctx, cv=this._canvas; if(!c) return;
+    // Skip drawing when the Progress screen isn't visible (saves cycles)
+    const scr=document.getElementById('screen-progress');
+    if(!scr||!scr.classList.contains('active')) return;
+    const W=cv.width,H=cv.height,cx=W/2,cy=H/2;
+    const D=this._data();
+    this._t+=0.003+D.coherence*0.004;
+    c.clearRect(0,0,W,H);
+    const hue=this._hue(D.hz);
+
+    // Inner bloom — petals from journal entries
+    const petals=Math.max(6,Math.min(24, 6+D.journal));
+    c.save(); c.translate(cx,cy); c.rotate(this._t*0.5);
+    for(let i=0;i<petals;i++){
+      const a=(i/petals)*Math.PI*2;
+      c.beginPath();
+      c.ellipse(Math.cos(a)*22, Math.sin(a)*22, 10, 3, a, 0, Math.PI*2);
+      c.fillStyle=`hsla(${hue},60%,60%,0.10)`; c.fill();
+    }
+    c.restore();
+
+    // Orbital rings — one per ring, points scaled by sessions
+    for(let r=0;r<D.rings;r++){
+      const radius=40 + r*((Math.min(W,H)/2 - 50)/D.rings);
+      const pts=Math.max(12, Math.min(120, 12 + D.sessions*2 + r*6));
+      const dir=r%2?-1:1;
+      const rot=this._t*dir*(0.6 - r*0.04);
+      const light=45 + r*4;
+      for(let i=0;i<pts;i++){
+        const a=(i/pts)*Math.PI*2 + rot;
+        const x=cx+Math.cos(a)*radius, y=cy+Math.sin(a)*radius;
+        const sz=0.7 + (Math.sin(this._t*2 + i)*0.5+0.5)*1.1;
+        c.beginPath(); c.arc(x,y,sz,0,Math.PI*2);
+        c.fillStyle=`hsla(${hue + r*6},65%,${light}%,${0.35+0.4*(r/D.rings)})`;
+        c.fill();
+      }
+    }
+    // Core
+    const pulse=0.5+Math.sin(this._t*1.5)*0.5;
+    const grad=c.createRadialGradient(cx,cy,0,cx,cy,18+pulse*6);
+    grad.addColorStop(0,`hsla(${hue},80%,75%,0.9)`);
+    grad.addColorStop(1,`hsla(${hue},80%,60%,0)`);
+    c.fillStyle=grad; c.beginPath(); c.arc(cx,cy,24,0,Math.PI*2); c.fill();
   }
 };
 
