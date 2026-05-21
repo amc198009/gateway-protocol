@@ -509,6 +509,22 @@ body.gp-reduced.gp-cinematic .timer-time{
   animation:none!important
 }
 
+/* ═══ HIGH-CONTRAST / READABLE MODE ═══ */
+/* Settings → Visuals → Readability → High contrast. Lifts the secondary-text
+   and border variables so the gold-on-near-black palette clears WCAG AA
+   without abandoning the aesthetic. --muted #6a6458 (~3.4:1, fails AA) → a
+   brighter sand (~6.4:1). Cascades everywhere via the CSS custom properties. */
+body.gp-readable{
+  --muted:#9b927f;
+  --text:#ece7db;
+  --silver:#bcc2d6;
+  --border:rgba(201,168,76,0.30);
+  --border2:rgba(201,168,76,0.5);
+}
+body.gp-readable .phase-desc,
+body.gp-readable .step-desc,
+body.gp-readable .gp-cotd-text{color:#9b927f}
+
 /* ═══ BOOT REVEAL ═══ */
 /* First-paint intro. The all-seeing eye resolves first, then the title
    rises, then the subtitles and council badge, while the particle field
@@ -1102,6 +1118,17 @@ body.gp-three-ready #gp-three-canvas{animation:gpFieldIgnite 2.6s ease-out both}
           <button id="gp-vis-m-auto" class="gp-btn" onclick="VISUALS.setMotion('auto')">Auto</button>
           <button id="gp-vis-m-full" class="gp-btn" onclick="VISUALS.setMotion('full')">Full</button>
           <button id="gp-vis-m-calm" class="gp-btn" onclick="VISUALS.setMotion('calm')">Calm</button>
+        </div>
+      </div>
+      <div class="divider" style="margin:.9rem 0"></div>
+      <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:160px">
+          <div style="color:var(--silver)">Readability</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5;margin-top:2px">High contrast lifts secondary text and borders to clear WCAG AA while keeping the gold-on-black look.</div>
+        </div>
+        <div class="btn-row" style="margin:0">
+          <button id="gp-vis-r-standard" class="gp-btn" onclick="VISUALS.setReadable('standard')">Standard</button>
+          <button id="gp-vis-r-high" class="gp-btn" onclick="VISUALS.setReadable('high')">High contrast</button>
         </div>
       </div>
     </div>
@@ -4937,14 +4964,26 @@ function isReducedMotion(){ return document.body.classList.contains('gp-reduced'
 const VISUALS={
   _quality:'high',
   _motion:'auto',
+  _readable:'standard',
   init(){
     try{ this._quality=localStorage.getItem('gp_field_quality')||'high'; }catch(e){}
     try{ this._motion=localStorage.getItem('gp_motion')||'auto'; }catch(e){}
+    try{ this._readable=localStorage.getItem('gp_readable')||'standard'; }catch(e){}
     // React to OS-level changes while in 'auto'.
     const mq=window.matchMedia('(prefers-reduced-motion: reduce)');
     const onMq=()=>{ if(this._motion==='auto') this._applyMotion(); };
     mq.addEventListener ? mq.addEventListener('change',onMq) : mq.addListener(onMq);
     this._applyMotion();
+    this._applyReadable();
+    this._syncUI();
+  },
+  _applyReadable(){
+    document.body.classList.toggle('gp-readable',this._readable==='high');
+  },
+  setReadable(r){
+    this._readable=(r==='high')?'high':'standard';
+    try{ localStorage.setItem('gp_readable',this._readable); }catch(e){}
+    this._applyReadable();
     this._syncUI();
   },
   _osReduced(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; },
@@ -4973,6 +5012,8 @@ const VISUALS={
     set('gp-vis-m-auto',this._motion==='auto');
     set('gp-vis-m-full',this._motion==='full');
     set('gp-vis-m-calm',this._motion==='calm');
+    set('gp-vis-r-standard',this._readable!=='high');
+    set('gp-vis-r-high',this._readable==='high');
   }
 };
 
