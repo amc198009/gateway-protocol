@@ -547,6 +547,76 @@ body.gp-three-ready #gp-three-canvas{animation:gpFieldIgnite 2.6s ease-out both}
   .hero-eye,.hero-tagline,.hero-sub,.council-badge,
   body.gp-three-ready #gp-three-canvas{animation:none!important}
 }
+
+/* ═══ CINEMATIC POLISH ═══ */
+/* Focus vignette: darkens the viewport edges so attention pools at the
+   centered content column. Pure CSS, no per-frame cost. Sits above content
+   (z2) but below cinematic mode (z50) and overlays (banner/exit hint). */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(ellipse 80% 80% at 50% 38%,transparent 60%,rgba(0,0,0,.5) 100%);
+}
+
+/* Animated gold sheen across the hero title. */
+.hero-title{
+  background:linear-gradient(100deg,var(--gold) 18%,var(--gold2) 50%,var(--gold) 82%);
+  background-size:220% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  animation:gpShimmer 7s linear infinite;
+}
+.hero-title em{font-style:italic}
+@keyframes gpShimmer{to{background-position:220% center}}
+
+/* Cards lift toward the viewer with a soft gold glow on hover — the single
+   biggest "this feels premium" upgrade. Transforms are GPU-cheap. */
+.wave-card,.solf-card,.sess-card,.agent-card,.gp-feed-item,.gp-cert-card,.protocol-card{
+  transition:border-color .25s, box-shadow .35s ease, transform .3s cubic-bezier(.22,.61,.36,1);
+  will-change:transform;
+}
+.wave-card:not(.wave-locked):hover,.solf-card:hover,.sess-card:hover,
+.agent-card:hover,.gp-feed-item:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 34px -14px rgba(201,168,76,.35), 0 0 0 .5px rgba(201,168,76,.25);
+}
+
+/* Tactile press feedback on every control. */
+.gp-btn:active,.nav-btn:active,.bp-btn:active,.wave-start-btn:active,
+.gp-rec-apply:active,.sess-card:active,.solf-card:active,.gp-cert-issue:active{
+  transform:scale(.97);
+}
+
+/* Primary buttons get a gold-fill sweep on hover. */
+.gp-btn.primary{position:relative;overflow:hidden;z-index:0}
+.gp-btn.primary::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(90deg,transparent,var(--glow2),transparent);
+  transform:translateX(-120%);transition:transform .6s ease;
+}
+.gp-btn.primary:hover::before{transform:translateX(120%)}
+
+/* Active nav tab glows instead of merely changing color. */
+.nav-btn.active{box-shadow:0 0 14px -2px rgba(201,168,76,.45);text-shadow:0 0 8px rgba(201,168,76,.5)}
+
+/* Section titles get a short gold rule that draws the eye. */
+.section-title{position:relative;padding-bottom:.5rem}
+.section-title::after{
+  content:'';position:absolute;left:0;bottom:0;width:42px;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+
+/* Calm mode: drop the shimmer and the hover/press transforms (keep the
+   glow, which is motionless). */
+body.gp-reduced .hero-title{animation:none}
+body.gp-reduced .wave-card:hover,body.gp-reduced .solf-card:hover,
+body.gp-reduced .sess-card:hover,body.gp-reduced .agent-card:hover,
+body.gp-reduced .gp-feed-item:hover,
+body.gp-reduced .gp-btn:active,body.gp-reduced .nav-btn:active,
+body.gp-reduced .bp-btn:active,body.gp-reduced .sess-card:active,
+body.gp-reduced .solf-card:active{transform:none}
+body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translateX(-120%)}
+@media (prefers-reduced-motion: reduce){
+  .hero-title{animation:none}
+}
 </style>
 <!-- Three.js: bundled locally (vendor/three.min.js) so the app works offline
      and on first launch without a network call. Loaded synchronously so THREE
@@ -596,7 +666,7 @@ body.gp-three-ready #gp-three-canvas{animation:gpFieldIgnite 2.6s ease-out both}
         <ellipse cx="40" cy="40" rx="35" ry="20" stroke="#c9a84c" stroke-width="0.4" opacity="0.2" transform="rotate(60 40 40)"/>
       </svg>
     </div>
-    <div class="hero-tagline">The <em>Gateway</em> Protocol</div>
+    <div class="hero-tagline hero-title">The <em>Gateway</em> Protocol</div>
     <div class="hero-tagline" style="font-size:clamp(14px,2.5vw,20px);color:var(--silver);margin-top:4px">Consciousness · Healing · Abundance · Liberation</div>
     <div class="hero-sub" style="margin-top:8px">Monroe · Dispenza · Lipton · Tesla · Jung — Unified System</div>
     <div class="council-badge" style="margin:0 auto;margin-top:1rem">
