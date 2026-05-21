@@ -70,7 +70,7 @@ These are wired in code and parse cleanly, but I can't drive them without your A
 - ~~**Wave card in cinematic mode**~~ ✅ V5c — Focus level subtitle surfaces in cinematic when launched from a wave.
 - ~~**Voice-over for Shadow Dialogue**~~ ✅ V5d — checkbox in the modal, routes Jung's replies through `VOICE.speak()`.
 - ~~**Export journal/synchronicities**~~ ✅ V5e — "Export All Data ↓" on Progress screen, full DB to timestamped JSON.
-- **Dedicated Settings screen** — the reminder settings live in Progress; voice settings live in the Sessions screen. A consolidated Settings tab would be cleaner.
+- ~~**Dedicated Settings screen**~~ ✅ Shipped in V6 (Visuals, Reminders, Network, Biometric, Data, About) and extended with a unified **◈ API Keys** section (Anthropic/OpenAI/ElevenLabs) that two-way syncs with the inline Sessions/Council inputs. Voice engine + ambient controls intentionally stay on the Sessions screen (context-coupled to the timer); their keys mirror Settings.
 - ~~**Prompt caching on Anthropic calls**~~ ✅ V5a — `cache_control: ephemeral` on every Council system prompt across main.js + proxy.js.
 - **HRV "real" mode** — if you add a Bluetooth chest strap or watch integration later, the visualizer could ingest real HRV data instead of breath-derived approximation.
 - **Locale support** — all UI text is English. The Cormorant Garamond + Montserrat font stack handles most Latin alphabets, but no translation pipeline exists.
