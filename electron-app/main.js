@@ -257,13 +257,9 @@ Then return a JSON object with EXACTLY these fields:
 Return ONLY valid JSON. No preamble. No markdown fences. No text outside the JSON object.`;
 
 ipcMain.handle('gp:pre-session', async (_evt, { entries }) => {
-  const key = store.get('anthropic');
-  if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
   if (!Array.isArray(entries) || entries.length < 2) {
     throw new Error('Need at least 2 journal entries for the Council to read patterns');
   }
-
-  // Format entries as a chronological dossier the Council can scan
   const dossier = entries.map((e, i) => {
     const num = i + 1;
     const when = e.date || 'unknown date';
@@ -271,46 +267,10 @@ ipcMain.handle('gp:pre-session', async (_evt, { entries }) => {
     const body = (e.data || []).map(d => `  ${d.prompt}: ${d.response}`).join('\n');
     return `─── Entry ${num} · ${when}${ctx} ───\n${body}`;
   }).join('\n\n');
-
-  const body = JSON.stringify({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1024,
-    system: cacheableSystem(PRE_SESSION_SYSTEM_PROMPT),
-    messages: [{ role: 'user', content: `Here are my last ${entries.length} journal entries:\n\n${dossier}` }],
+  return await anthropicJSONCall({
+    systemPrompt: PRE_SESSION_SYSTEM_PROMPT,
+    userContent: `Here are my last ${entries.length} journal entries:\n\n${dossier}`,
   });
-
-  const { status, buffer } = await httpsPost({
-    hostname: 'api.anthropic.com',
-    path: '/v1/messages',
-    headers: {
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-    },
-    body,
-  });
-
-  const text = buffer.toString();
-  let json;
-  try { json = JSON.parse(text); }
-  catch { throw new Error(`Anthropic ${status}: non-JSON response`); }
-
-  if (status !== 200) {
-    const msg = json.error?.message || json.error || `HTTP ${status}`;
-    throw new Error(`Anthropic: ${msg}`);
-  }
-
-  // Parse the JSON the model returned (its `content[0].text`)
-  const raw = json.content?.[0]?.text || '';
-  let recommendation;
-  try {
-    const clean = raw.replace(/```json|```/g, '').trim();
-    recommendation = JSON.parse(clean);
-  } catch {
-    throw new Error('Council response could not be parsed as JSON');
-  }
-  return recommendation;
 });
 
 // ── Shared Anthropic call helpers ──────────────────────────────
@@ -323,46 +283,74 @@ function cacheableSystem(text) {
   return [{ type: 'text', text, cache_control: { type: 'ephemeral' } }];
 }
 
+// Magic prefix the renderer recognizes so it can recover the raw model
+// output from a parse failure and surface it to the user instead of a
+// dead-end "could not be parsed" toast.
+function parseFailError(raw) {
+  return new Error('GP_PARSE_FAIL::' + JSON.stringify({ raw: String(raw || '').slice(0, 2000) }));
+}
+
+// Lenient JSON parse: strip ```json fences, fall back to first {...} block
+// (handles the case where Claude adds preamble despite the prompt).
+function tryParseCouncil(raw) {
+  if (!raw) return null;
+  try { return JSON.parse(String(raw).replace(/```json|```/g, '').trim()); } catch {}
+  const m = String(raw).match(/\{[\s\S]*\}/);
+  if (m) { try { return JSON.parse(m[0]); } catch {} }
+  return null;
+}
+
 // Wraps the boilerplate: get key, build envelope, POST, parse inner JSON.
-// Returns the parsed JSON the model produced in content[0].text, or throws.
+// On parse failure retries ONCE with an explicit "JSON only" reminder
+// appended to user content (the system prompt stays cached). If both
+// attempts fail to parse, throws a tagged error carrying the raw text
+// so the renderer can show it to the user rather than swallowing the
+// transmission.
 async function anthropicJSONCall({ systemPrompt, userContent, maxTokens=1024 }) {
   const key = store.get('anthropic');
   if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
 
-  const body = JSON.stringify({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: maxTokens,
-    system: cacheableSystem(systemPrompt),
-    messages: [{ role: 'user', content: userContent }],
-  });
+  const post = async (content) => {
+    const body = JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system: cacheableSystem(systemPrompt),
+      messages: [{ role: 'user', content }],
+    });
+    const { status, buffer } = await httpsPost({
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+      body,
+    });
+    const text = buffer.toString();
+    let env;
+    try { env = JSON.parse(text); }
+    catch { throw new Error(`Anthropic ${status}: non-JSON response`); }
+    if (status !== 200) {
+      const msg = env.error?.message || env.error || `HTTP ${status}`;
+      throw new Error(`Anthropic: ${msg}`);
+    }
+    return env.content?.[0]?.text || '';
+  };
 
-  const { status, buffer } = await httpsPost({
-    hostname: 'api.anthropic.com',
-    path: '/v1/messages',
-    headers: {
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-    },
-    body,
-  });
+  const raw1 = await post(userContent);
+  const first = tryParseCouncil(raw1);
+  if (first) return first;
 
-  const text = buffer.toString();
-  let env;
-  try { env = JSON.parse(text); }
-  catch { throw new Error(`Anthropic ${status}: non-JSON response`); }
-  if (status !== 200) {
-    const msg = env.error?.message || env.error || `HTTP ${status}`;
-    throw new Error(`Anthropic: ${msg}`);
-  }
-
-  const raw = env.content?.[0]?.text || '';
-  try {
-    return JSON.parse(raw.replace(/```json|```/g, '').trim());
-  } catch {
-    throw new Error('Council response could not be parsed as JSON');
-  }
+  // Retry once with explicit reminder — same system prompt → prompt cache hit
+  const REMINDER = '\n\n[System reminder: return ONLY valid JSON. No markdown fences. No commentary.]';
+  let raw2 = '';
+  try { raw2 = await post(userContent + REMINDER); }
+  catch { throw parseFailError(raw1); }
+  const second = tryParseCouncil(raw2);
+  if (second) return second;
+  throw parseFailError(raw2 || raw1);
 }
 
 // Variant for non-JSON responses (multi-turn shadow dialogue returns free text)

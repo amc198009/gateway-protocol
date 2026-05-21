@@ -3131,21 +3131,38 @@ const QM={
       let pastEntries=[];
       try{ pastEntries=await MEMORY.retrieve(entry, MEMORY.K); }catch(e){ /* silent */ }
 
-      let data;
-      if(GP_ELECTRON && pastEntries.length){
-        data=await window.gp.mirrorWithContext({entry, pastEntries});
-      } else {
-        data=await GP_API.mirror({entry,key:this._key});
+      const callMirror=async(entryText)=>{
+        return (GP_ELECTRON && pastEntries.length)
+          ? await window.gp.mirrorWithContext({entry:entryText, pastEntries})
+          : await GP_API.mirror({entry:entryText, key:this._key});
+      };
+
+      // Attempt 1
+      const data=await callMirror(entry);
+      const raw1=data.content?.[0]?.text||'';
+      let parsed=QM._tryParse(raw1);
+
+      // Attempt 2 with explicit JSON reminder. The system prompt is unchanged
+      // so prompt-caching still serves the retry cheaply; we only pay for the
+      // user-content delta. If this fails too we render the raw text instead
+      // of dead-ending the user.
+      let rawShown=raw1;
+      if(!parsed){
+        try{
+          const retryEntry=entry+'\n\n[Reminder: return ONLY valid JSON, no markdown fences, no preamble.]';
+          const data2=await callMirror(retryEntry);
+          const raw2=data2.content?.[0]?.text||'';
+          parsed=QM._tryParse(raw2);
+          rawShown=raw2||raw1;
+        }catch(e2){
+          QM._renderRaw(raw1,'Retry failed: '+(e2.message||e2));
+          return;
+        }
       }
 
-      // Extract text from Anthropic response
-      const raw=data.content?.[0]?.text||'';
-      let parsed;
-      try{
-        const clean=raw.replace(/```json|```/g,'').trim();
-        parsed=JSON.parse(clean);
-      }catch(e){
-        throw new Error('Council response could not be parsed — try again');
+      if(!parsed){
+        QM._renderRaw(rawShown,'Council returned unstructured text both times. Showing what came back.');
+        return;
       }
 
       this._lastTransmission=parsed;
@@ -3162,6 +3179,31 @@ const QM={
       document.getElementById('mirror-btn').disabled=false;
       clearInterval(this._dotsInterval);
     }
+  },
+
+  // Lenient JSON parse: strip ``` fences, then fall back to first {...}
+  // block (covers the case where Claude adds preamble despite the prompt).
+  _tryParse(raw){
+    if(!raw) return null;
+    try{ return JSON.parse(String(raw).replace(/```json|```/g,'').trim()); }catch(e){}
+    const m=String(raw).match(/\{[\s\S]*\}/);
+    if(m){ try{ return JSON.parse(m[0]); }catch(e){} }
+    return null;
+  },
+
+  // The retry path failed — show the raw text in the Mirror panel so the
+  // user has *something* to work with instead of an empty toast. Their
+  // journal entry is preserved (we never cleared it).
+  _renderRaw(rawText, note){
+    document.getElementById('m-state').textContent='— unstructured response —';
+    document.getElementById('m-shadow').textContent=note||'';
+    document.getElementById('m-transmission').textContent=(rawText||'(empty)').slice(0,4000);
+    document.getElementById('m-wave').textContent='—';
+    document.getElementById('m-freq').textContent='—';
+    document.getElementById('m-code').textContent='—';
+    document.getElementById('m-practice').textContent='Tap "Consult the Council" again to retry.';
+    document.getElementById('mirror-output').style.display='block';
+    document.getElementById('mirror-output').scrollIntoView({behavior:'smooth',block:'start'});
   },
 
   _render(t){
@@ -3680,7 +3722,12 @@ const PATTERNS={
       `;
       results.classList.add('visible');
     }catch(e){
-      toast('Patterns: '+(e.message||e));
+      toast('Patterns: '+humanError(e));
+      const raw=parseFailRaw(e);
+      if(raw){
+        results.innerHTML='<div class="gp-pat-block"><div class="gp-pat-block-h">Unstructured Response</div><pre style="white-space:pre-wrap;font-size:11px;color:var(--muted);max-height:240px;overflow:auto">'+escapeHTML(raw)+'</pre></div>';
+        results.classList.add('visible');
+      }
     }finally{
       btn.disabled=false; btn.textContent='Analyze Last 30 Days';
     }
@@ -3704,7 +3751,7 @@ const AFFIRM_GEN={
       resultEl.classList.add('visible');
       document.getElementById('gp-genaff-save').disabled=false;
     }catch(e){
-      toast('Affirmation: '+(e.message||e));
+      toast('Affirmation: '+humanError(e));
     }
   },
   save(){
@@ -3919,7 +3966,7 @@ const SYNC={
         </div>
       `;
     }catch(e){
-      out.innerHTML='<div style="color:#c04040;font-size:11px">Field reading failed: '+escapeHTML(e.message||String(e))+'</div>';
+      out.innerHTML='<div style="color:#c04040;font-size:11px">Field reading failed: '+escapeHTML(humanError(e))+'</div>'+(function(){const raw=parseFailRaw(e); return raw?'<pre style="white-space:pre-wrap;font-size:11px;color:var(--muted);max-height:240px;overflow:auto;margin-top:.5rem">'+escapeHTML(raw)+'</pre>':'';})();
     }
   }
 };
@@ -4646,6 +4693,28 @@ const PROTOBUILD={
 // Tiny escape helper used by V4 panels
 function escapeHTML(s){
   return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Translate the GP_PARSE_FAIL:: errors that anthropicJSONCall throws on a
+// double parse failure into something a practitioner can read. The Mirror
+// panel already has bespoke raw-text rendering; other panels just need
+// the friendly message.
+function humanError(e){
+  const msg=(e && e.message) || String(e||'');
+  if(msg.indexOf('GP_PARSE_FAIL::')===0){
+    return 'The Council returned unstructured text — usually a one-off. Try again.';
+  }
+  return msg;
+}
+
+// Recover the raw model output from a GP_PARSE_FAIL error so a panel can
+// optionally surface it instead of just toasting. Returns null for any
+// non-parse-fail error.
+function parseFailRaw(e){
+  const msg=(e && e.message) || '';
+  const m=/^GP_PARSE_FAIL::(.+)$/.exec(msg);
+  if(!m) return null;
+  try{ return JSON.parse(m[1]).raw; }catch(_){ return null; }
 }
 
 // ═══════════════════════════ UTILITIES ═══════════════════════════
