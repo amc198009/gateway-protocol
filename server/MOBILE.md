@@ -60,32 +60,50 @@ fly secrets set ENABLE_API_PROXY=1
 fly secrets set ANTHROPIC_API_KEY=sk-ant-...   # enables /api/anthropic/*
 fly secrets set OPENAI_API_KEY=sk-...          # enables /api/openai/*
 # ELEVENLABS_API_KEY optional
+
+# Usage governor (optional — sane defaults shown):
+fly secrets set API_ACCESS_TOKEN=<random>      # require Bearer token; unset = open beta
+fly secrets set API_DAILY_CREDITS=5000         # global daily spend ceiling (credits)
+fly secrets set API_CLIENT_DAILY_CREDITS=500   # per-client daily ceiling
+# credit cost per call: anthropic=10, speech=4, embeddings=1
 ```
 
-`/api/status` reports which providers are live; each POST route returns `503`
-if its key is absent.
+`/api/status` reports which providers are live, whether a token is required,
+the limits, and **remaining credits** (global + yours) so the client can show
+"X left today." Each POST route returns `503` if its key is absent.
 
 ---
 
 ## Security model (read before exposing publicly)
 
 This is an **authenticated-spend surface** — every call costs the server
-owner money. Current protections:
+owner money. Layered protections (outer → inner):
 
 - **Disabled by default** (`ENABLE_API_PROXY` + per-provider key required).
-- **CSRF gate:** mutating routes require the `X-Gateway-Client` header → forces
-  a CORS preflight a drive-by page can't satisfy.
-- **Per-IP rate limit:** `RL_LIMITS.api` (20/min) shared across the `/api`
-  POST routes.
-- **Body caps** (16–64 KB) and a **model allowlist** + **`max_tokens` ceiling**
-  to bound per-call cost.
+- **Access token** (`API_ACCESS_TOKEN`): if set, every `/api` POST must send
+  `Authorization: Bearer <token>` → gates the relay to people you've given the
+  token. Unset = open beta (still bounded by everything below).
+- **CSRF gate:** the `X-Gateway-Client` header forces a CORS preflight a
+  drive-by page can't satisfy.
+- **Per-IP burst limit:** `RL_LIMITS.api` (20/min).
+- **Usage governor (the spend circuit-breaker):**
+  - **Global daily credit cap** (`API_DAILY_CREDITS`) — a hard ceiling across
+    *all* callers. Even total abuse can't exceed it; over the cap → `503`.
+  - **Per-client daily cap** (`API_CLIENT_DAILY_CREDITS`) — per identity
+    (token / `X-Gateway-Id` / IP); over it → `429`. One caller can't eat the
+    whole budget.
+  - **Cost-weighted** (anthropic 10 / speech 4 / embeddings 1) so the budget
+    tracks dollars, not raw call count. Resets 00:00 UTC.
+- **Body caps** (16–64 KB) + **model allowlist** + **`max_tokens` ceiling**.
 
-**Not yet sufficient for a public launch.** A single shared IP (mobile
-carriers, corporate NAT) defeats per-IP limits, and there's no per-user quota
-or billing. Before opening this to the public you need: real auth (accounts /
-signed tokens), per-account usage metering, and a hard spend cap / billing
-integration. Until then, treat `ENABLE_API_PROXY=1` as "private beta with
-people I trust." See `LAUNCH_CHECKLIST.md`.
+**Beta-safe, not yet infinite-public-launch-safe.** The governor *bounds*
+spend and *gates* access, which is enough for a trusted beta. Two known
+limits for a true consumer launch: state is in-memory (fine for the
+single-machine deploy; multi-machine needs Redis), and identity is
+token/header/IP, not real accounts — a shared carrier IP shares a bucket and
+a client id is spoofable (the global cap is the backstop). A public launch
+still wants real accounts + per-user metering + billing on top. See
+`LAUNCH_CHECKLIST.md`.
 
 ---
 

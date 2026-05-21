@@ -262,13 +262,13 @@ setInterval(refresh, 15000);
 </html>`;
 }
 
-function jsonResponse(res, status, body) {
-  res.writeHead(status, {
+function jsonResponse(res, status, body, extraHeaders) {
+  res.writeHead(status, Object.assign({
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': ALLOW_ORIGIN,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client',
-  });
+    'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization',
+  }, extraHeaders || {}));
   res.end(JSON.stringify(body));
 }
 
@@ -425,6 +425,72 @@ const ANTHROPIC_MODELS = new Set(['claude-sonnet-4-20250514']);
 const OPENAI_TTS_MODELS = new Set(['tts-1', 'tts-1-hd']);
 const OPENAI_EMBED_MODELS = new Set(['text-embedding-3-small', 'text-embedding-3-large']);
 
+// ── Usage governor (the launch-safety layer over /api/*) ──────────────────
+// Turns the relay from "anyone can drain my account" into a bounded,
+// optionally-gated, metered surface:
+//
+//   • Access token  — if API_ACCESS_TOKEN is set, every /api POST must send
+//     Authorization: Bearer <token>. Empty = open beta (still rate-limited).
+//   • Global budget  — a hard daily credit ceiling across ALL callers. The
+//     real spend circuit-breaker: even total abuse can't exceed it.
+//   • Per-client budget — a daily ceiling per identity (token / X-Gateway-Id
+//     / IP), so one caller can't eat the whole global budget.
+//   • Cost weighting — a Council call costs more credits than an embedding,
+//     so the budget tracks $ roughly, not raw call count.
+//
+// State is in-memory: fine for the single-machine deploy (documented), resets
+// on restart, resets at UTC midnight. Multi-machine scale needs Redis (see
+// MOBILE.md). This is BETA-safe (bounds spend, gates access); a public
+// consumer launch still wants real accounts + billing on top.
+const API_ACCESS_TOKEN = process.env.API_ACCESS_TOKEN || '';
+const API_DAILY_CREDITS = parseInt(process.env.API_DAILY_CREDITS || '5000', 10);
+const API_CLIENT_DAILY_CREDITS = parseInt(process.env.API_CLIENT_DAILY_CREDITS || '500', 10);
+const CALL_COST = { anthropic: 10, speech: 4, embeddings: 1 }; // rough cost proxy
+
+let _usageDay = '';
+let _globalUsed = 0;
+const _clientUsed = new Map(); // identity → credits used today
+function _today() { return new Date().toISOString().slice(0, 10); }
+function _rollDay() {
+  const d = _today();
+  if (d !== _usageDay) { _usageDay = d; _globalUsed = 0; _clientUsed.clear(); }
+}
+function _secsToUtcMidnight() {
+  const n = new Date();
+  const next = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1, 0, 0, 0);
+  return Math.max(1, Math.round((next - n.getTime()) / 1000));
+}
+function apiIdentity(req) {
+  // Token mode → bucket per token (one shared token = one bucket; the global
+  // cap is the backstop). Else a stable client id the app generates, else IP.
+  if (API_ACCESS_TOKEN) return 'tok';
+  const cid = (req.headers['x-gateway-id'] || '').toString().slice(0, 64);
+  if (cid) return 'id:' + cid;
+  return 'ip:' + clientIp(req);
+}
+function requireApiAuth(req, res) {
+  if (!API_ACCESS_TOKEN) return true; // open beta
+  const m = (req.headers['authorization'] || '').match(/^Bearer\s+(.+)$/i);
+  if (!m || m[1] !== API_ACCESS_TOKEN) { jsonResponse(res, 401, { error: 'invalid or missing access token' }); return false; }
+  return true;
+}
+// Reserve credits for a call. Returns null if allowed, or an error descriptor.
+function governorReserve(req, kind) {
+  _rollDay();
+  const cost = CALL_COST[kind] || 1;
+  if (_globalUsed + cost > API_DAILY_CREDITS) {
+    return { status: 503, body: { error: 'daily capacity reached — resets at 00:00 UTC' } };
+  }
+  const id = apiIdentity(req);
+  const used = _clientUsed.get(id) || 0;
+  if (used + cost > API_CLIENT_DAILY_CREDITS) {
+    return { status: 429, body: { error: 'your daily quota is used up — resets at 00:00 UTC' } };
+  }
+  _globalUsed += cost;
+  _clientUsed.set(id, used + cost);
+  return null;
+}
+
 function readBody(req, max) {
   return new Promise((resolve, reject) => {
     let data = '', over = false;
@@ -507,7 +573,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': ALLOW_ORIGIN,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization',
     });
     return res.end();
   }
@@ -566,17 +632,32 @@ const server = http.createServer((req, res) => {
   // /api/* — managed LLM/TTS relay for the mobile/PWA client.
   if (path.startsWith('/api/')) {
     if (!API_PROXY_ON) return jsonResponse(res, 503, { error: 'api proxy disabled on this server' });
-    // GET /api/status — lets the web client feature-detect which providers
-    // are available (no key, no spend; safe to leave open).
+    // GET /api/status — feature-detect providers + report capacity. No key,
+    // no spend, no auth required (so a client can discover it needs a token).
     if (req.method === 'GET' && path === '/api/status') {
-      return jsonResponse(res, 200, { anthropic: !!API_KEYS.anthropic, openai: !!API_KEYS.openai, elevenlabs: !!API_KEYS.elevenlabs });
+      _rollDay();
+      const id = apiIdentity(req);
+      return jsonResponse(res, 200, {
+        providers: { anthropic: !!API_KEYS.anthropic, openai: !!API_KEYS.openai, elevenlabs: !!API_KEYS.elevenlabs },
+        authRequired: !!API_ACCESS_TOKEN,
+        limits: { dailyCredits: API_DAILY_CREDITS, clientDailyCredits: API_CLIENT_DAILY_CREDITS, costPerCall: CALL_COST },
+        remaining: { global: Math.max(0, API_DAILY_CREDITS - _globalUsed), you: Math.max(0, API_CLIENT_DAILY_CREDITS - (_clientUsed.get(id) || 0)) },
+        resetInSeconds: _secsToUtcMidnight(),
+      });
     }
     if (req.method === 'POST') {
-      if (!requireClient(req, res)) return;
-      if (rateLimited('api', clientIp(req))) return jsonResponse(res, 429, { error: 'slow down' });
-      if (path === '/api/anthropic/messages') return handleApiAnthropic(req, res);
-      if (path === '/api/openai/embeddings') return handleApiEmbeddings(req, res);
-      if (path === '/api/openai/speech') return handleApiSpeech(req, res);
+      if (!requireClient(req, res)) return;        // CSRF header
+      if (!requireApiAuth(req, res)) return;        // access token (if configured)
+      if (rateLimited('api', clientIp(req))) return jsonResponse(res, 429, { error: 'slow down' }); // burst guard
+      const kind = path === '/api/anthropic/messages' ? 'anthropic'
+        : path === '/api/openai/speech' ? 'speech'
+        : path === '/api/openai/embeddings' ? 'embeddings' : null;
+      if (!kind) return jsonResponse(res, 404, { error: 'unknown api route' });
+      const gov = governorReserve(req, kind); // global + per-client daily budget
+      if (gov) return jsonResponse(res, gov.status, gov.body, { 'Retry-After': String(_secsToUtcMidnight()) });
+      if (kind === 'anthropic') return handleApiAnthropic(req, res);
+      if (kind === 'embeddings') return handleApiEmbeddings(req, res);
+      if (kind === 'speech') return handleApiSpeech(req, res);
     }
     return jsonResponse(res, 404, { error: 'unknown api route' });
   }
