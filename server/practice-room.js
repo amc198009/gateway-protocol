@@ -56,6 +56,11 @@ function readVersion() {
 const PORT = process.env.PORT || 7070;
 const HOST = process.env.HOST || '0.0.0.0';
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*';
+// Phase-A monetization: a single hosted "Founder's Supporter" link
+// (Gumroad / Lemon Squeezy / Stripe Payment Link). Pay-what-you-want,
+// honor-system — the app stays free. The landing-page CTA only renders
+// when this is set, so there's never a dead link. (See MONETIZATION.md.)
+const SUPPORT_URL = process.env.SUPPORT_URL || '';
 const FEED_MAX = parseInt(process.env.FEED_MAX || '500', 10);
 const ROOM_IDLE_MS = 30 * 60 * 1000; // 30min after last participant — gc
 
@@ -221,6 +226,7 @@ function renderLanding(stats) {
 
   <div class="ctas">
     <a class="cta primary" href="/download">Download for macOS ↓</a>
+    ${SUPPORT_URL ? `<a class="cta" href="${SUPPORT_URL}" target="_blank" rel="noopener">◈ Become a Founder ↗</a>` : ''}
   </div>
   <div class="install-note">
     <strong>macOS Intel x64.</strong> Apple Silicon runs via Rosetta; native arm64 is on the roadmap.

@@ -1,5 +1,38 @@
 # Monetization Strategy
 
+> ## ✅ DECISION (2026-05-21): Phased A → B
+>
+> After weighing sovereign-BYOK vs paid-managed-web, the committed direction is
+> **phased**: ship the sovereign product first, add the managed tier only when
+> demand pulls.
+>
+> **Phase A (now):** The desktop app + a BYOK PWA stay **free and sovereign**
+> (keys local, no data on our servers). Monetization is a *voluntary*
+> **"Founder's Supporter"** pay-what-you-want (suggested amount, $0 floor) —
+> honor-system support, not a gate. This is consistent with "free forever"
+> AND with AGPL (a license that makes hard gating pointless anyway). It also
+> reaches phones without us holding keys or journals.
+>
+> **Phase B (later, demand-gated):** The **$9 "Connected"** managed tier
+> (hosted Council, no API keys) — the tiers below. We build accounts + Stripe
+> + per-user metering **only when** the demand signal appears, i.e. people
+> repeatedly asking *"can I use this without dealing with an API key?"* The
+> `/api/*` relay + usage governor (already built and tested in the server) is
+> its backend; B is "add accounts + billing on top," not a rebuild.
+>
+> **What this means operationally, right now:**
+> - The `/api/*` governor **stays "trusted beta"** — bounded spend + optional
+>   access token. **No accounts/billing work yet.** (See `server/MOBILE.md`.)
+> - Near-term revenue mechanism = a single hosted payment/supporter link
+>   (Gumroad / Lemon Squeezy / Stripe Payment Link). No backend, no DRM.
+> - The A→B trigger is **qualitative demand**, not a date. Watch for the
+>   "I don't want to manage keys" ask; that's when B earns its complexity.
+>
+> The tier structure, unit economics, and scale model below describe the
+> **Phase B destination** — kept for when demand flips the switch.
+
+---
+
 The current Gateway Protocol is intentionally **owned, not subscribed**. Users bring their own API keys; the desktop app is free; no telemetry, no cloud. That model is right for v1 because it builds trust and removes the "give us your credit card to try this" friction that kills meditation app conversion.
 
 But "free + BYOK" doesn't pay rent. Here's the strategy for layering revenue **without** breaking the trust-first foundation.
