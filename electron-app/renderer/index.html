@@ -72,15 +72,15 @@ body{
 .hero-eye svg{width:100%;height:100%}
 .hero-tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,5vw,42px);font-weight:300;color:var(--gold2);letter-spacing:4px;line-height:1.2;margin-bottom:.5rem}
 .hero-tagline em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:12px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:2rem}
-.council-badge{display:inline-flex;align-items:center;gap:8px;border:0.5px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.hero-sub{font-size:14px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:2rem}
+.council-badge{display:inline-flex;align-items:center;gap:8px;border:0.5px solid var(--border);border-radius:20px;padding:6px 16px;font-size:14px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
 .council-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
 
 /* ═══ NAV ═══ */
 .nav{display:flex;overflow-x:auto;gap:4px;padding:0 0 1.5rem;scrollbar-width:none;justify-content:center;flex-wrap:wrap}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{background:none;border:0.5px solid var(--border);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn{background:none;border:0.5px solid var(--border);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:14px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;border-radius:2px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .nav-btn:hover,.nav-btn.active{border-color:var(--gold);color:var(--gold);background:var(--glow)}
 
 /* ═══ SCREENS ═══ */
@@ -94,7 +94,7 @@ body{
 
 /* ═══ SECTION TITLE ═══ */
 .section-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:.4rem}
-.section-sub{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;line-height:1.6}
+.section-sub{font-size:14px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;line-height:1.6}
 
 /* ═══ DIVIDER ═══ */
 .divider{height:.5px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:1.5rem 0}
@@ -103,18 +103,18 @@ body{
 .gp-rec{display:none;background:linear-gradient(180deg,rgba(201,168,76,.05) 0%,rgba(201,168,76,.01) 100%);border:.5px solid rgba(201,168,76,.25);border-radius:4px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
 .gp-rec.visible{display:block;animation:gpRecFade .6s ease-out}
 @keyframes gpRecFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.gp-rec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.75}
-.gp-rec-when{color:var(--muted);font-size:12px;letter-spacing:1.5px}
+.gp-rec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.75}
+.gp-rec-when{color:var(--muted);font-size:14px;letter-spacing:1.5px}
 .gp-rec-x{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px;line-height:1;transition:color .2s}
 .gp-rec-x:hover{color:var(--gold)}
 .gp-rec-intention{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:300;font-style:italic;color:var(--gold2);line-height:1.4;letter-spacing:.5px;margin-bottom:1rem}
 .gp-rec-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
-.gp-rec-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:.5px solid rgba(201,168,76,.3);padding:5px 11px;border-radius:14px;background:rgba(201,168,76,.04)}
-.gp-rec-chip-label{color:var(--muted);font-size:12px}
-.gp-rec-rationale{font-size:14px;color:#b3aa92;line-height:1.85;margin-bottom:1rem}
-.gp-rec-apply{background:none;border:.5px solid var(--gold);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;padding:9px 20px;cursor:pointer;border-radius:2px;transition:all .2s}
+.gp-rec-chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:.5px solid rgba(201,168,76,.3);padding:5px 11px;border-radius:14px;background:rgba(201,168,76,.04)}
+.gp-rec-chip-label{color:var(--muted);font-size:14px}
+.gp-rec-rationale{font-size:16px;color:#b3aa92;line-height:1.85;margin-bottom:1rem}
+.gp-rec-apply{background:none;border:.5px solid var(--gold);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;padding:9px 20px;cursor:pointer;border-radius:2px;transition:all .2s}
 .gp-rec-apply:hover{background:rgba(201,168,76,.1);color:var(--gold2)}
-.gp-rec-loading{display:none;align-items:center;gap:10px;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:1.25rem 1.5rem;margin-bottom:1.5rem;border:.5px solid var(--border);border-radius:4px}
+.gp-rec-loading{display:none;align-items:center;gap:10px;color:var(--muted);font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:1.25rem 1.5rem;margin-bottom:1.5rem;border:.5px solid var(--border);border-radius:4px}
 .gp-rec-loading.visible{display:flex}
 .gp-rec-loading .gp-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite}
 .gp-rec-loading .gp-dot:nth-child(2){animation-delay:.2s}
@@ -133,21 +133,21 @@ body{
 .wave-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);min-width:36px;text-align:center}
 .wave-info{flex:1}
 .wave-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--gold2);letter-spacing:1px}
-.wave-sub{font-size:12px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.wave-sub{font-size:14px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
 .wave-code{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold);opacity:.6;letter-spacing:2px}
 .wave-chevron{font-size:21px;color:var(--muted);transition:transform .25s}
 .wave-card.open .wave-chevron{transform:rotate(180deg)}
 .wave-body{display:none;border-top:.5px solid var(--border);padding:1.25rem}
 .wave-card.open .wave-body{display:block}
-.wave-intent{font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;opacity:.7}
+.wave-intent{font-size:14px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;opacity:.7}
 .phase-list{display:flex;flex-direction:column;gap:12px}
-.phase{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem}
+.phase{background:rgba(17,17,32,.68);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem}
 .phase-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem}
-.phase-name{font-size:14px;font-weight:500;color:var(--text);letter-spacing:.5px}
-.phase-freq{font-size:12px;color:var(--gold);opacity:.7;letter-spacing:1px;text-align:right}
+.phase-name{font-size:16px;font-weight:500;color:var(--text);letter-spacing:.5px}
+.phase-freq{font-size:14px;color:var(--gold);opacity:.7;letter-spacing:1px;text-align:right}
 .phase-desc{font-size:12.5px;color:#b3aa92;line-height:1.85}
-.phase-dur{display:inline-block;margin-top:.6rem;font-size:12px;color:var(--muted);letter-spacing:1.5px;border:.5px solid var(--border);padding:2px 8px;border-radius:10px}
-.wave-start-btn{width:100%;margin-top:1rem;background:none;border:.5px solid var(--border2);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;border-radius:2px;transition:all .2s}
+.phase-dur{display:inline-block;margin-top:.6rem;font-size:14px;color:var(--muted);letter-spacing:1.5px;border:.5px solid var(--border);padding:2px 8px;border-radius:10px}
+.wave-start-btn{width:100%;margin-top:1rem;background:none;border:.5px solid var(--border2);color:var(--gold);font-family:'Montserrat',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;border-radius:2px;transition:all .2s}
 .wave-start-btn:hover{background:var(--glow2)}
 
 /* ═══ SOLFEGGIO ═══ */
@@ -157,36 +157,36 @@ body{
 .solf-card:hover::before,.solf-card.active::before{opacity:1}
 .solf-card.active{border-color:var(--gold)}
 .solf-hz{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);margin-bottom:4px}
-.solf-name{font-size:13px;font-weight:500;color:var(--text);letter-spacing:1px;margin-bottom:6px}
-.solf-effect{font-size:12px;color:var(--muted);line-height:1.6}
-.solf-playing{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:6px;min-height:14px}
+.solf-name{font-size:15px;font-weight:500;color:var(--text);letter-spacing:1px;margin-bottom:6px}
+.solf-effect{font-size:14px;color:var(--muted);line-height:1.6}
+.solf-playing{font-size:14px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:6px;min-height:14px}
 
 /* ═══ FREQUENCIES VISUALIZER ═══ */
 .freq-viz{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem}
-.freq-title{font-size:13px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem}
+.freq-title{font-size:15px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem}
 .freq-bands{display:flex;flex-direction:column;gap:10px}
 .band-row{display:flex;align-items:center;gap:12px}
-.band-name{font-size:12px;color:var(--muted);width:85px;letter-spacing:.5px}
-.band-track{flex:1;height:3px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden}
+.band-name{font-size:14px;color:var(--muted);width:85px;letter-spacing:.5px}
+.band-track{flex:1;height:3px;background:rgba(21,21,40,.76);border-radius:2px;overflow:hidden}
 .band-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
-.band-hz{font-size:12px;color:var(--gold);width:70px;text-align:right;letter-spacing:.5px}
-.band-state{font-size:12px;color:var(--muted);width:80px;text-align:right;font-style:italic}
+.band-hz{font-size:14px;color:var(--gold);width:70px;text-align:right;letter-spacing:.5px}
+.band-state{font-size:14px;color:var(--muted);width:80px;text-align:right;font-style:italic}
 
 /* ═══ SESSIONS / TIMER ═══ */
 .session-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem}
 .sess-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s}
 .sess-card:hover,.sess-card.selected{border-color:var(--gold);background:rgba(201,168,76,.04)}
 .sess-icon{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold);margin-bottom:6px}
-.sess-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
-.sess-dur{font-size:12px;color:var(--muted)}
+.sess-name{font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px}
+.sess-dur{font-size:14px;color:var(--muted)}
 .timer-wrap{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin-bottom:1.5rem;position:relative;overflow:hidden}
 .timer-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.06),transparent 60%)}
-.timer-session{font-size:12px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem}
+.timer-session{font-size:14px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem}
 .timer-phase-display{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);letter-spacing:2px;min-height:20px;margin-bottom:.5rem;font-style:italic}
 .timer-time{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;color:var(--gold2);letter-spacing:6px;position:relative;z-index:1}
 .timer-progress{margin:1.2rem auto;display:block}
 .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
-.gp-btn{background:none;border:.5px solid var(--border);color:var(--silver);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:10px 20px;border-radius:2px;cursor:pointer;transition:all .2s}
+.gp-btn{background:none;border:.5px solid var(--border);color:var(--silver);font-family:'Montserrat',sans-serif;font-size:14px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;padding:10px 20px;border-radius:2px;cursor:pointer;transition:all .2s}
 .gp-btn:hover{border-color:var(--gold);color:var(--gold)}
 .gp-btn.active{border-color:var(--gold);color:var(--gold);background:var(--glow)}
 .gp-btn.primary{border-color:var(--gold);color:var(--gold)}
@@ -194,16 +194,16 @@ body{
 
 /* ═══ BREATHWORK ═══ */
 .breath-patterns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
-.bp-btn{background:none;border:.5px solid var(--border);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;border-radius:2px;cursor:pointer;transition:all .2s}
+.bp-btn{background:none;border:.5px solid var(--border);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;border-radius:2px;cursor:pointer;transition:all .2s}
 .bp-btn:hover,.bp-btn.active{border-color:var(--gold);color:var(--gold)}
 .breath-wrap{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin-bottom:1.5rem}
 #breath-orb{width:120px;height:120px;border-radius:50%;margin:0 auto 1.5rem;border:1px solid var(--gold);background:radial-gradient(circle,rgba(201,168,76,.15),transparent 70%);transition:transform 5s ease-in-out,opacity 5s ease-in-out;display:flex;align-items:center;justify-content:center;position:relative}
 #breath-orb::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:.5px solid rgba(201,168,76,.2);transition:transform 5s ease-in-out}
-#breath-orb-label{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+#breath-orb-label{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
 #breath-instruction{font-size:15px;color:var(--muted);letter-spacing:.5px;min-height:20px;font-family:'Cormorant Garamond',serif;font-style:italic}
 #breath-count{font-size:32px;font-family:'Cormorant Garamond',serif;color:var(--gold);margin:.5rem 0}
 .breath-science{background:rgba(201,168,76,.03);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-top:1rem}
-.breath-science p{font-size:13px;color:var(--muted);line-height:1.8}
+.breath-science p{font-size:15px;color:var(--muted);line-height:1.8}
 .breath-science strong{color:var(--silver);font-weight:500}
 
 /* ═══ PROTOCOL CARDS (Pain/Wealth) ═══ */
@@ -211,29 +211,29 @@ body{
 .protocol-header{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
 .protocol-icon{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold)}
 .protocol-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold2);letter-spacing:1px}
-.protocol-sub{font-size:12px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.protocol-sub{font-size:14px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
 .step-list{display:flex;flex-direction:column;gap:10px}
-.step-item{display:flex;gap:12px;align-items:flex-start;padding:.75rem;background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px}
+.step-item{display:flex;gap:12px;align-items:flex-start;padding:.75rem;background:rgba(17,17,32,.68);border:.5px solid rgba(201,168,76,.08);border-radius:4px}
 .step-num{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);min-width:28px;opacity:.5}
 .step-content{}
-.step-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px}
-.step-desc{font-size:13px;color:var(--muted);line-height:1.8}
-.step-time{font-size:12px;color:var(--gold);opacity:.6;margin-top:4px;letter-spacing:1px}
+.step-name{font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:15px;color:var(--muted);line-height:1.8}
+.step-time{font-size:14px;color:var(--gold);opacity:.6;margin-top:4px;letter-spacing:1px}
 
 /* ═══ AFFIRMATIONS ═══ */
 .affirm-wheel{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin-bottom:1.5rem;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .affirm-wheel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(201,168,76,.05),transparent 60%)}
 .affirm-code{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);letter-spacing:4px;margin-bottom:.75rem;position:relative;z-index:1}
 .affirm-text{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--text);line-height:1.8;max-width:500px;position:relative;z-index:1}
-.affirm-intent{font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:.75rem;position:relative;z-index:1}
-#affirm-counter{font-size:12px;color:var(--muted);margin-top:.75rem;letter-spacing:1px}
+.affirm-intent{font-size:14px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:.75rem;position:relative;z-index:1}
+#affirm-counter{font-size:14px;color:var(--muted);margin-top:.75rem;letter-spacing:1px}
 .affirm-instruction{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem}
-.affirm-instruction p{font-size:13px;color:var(--muted);line-height:1.8}
+.affirm-instruction p{font-size:15px;color:var(--muted);line-height:1.8}
 
 /* ═══ JOURNAL ═══ */
 .journal-grid{display:flex;flex-direction:column;gap:12px}
 .j-block{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem}
-.j-block label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.j-block label{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
 .j-block textarea{background:transparent;border:none;width:100%;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.8;resize:vertical;min-height:70px;outline:none}
 .j-block textarea::placeholder{color:#3a3428;font-style:italic}
 
@@ -241,28 +241,28 @@ body{
 .progress-header{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.5rem}
 .stat-block{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center}
 .stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--gold)}
-.stat-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.streak-title{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem}
+.stat-label{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.streak-title{font-size:14px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem}
 .streak-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem}
-.s-dot{width:32px;height:32px;border-radius:2px;border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s}
+.s-dot{width:32px;height:32px;border-radius:2px;border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);cursor:pointer;transition:all .2s}
 .s-dot.done{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
 .s-dot:hover{border-color:var(--border2)}
 .wave-progress{display:flex;flex-direction:column;gap:8px;margin-top:1rem}
 .wp-row{display:flex;align-items:center;gap:10px}
-.wp-name{font-size:12px;color:var(--muted);width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wp-track{flex:1;height:2px;background:rgba(255,255,255,.04)}
+.wp-name{font-size:14px;color:var(--muted);width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp-track{flex:1;height:2px;background:rgba(21,21,40,.76)}
 .wp-fill{height:100%;background:var(--gold);transition:width 1s ease}
-.wp-pct{font-size:12px;color:var(--gold);width:30px;text-align:right}
+.wp-pct{font-size:14px;color:var(--gold);width:30px;text-align:right}
 
 /* ═══ COUNCIL AGENTS ═══ */
 .agents-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.5rem}
 .agent-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;text-align:center;cursor:pointer;transition:border-color .2s}
 .agent-card:hover{border-color:var(--border2)}
 .agent-symbol{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold);margin-bottom:.5rem}
-.agent-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;letter-spacing:.5px}
-.agent-domain{font-size:12px;color:var(--muted);line-height:1.6}
+.agent-name{font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px;letter-spacing:.5px}
+.agent-domain{font-size:14px;color:var(--muted);line-height:1.6}
 .insight-box{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:12px}
-.insight-agent{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;opacity:.7}
+.insight-agent{font-size:14px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;opacity:.7}
 .insight-text{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--silver);line-height:1.8}
 
 /* ═══ SCROLL FADE IN ═══ */
@@ -270,7 +270,7 @@ body{
 .fade-in.visible{opacity:1;transform:none}
 
 /* ═══ TOAST ═══ */
-#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(10,10,26,.95);border:.5px solid var(--gold);color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:2px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(10,10,26,.95);border:.5px solid var(--gold);color:var(--gold);font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:2px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.show{opacity:1}
 
 /* ═══ AUDIO VIZ ═══ */
@@ -288,88 +288,88 @@ body{
 
 /* ═══ V7 · NETWORK (Practice Rooms + Feed) ═══ */
 .gp-net-panel{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem}
-.gp-net-title{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
-.gp-net-empty{font-size:14px;color:var(--muted);font-style:italic;line-height:1.7;text-align:center;padding:1.5rem 0}
-.gp-net-status{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+.gp-net-title{font-size:15px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+.gp-net-empty{font-size:16px;color:var(--muted);font-style:italic;line-height:1.7;text-align:center;padding:1.5rem 0}
+.gp-net-status{display:flex;align-items:center;gap:8px;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
 .gp-net-status .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
 .gp-net-status.live .dot{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2s ease-in-out infinite}
 .gp-net-status.live{color:var(--gold)}
 .gp-room-form{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
-.gp-room-form input,.gp-room-form select{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:14px;text-transform:uppercase;letter-spacing:1.5px}
+.gp-room-form input,.gp-room-form select{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:16px;text-transform:uppercase;letter-spacing:1.5px}
 .gp-room-form input{flex:1;min-width:140px}
 .gp-room-display{display:flex;flex-direction:column;gap:.6rem;font-size:15px;color:var(--silver);line-height:1.7}
 .gp-room-code{font-family:'Cormorant Garamond',serif;font-size:36px;letter-spacing:8px;color:var(--gold2);text-align:center;padding:.5rem 0}
-.gp-room-presence{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);text-align:center}
-.gp-room-host{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:.3rem}
+.gp-room-presence{font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);text-align:center}
+.gp-room-host{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:.3rem}
 
 .gp-feed-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
-.gp-feed-filter input,.gp-feed-filter select{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:13px}
+.gp-feed-filter input,.gp-feed-filter select{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:15px}
 .gp-feed-list{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto}
-.gp-feed-item{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem 1.25rem}
-.gp-feed-item-meta{display:flex;gap:8px;align-items:center;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;flex-wrap:wrap}
+.gp-feed-item{background:rgba(17,17,32,.68);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem 1.25rem}
+.gp-feed-item-meta{display:flex;gap:8px;align-items:center;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;flex-wrap:wrap}
 .gp-feed-tag{padding:2px 8px;border:.5px solid rgba(201,168,76,.25);border-radius:10px;color:var(--gold)}
 .gp-feed-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--silver);line-height:1.7}
-.gp-feed-react{margin-top:.6rem;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:.5px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:14px;cursor:pointer}
+.gp-feed-react{margin-top:.6rem;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:.5px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:14px;cursor:pointer}
 .gp-feed-react:hover{border-color:var(--gold);color:var(--gold)}
 
 /* ═══ V7e · CERTIFICATIONS ═══ */
 .gp-cert-card{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:1rem}
 .gp-cert-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold2);letter-spacing:1px;margin-bottom:.2rem}
-.gp-cert-sub{font-size:13px;color:var(--muted);line-height:1.5}
+.gp-cert-sub{font-size:15px;color:var(--muted);line-height:1.5}
 .gp-cert-progress{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold);letter-spacing:2px;white-space:nowrap}
 .gp-cert-card.earned{background:linear-gradient(90deg,rgba(201,168,76,.08),rgba(201,168,76,.02));border-color:rgba(201,168,76,.3)}
-.gp-cert-issue{background:none;border:.5px solid var(--gold);color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;cursor:pointer;border-radius:2px}
+.gp-cert-issue{background:none;border:.5px solid var(--gold);color:var(--gold);font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;cursor:pointer;border-radius:2px}
 .gp-cert-issue:hover{background:rgba(201,168,76,.1)}
 
 /* ═══ V7f · CUSTOM PROTOCOL BUILDER ═══ */
 .gp-protobuild{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
-.gp-protobuild input,.gp-protobuild textarea{width:100%;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:14px;margin-bottom:.5rem;box-sizing:border-box}
+.gp-protobuild input,.gp-protobuild textarea{width:100%;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:16px;margin-bottom:.5rem;box-sizing:border-box}
 .gp-protobuild textarea{font-family:'Cormorant Garamond',serif;resize:vertical;min-height:50px}
 .gp-phase-row{display:flex;gap:6px;margin-bottom:6px}
 .gp-phase-row input[type=number]{width:80px;flex:0 0 80px}
 .gp-phase-row input[type=text]{flex:1}
 .gp-protobuild-saved{margin-top:1rem;display:flex;flex-direction:column;gap:6px}
-.gp-proto-item{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:8px 12px;background:rgba(255,255,255,.02);border:.5px solid var(--border);border-radius:3px}
+.gp-proto-item{display:flex;justify-content:space-between;align-items:center;font-size:16px;padding:8px 12px;background:rgba(17,17,32,.68);border:.5px solid var(--border);border-radius:3px}
 .gp-proto-item .name{color:var(--gold2);font-family:'Cormorant Garamond',serif;font-size:16px}
-.gp-proto-item .actions button{background:none;border:.5px solid var(--border);color:var(--muted);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;cursor:pointer;border-radius:2px;margin-left:4px}
+.gp-proto-item .actions button{background:none;border:.5px solid var(--border);color:var(--muted);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;cursor:pointer;border-radius:2px;margin-left:4px}
 .gp-proto-item .actions button:hover{color:var(--gold);border-color:var(--gold)}
 
 /* ═══ V7d · BIOMETRIC HRV PANEL ═══ */
 .gp-bio-input{display:flex;gap:6px;margin-bottom:1rem;align-items:center}
-.gp-bio-input input{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:14px}
+.gp-bio-input input{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:16px}
 .gp-bio-input input[type=number]{width:90px}
-.gp-bio-trend{font-size:13px;color:var(--silver);margin-top:.6rem;display:flex;justify-content:space-between}
+.gp-bio-trend{font-size:15px;color:var(--silver);margin-top:.6rem;display:flex;justify-content:space-between}
 .gp-bio-trend .up{color:#7dd87d}
 .gp-bio-trend .down{color:#d87d7d}
 
 /* ═══ V4e · CODE OF THE DAY ═══ */
 .gp-cotd{background:linear-gradient(90deg,rgba(201,168,76,.07) 0%,rgba(201,168,76,.02) 60%,transparent 100%);border-left:1px solid var(--gold);padding:1rem 1.25rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0;position:relative}
-.gp-cotd-label{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.35rem}
+.gp-cotd-label{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.35rem}
 .gp-cotd-code{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--gold2);letter-spacing:3px;line-height:1.1}
-.gp-cotd-intent{font-size:13px;color:var(--silver);letter-spacing:.5px;margin-top:.4rem;font-style:italic}
+.gp-cotd-intent{font-size:15px;color:var(--silver);letter-spacing:.5px;margin-top:.4rem;font-style:italic}
 .gp-cotd-text{font-size:15px;color:var(--muted);line-height:1.7;margin-top:.6rem;max-width:560px;font-family:'Cormorant Garamond',serif;font-style:italic}
 
 /* ═══ V4a · MONTHLY PATTERNS PANEL ═══ */
 .gp-patterns{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
 .gp-patterns-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem}
-.gp-patterns-title{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
-.gp-patterns-results{display:none;margin-top:1rem;font-size:14px;color:var(--silver);line-height:1.7}
+.gp-patterns-title{font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
+.gp-patterns-results{display:none;margin-top:1rem;font-size:16px;color:var(--silver);line-height:1.7}
 .gp-patterns-results.visible{display:block;animation:gpFadeIn .5s ease-out}
 .gp-pat-block{margin-bottom:1rem}
-.gp-pat-block-h{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.4rem}
+.gp-pat-block-h{font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.4rem}
 .gp-pat-block ul{margin:0;padding-left:1.2rem}
 .gp-pat-block li{margin-bottom:.3rem}
 .gp-pat-arc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--gold2);line-height:1.6}
 
 /* ═══ V4b · CUSTOM AFFIRMATION GENERATOR ═══ */
 .gp-genaff{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
-.gp-genaff-title{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
-.gp-genaff textarea,.gp-genaff select{width:100%;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:14px;margin-bottom:.6rem;box-sizing:border-box}
+.gp-genaff-title{font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+.gp-genaff textarea,.gp-genaff select{width:100%;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:inherit;font-size:16px;margin-bottom:.6rem;box-sizing:border-box}
 .gp-genaff textarea{resize:vertical;min-height:60px;font-family:'Cormorant Garamond',serif}
 .gp-genaff-result{display:none;margin-top:1rem;padding:1rem;background:rgba(201,168,76,.05);border:.5px solid rgba(201,168,76,.2);border-radius:4px}
 .gp-genaff-result.visible{display:block;animation:gpFadeIn .5s ease-out}
 .gp-genaff-aff{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--gold2);line-height:1.5;margin-bottom:.7rem}
-.gp-genaff-intent{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.gp-genaff-intent{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
 
 /* ═══ V4c · SHADOW DIALOGUE MODAL ═══ */
 .gp-shadow-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;flex-direction:column;align-items:center;justify-content:flex-end}
@@ -382,36 +382,36 @@ body{
 .gp-shadow-log{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;font-size:16px;line-height:1.7}
 .gp-shadow-msg{max-width:80%;padding:.8rem 1.1rem;border-radius:6px}
 .gp-shadow-msg.jung{background:rgba(201,168,76,.06);border:.5px solid rgba(201,168,76,.15);color:var(--gold2);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;align-self:flex-start}
-.gp-shadow-msg.user{background:rgba(255,255,255,.03);border:.5px solid var(--border);color:var(--text);align-self:flex-end}
-.gp-shadow-msg.system{color:var(--muted);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;align-self:center;text-align:center}
+.gp-shadow-msg.user{background:rgba(19,19,36,.72);border:.5px solid var(--border);color:var(--text);align-self:flex-end}
+.gp-shadow-msg.system{color:var(--muted);font-size:15px;letter-spacing:1.5px;text-transform:uppercase;align-self:center;text-align:center}
 .gp-shadow-input{padding:1rem 1.25rem;border-top:.5px solid var(--border);display:flex;gap:8px}
 .gp-shadow-input textarea{flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:8px 10px;font-family:'Cormorant Garamond',serif;font-size:16px;resize:none;min-height:44px;max-height:120px}
-.gp-shadow-input button{background:none;border:.5px solid var(--gold);color:var(--gold);padding:8px 18px;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;font-family:'Montserrat',sans-serif;align-self:flex-end}
+.gp-shadow-input button{background:none;border:.5px solid var(--gold);color:var(--gold);padding:8px 18px;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;font-family:'Montserrat',sans-serif;align-self:flex-end}
 .gp-shadow-input button:hover{background:rgba(201,168,76,.1)}
-.gp-shadow-thinking{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);align-self:flex-start;display:flex;gap:8px;align-items:center}
+.gp-shadow-thinking{font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);align-self:flex-start;display:flex;gap:8px;align-items:center}
 
 /* ═══ V4d · SYNCHRONICITY SCREEN ═══ */
 .gp-sync-input{display:flex;gap:8px;margin-bottom:1.5rem}
 .gp-sync-input textarea{flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:10px;font-family:'Cormorant Garamond',serif;font-size:16px;resize:vertical;min-height:50px}
 .gp-sync-list{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem}
-.gp-sync-item{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:.85rem 1.1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.gp-sync-item{background:rgba(17,17,32,.68);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:.85rem 1.1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
 .gp-sync-item .text{color:var(--silver);font-size:15px;line-height:1.6;flex:1;font-family:'Cormorant Garamond',serif;font-style:italic}
-.gp-sync-item .meta{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;text-align:right}
+.gp-sync-item .meta{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;text-align:right}
 .gp-sync-analysis{display:none;background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
 .gp-sync-analysis.visible{display:block;animation:gpFadeIn .5s ease-out}
 
 /* ═══ V4f · REMINDER SETTINGS PANEL ═══ */
 .gp-reminders{background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
-.gp-reminders-title{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
-.gp-reminders-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;font-size:14px;color:var(--silver)}
-.gp-reminders-row input[type=time]{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:4px 8px;font-family:inherit;font-size:14px}
+.gp-reminders-title{font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+.gp-reminders-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;font-size:16px;color:var(--silver)}
+.gp-reminders-row input[type=time]{background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:4px 8px;font-family:inherit;font-size:16px}
 .gp-reminders-row input[type=checkbox]{accent-color:var(--gold)}
 
 /* ═══ V3d · HRV COHERENCE VISUALIZER ═══ */
-.gp-hrv-wrap{margin:1rem auto;max-width:520px;background:rgba(255,255,255,.015);border:.5px solid rgba(201,168,76,.12);border-radius:6px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.6rem}
-.gp-hrv-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+.gp-hrv-wrap{margin:1rem auto;max-width:520px;background:rgba(17,17,32,.66);border:.5px solid rgba(201,168,76,.12);border-radius:6px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.6rem}
+.gp-hrv-head{display:flex;justify-content:space-between;align-items:center;font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .gp-hrv-score{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:24px;letter-spacing:2px;line-height:1}
-.gp-hrv-score-label{font-size:11px;letter-spacing:2px;color:var(--muted)}
+.gp-hrv-score-label{font-size:13px;letter-spacing:2px;color:var(--muted)}
 #gp-hrv-canvas{width:100%;height:60px;display:block;border-radius:2px}
 /* V6c: HRV bar belongs in breathwork (where it has live phase data),
    not in cinematic session mode. In cinematic we use a decorative pulse
@@ -460,7 +460,7 @@ body.gp-cinematic #screen-sessions .timer-wrap{
 /* The big timer scales up from slightly small as you enter cinematic mode. */
 body.gp-cinematic .timer-time{animation:gpCinematicTimerIn .9s cubic-bezier(.22,.61,.36,1) both}
 @keyframes gpCinematicTimerIn{from{opacity:0;transform:scale(.9)}to{opacity:.92;transform:scale(1)}}
-body.gp-cinematic .timer-session{font-size:13px!important;letter-spacing:6px!important;color:var(--gold)!important;opacity:.7;margin:0!important}
+body.gp-cinematic .timer-session{font-size:15px!important;letter-spacing:6px!important;color:var(--gold)!important;opacity:.7;margin:0!important}
 #cinematic-wave-context{display:none}
 body.gp-cinematic #cinematic-wave-context{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--gold2);opacity:.6;letter-spacing:2.5px;margin-top:2px}
 body.gp-cinematic .timer-phase-display{font-size:21px!important;letter-spacing:4px!important;margin:0!important;font-style:italic;opacity:.8}
@@ -474,12 +474,12 @@ body.gp-cinematic #guidance-cue{
 body.gp-cinematic #timer-btn{
   position:fixed;bottom:3rem;left:50%;transform:translateX(-50%);
   background:none;border:.5px solid rgba(201,168,76,.4);color:var(--gold);
-  font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;
+  font-family:'Montserrat',sans-serif;font-size:14px;letter-spacing:4px;text-transform:uppercase;
   padding:12px 28px;cursor:pointer;border-radius:2px;
 }
 .gp-cinematic-exit-hint{
   display:none;position:fixed;top:1.5rem;right:1.5rem;
-  font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.5);
+  font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,.5);
   background:rgba(0,0,0,.4);border:.5px solid rgba(201,168,76,.2);
   padding:6px 12px;border-radius:2px;z-index:60;pointer-events:auto;cursor:pointer;
 }
@@ -755,48 +755,48 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
     <div class="session-grid" id="session-grid"></div>
     <!-- Pairing guide — shown when session selected -->
     <div id="pairing-guide" style="display:none;background:var(--card);border:.5px solid var(--border2);border-radius:4px;padding:1.25rem;margin-bottom:1rem">
-      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Optimal Audio Pairing</div>
-      <div id="pairing-text" style="font-size:14px;color:var(--silver);line-height:1.8;margin-bottom:.75rem"></div>
-      <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Recommended track</div>
+      <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Optimal Audio Pairing</div>
+      <div id="pairing-text" style="font-size:16px;color:var(--silver);line-height:1.8;margin-bottom:.75rem"></div>
+      <div style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Recommended track</div>
       <div id="pairing-track" style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold2);font-style:italic;margin-bottom:.75rem"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <a id="pairing-brainfm" href="#" target="_blank" onclick="return openPairingLink(event,this)"
-          style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--border2);padding:5px 10px;border-radius:2px;text-decoration:none">Open Brain.fm ↗</a>
+          style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--border2);padding:5px 10px;border-radius:2px;text-decoration:none">Open Brain.fm ↗</a>
         <a id="pairing-youtube" href="#" target="_blank" onclick="return openPairingLink(event,this)"
-          style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border:.5px solid var(--border);padding:5px 10px;border-radius:2px;text-decoration:none">YouTube Alternative ↗</a>
+          style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border:.5px solid var(--border);padding:5px 10px;border-radius:2px;text-decoration:none">YouTube Alternative ↗</a>
       </div>
     </div>
     <!-- Ambient engine controls -->
     <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem">
-      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
         <span>Ambient Layer</span>
-        <span id="ambient-state" style="font-size:12px;color:var(--muted);letter-spacing:1px">Off</span>
+        <span id="ambient-state" style="font-size:14px;color:var(--muted);letter-spacing:1px">Off</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;align-items:center;gap:10px">
-          <label style="font-size:12px;color:var(--muted);width:80px">Pink Noise</label>
+          <label style="font-size:14px;color:var(--muted);width:80px">Pink Noise</label>
           <input type="range" min="0" max="1" step="0.05" value="0.35" id="noise-vol"
             oninput="AMBIENT.setNoise(+this.value)" style="flex:1">
-          <span id="noise-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">35%</span>
+          <span id="noise-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">35%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <label style="font-size:12px;color:var(--muted);width:80px">Solfeggio</label>
+          <label style="font-size:14px;color:var(--muted);width:80px">Solfeggio</label>
           <input type="range" min="0" max="1" step="0.05" value="0.12" id="solf-vol"
             oninput="AMBIENT.setSolfeggio(+this.value)" style="flex:1">
-          <span id="solf-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">12%</span>
+          <span id="solf-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">12%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <label style="font-size:12px;color:var(--muted);width:80px">Binaural</label>
+          <label style="font-size:14px;color:var(--muted);width:80px">Binaural</label>
           <input type="range" min="0" max="1" step="0.05" value="0.18" id="bin-vol"
             oninput="AMBIENT.setBinaural(+this.value)" style="flex:1">
-          <span id="bin-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">18%</span>
+          <span id="bin-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">18%</span>
         </div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.6;padding:.4rem .5rem;background:rgba(201,168,76,.03);border-radius:3px">
+        <div style="font-size:14px;color:var(--muted);line-height:1.6;padding:.4rem .5rem;background:rgba(201,168,76,.03);border-radius:3px">
           <span id="ambient-desc">Select a session to see the target brainwave state</span>
         </div>
         <div style="display:flex;gap:8px">
-          <button class="gp-btn" onclick="AMBIENT.preview()" style="font-size:12px">▶ Preview</button>
-          <button class="gp-btn" onclick="AMBIENT.stop()" style="font-size:12px">■ Stop</button>
+          <button class="gp-btn" onclick="AMBIENT.preview()" style="font-size:14px">▶ Preview</button>
+          <button class="gp-btn" onclick="AMBIENT.stop()" style="font-size:14px">■ Stop</button>
         </div>
       </div>
     </div>
@@ -823,7 +823,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
     </div>
     <!-- Voice settings — built dynamically by VOICE._buildVoicePanel() -->
     <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1.5rem" id="voice-settings-panel">
-      <div style="font-size:12px;color:var(--muted);letter-spacing:1px">Initializing voice engine…</div>
+      <div style="font-size:14px;color:var(--muted);letter-spacing:1px">Initializing voice engine…</div>
     </div>
   </div>
 
@@ -868,7 +868,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
     <div class="gp-protobuild">
       <input id="gp-proto-name" placeholder="Protocol name (e.g. 'Sovereign Receiving')">
       <textarea id="gp-proto-intention" placeholder="The intention — what state, condition, or shift this protocol anchors"></textarea>
-      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:.6rem 0 .3rem">Phases · each with duration + cue text</div>
+      <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:.6rem 0 .3rem">Phases · each with duration + cue text</div>
       <div id="gp-proto-phases">
         <div class="gp-phase-row">
           <input type="number" min="1" max="60" placeholder="min" value="5">
@@ -941,65 +941,65 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
       <button class="gp-btn primary" id="mirror-btn" onclick="invokeQuantumMirror()" style="border-color:rgba(201,168,76,.6)">◈ Consult the Council</button>
     </div>
     <!-- V7b · opt-in feed share for the most recent Council transmission -->
-    <div style="text-align:center;font-size:12px;color:var(--muted);letter-spacing:1.5px;margin-top:.5rem">
+    <div style="text-align:center;font-size:14px;color:var(--muted);letter-spacing:1.5px;margin-top:.5rem">
       <label style="cursor:pointer">
         <input type="checkbox" id="gp-mirror-share-feed" style="accent-color:var(--gold)" onchange="NETWORK.saveShareConsent()">
         Share Council transmissions anonymously to the global feed
       </label>
     </div>
-    <div id="journal-confirm" style="text-align:center;font-size:12px;color:var(--gold);letter-spacing:2px;min-height:18px;margin-top:.5rem"></div>
+    <div id="journal-confirm" style="text-align:center;font-size:14px;color:var(--gold);letter-spacing:2px;min-height:18px;margin-top:.5rem"></div>
 
     <!-- Quantum Mirror API key + output -->
     <div id="mirror-key-block" style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-top:1rem">
-      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Quantum Mirror — Anthropic API Key</div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:.6rem">Required once. Get free key at <strong style="color:var(--silver)">console.anthropic.com</strong> → API Keys.</div>
+      <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Quantum Mirror — Anthropic API Key</div>
+      <div style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:.6rem">Required once. Get free key at <strong style="color:var(--silver)">console.anthropic.com</strong> → API Keys.</div>
       <input type="password" id="anthropic-key-input" placeholder="sk-ant-..."
-        style="width:100%;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:13px;padding:6px 8px;border-radius:2px;outline:none"
+        style="width:100%;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
         oninput="QM.saveKey(this.value)">
     </div>
 
     <!-- Mirror output panel — hidden until response arrives -->
     <div id="mirror-output" style="display:none;margin-top:1rem">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:1rem;opacity:.7">Council Transmission</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:1rem;opacity:.7">Council Transmission</div>
 
       <div style="background:var(--card);border:.5px solid var(--border2);border-radius:4px;padding:1.25rem;margin-bottom:10px">
-        <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Current State</div>
+        <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Current State</div>
         <div id="m-state" style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text);line-height:1.8;font-style:italic"></div>
       </div>
 
       <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:10px">
-        <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Shadow Observation — Jung</div>
+        <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Shadow Observation — Jung</div>
         <div id="m-shadow" style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--silver);line-height:1.8;font-style:italic"></div>
       </div>
 
       <div style="background:rgba(201,168,76,.06);border:.5px solid var(--border2);border-radius:4px;padding:1.5rem;margin-bottom:10px;text-align:center">
-        <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;opacity:.7">Transmission</div>
+        <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;opacity:.7">Transmission</div>
         <div id="m-transmission" style="font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold2);line-height:1.9;font-style:italic"></div>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px">
         <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem">
-          <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Wave</div>
+          <div style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Wave</div>
           <div id="m-wave" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold);line-height:1.7"></div>
         </div>
         <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem">
-          <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Frequency</div>
+          <div style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Frequency</div>
           <div id="m-freq" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold);line-height:1.7"></div>
         </div>
         <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem">
-          <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Code</div>
+          <div style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Your Code</div>
           <div id="m-code" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold);line-height:1.7"></div>
         </div>
       </div>
 
       <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:10px">
-        <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Next 24 Hours</div>
+        <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Next 24 Hours</div>
         <div id="m-practice" style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text);line-height:1.8"></div>
       </div>
 
       <div class="btn-row" style="margin-top:.5rem">
-        <button class="gp-btn" id="mirror-speak-btn" onclick="QM.toggleSpeak()" style="font-size:12px">▶ Hear Transmission</button>
-        <button class="gp-btn" onclick="document.getElementById('mirror-output').style.display='none'" style="font-size:12px">Dismiss</button>
+        <button class="gp-btn" id="mirror-speak-btn" onclick="QM.toggleSpeak()" style="font-size:14px">▶ Hear Transmission</button>
+        <button class="gp-btn" onclick="document.getElementById('mirror-output').style.display='none'" style="font-size:14px">Dismiss</button>
       </div>
     </div>
 
@@ -1027,11 +1027,11 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
 
     <!-- 30-day session graph -->
     <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1.5rem">
-      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">30-Day Practice</div>
+      <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">30-Day Practice</div>
       <canvas id="session-graph" height="60" style="width:100%;display:block"></canvas>
       <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span style="font-size:12px;color:var(--muted)">30 days ago</span>
-        <span style="font-size:12px;color:var(--muted)">Today</span>
+        <span style="font-size:14px;color:var(--muted)">30 days ago</span>
+        <span style="font-size:14px;color:var(--muted)">Today</span>
       </div>
     </div>
 
@@ -1041,17 +1041,17 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
         <span class="gp-patterns-title">◈ Monthly Pattern Reading · Council of Five</span>
         <button class="gp-btn" id="gp-pat-btn" onclick="PATTERNS.analyze()">Analyze Last 30 Days</button>
       </div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.6">The Council reads all journal entries from the last 30 days and surfaces recurring themes, breakthroughs, and unintegrated shadows — patterns invisible from inside a single entry.</div>
+      <div style="font-size:15px;color:var(--muted);line-height:1.6">The Council reads all journal entries from the last 30 days and surfaces recurring themes, breakthroughs, and unintegrated shadows — patterns invisible from inside a single entry.</div>
       <div class="gp-patterns-results" id="gp-pat-results"></div>
     </div>
 
     <!-- V6d: Reminders moved to the Settings screen -->
-    <div style="font-size:12px;color:var(--muted);text-align:center;letter-spacing:1.5px;margin-top:1rem">
+    <div style="font-size:14px;color:var(--muted);text-align:center;letter-spacing:1.5px;margin-top:1rem">
       Practice reminders + data management have moved to <a href="#" onclick="showScreen('settings');return false" style="color:var(--gold)">Settings</a>.
     </div>
 
     <!-- Streak -->
-    <div style="font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">21-Day Activation</div>
+    <div style="font-size:14px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">21-Day Activation</div>
     <div class="streak-grid" id="streak-grid"></div>
 
     <!-- Wave completion -->
@@ -1070,7 +1070,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
     <div class="section-title" style="margin-top:1rem">369 Tesla Tracker</div>
     <div class="section-sub">33-day manifestation protocol. 3× morning · 6× midday · 9× evening.</div>
     <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem">
-      <label style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem">Your Desire Statement</label>
+      <label style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem">Your Desire Statement</label>
       <textarea id="tesla-desire" placeholder="I am generating $X per month doing work I love with complete ease and joy..."
         style="width:100%;background:transparent;border:.5px solid var(--border);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:15px;padding:.5rem;border-radius:2px;resize:vertical;min-height:54px;outline:none"
         oninput="TT.saveDesire(this.value)"></textarea>
@@ -1097,29 +1097,29 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
         <span class="gp-patterns-title">◈ Field Reading · Council of Five</span>
         <button class="gp-btn" onclick="SYNC.analyze()">Analyze Field</button>
       </div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.6">Add at least 3 entries, then ask the Council to read recurring symbols, time clusters, and themes across your log.</div>
+      <div style="font-size:15px;color:var(--muted);line-height:1.6">Add at least 3 entries, then ask the Council to read recurring symbols, time clusters, and themes across your log.</div>
       <div class="gp-sync-analysis" id="gp-sync-analysis"></div>
     </div>
 
-    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">Log · <span id="gp-sync-count">0</span></div>
+    <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">Log · <span id="gp-sync-count">0</span></div>
     <div class="gp-sync-list" id="gp-sync-list"></div>
   </div>
 
   <!-- ════ SCREEN: NETWORK (V7a + V7b) ════ -->
   <div id="screen-network" class="screen">
     <div class="section-title">Global Gateway Network</div>
-    <div class="section-sub">Practice in synchrony with others. Share Council transmissions anonymously. Both require a server URL — point at <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-size:13px">http://localhost:7070</code> for local dev, or deploy the reference server in <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-size:13px">/server</code> for global rooms.</div>
+    <div class="section-sub">Practice in synchrony with others. Share Council transmissions anonymously. Both require a server URL — point at <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-size:15px">http://localhost:7070</code> for local dev, or deploy the reference server in <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-size:15px">/server</code> for global rooms.</div>
 
     <div class="gp-net-panel">
       <div class="gp-net-status" id="gp-net-server-status"><span class="dot"></span>Server: not configured</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:.6rem">Set the server URL in <a href="#" onclick="showScreen('settings');return false" style="color:var(--gold)">Settings → Network</a> to enable Practice Rooms and the Feed.</div>
+      <div style="font-size:15px;color:var(--muted);margin-bottom:.6rem">Set the server URL in <a href="#" onclick="showScreen('settings');return false" style="color:var(--gold)">Settings → Network</a> to enable Practice Rooms and the Feed.</div>
     </div>
 
     <!-- Practice Rooms -->
     <div class="gp-net-panel">
       <div class="gp-net-title">◈ Community Practice Rooms</div>
       <div id="gp-room-idle">
-        <div style="font-size:14px;color:var(--silver);line-height:1.7;margin-bottom:.8rem">
+        <div style="font-size:16px;color:var(--silver);line-height:1.7;margin-bottom:.8rem">
           Live-synchronized group sessions. The first joiner is the host and controls the timer.
           Everyone sees the same wave, same phase, same countdown. Anonymous presence count only —
           no chat, no video, no identifiers. Pure synchronized practice.
@@ -1154,7 +1154,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
     <!-- Transmission Feed -->
     <div class="gp-net-panel">
       <div class="gp-net-title">◈ Transmission Feed</div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+      <div style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
         Opt-in only. Council transmissions you share appear here — wave, frequency, and code visible, but never your identity. Filter by what others are working with this week.
       </div>
       <div class="gp-feed-filter">
@@ -1185,7 +1185,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
       <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
         <div style="flex:1;min-width:160px">
           <div style="color:var(--silver)">Field quality</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px">High glows the particle field; Low uses hard points for weaker GPUs.</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-top:2px">High glows the particle field; Low uses hard points for weaker GPUs.</div>
         </div>
         <div class="btn-row" style="margin:0">
           <button id="gp-vis-q-high" class="gp-btn" onclick="VISUALS.setQuality('high')">High</button>
@@ -1196,7 +1196,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
       <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
         <div style="flex:1;min-width:160px">
           <div style="color:var(--silver)">Motion</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px">Auto follows your system's Reduce Motion setting. Calm freezes ambient animation, the breathing field, and screen transitions.</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-top:2px">Auto follows your system's Reduce Motion setting. Calm freezes ambient animation, the breathing field, and screen transitions.</div>
         </div>
         <div class="btn-row" style="margin:0">
           <button id="gp-vis-m-auto" class="gp-btn" onclick="VISUALS.setMotion('auto')">Auto</button>
@@ -1208,7 +1208,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
       <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
         <div style="flex:1;min-width:160px">
           <div style="color:var(--silver)">Readability</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px">High contrast lifts secondary text and borders to clear WCAG AA while keeping the gold-on-black look.</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-top:2px">High contrast lifts secondary text and borders to clear WCAG AA while keeping the gold-on-black look.</div>
         </div>
         <div class="btn-row" style="margin:0">
           <button id="gp-vis-r-standard" class="gp-btn" onclick="VISUALS.setReadable('standard')">Standard</button>
@@ -1235,7 +1235,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
         <span>Evening Integration</span>
         <input type="time" id="gp-rem-evening" value="21:00" onchange="REMINDERS.save()">
       </div>
-      <div style="font-size:12px;color:var(--muted);margin-top:.6rem;line-height:1.6">
+      <div style="font-size:14px;color:var(--muted);margin-top:.6rem;line-height:1.6">
         Reminders fire as native OS notifications. They're scheduled by the app and persist while the app is running.
         For OS-persistent reminders (firing even when the app is closed), use Calendar or a launchd agent.
       </div>
@@ -1244,28 +1244,28 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
     <!-- V7 · Network config -->
     <div class="gp-reminders">
       <div class="gp-reminders-title">◈ Network · Practice Rooms + Feed Server</div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+      <div style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
         Use the official hosted instance (one click below), run your own at <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">localhost:7070</code>, or deploy the <code style="color:var(--gold);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">/server</code> directory anywhere Node 18+ runs. Leave blank to disable network features and stay fully local.
       </div>
       <div class="gp-reminders-row" style="margin-bottom:.4rem">
         <label style="width:120px">Server URL</label>
-        <input id="gp-net-url" type="text" placeholder="https://gateway-protocol.fly.dev" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:14px" onblur="NETWORK.saveConfig()">
+        <input id="gp-net-url" type="text" placeholder="https://gateway-protocol.fly.dev" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:16px" onblur="NETWORK.saveConfig()">
       </div>
       <div class="btn-row" style="margin-bottom:.5rem;flex-wrap:wrap">
-        <button class="gp-btn" onclick="NETWORK.useHosted()" style="font-size:12px">◈ Use hosted server</button>
-        <button class="gp-btn" onclick="NETWORK.useLocal()" style="font-size:12px">Use localhost</button>
-        <button class="gp-btn" onclick="NETWORK.clearServer()" style="font-size:12px">Disconnect</button>
+        <button class="gp-btn" onclick="NETWORK.useHosted()" style="font-size:14px">◈ Use hosted server</button>
+        <button class="gp-btn" onclick="NETWORK.useLocal()" style="font-size:14px">Use localhost</button>
+        <button class="gp-btn" onclick="NETWORK.clearServer()" style="font-size:14px">Disconnect</button>
       </div>
       <div class="gp-reminders-row">
         <label><input type="checkbox" id="gp-net-auto-share" onchange="NETWORK.saveConfig()"> Auto-share Council transmissions to feed (anonymous)</label>
       </div>
-      <div id="gp-net-server-probe" style="font-size:12px;color:var(--muted);margin-top:.4rem"></div>
+      <div id="gp-net-server-probe" style="font-size:14px;color:var(--muted);margin-top:.4rem"></div>
     </div>
 
     <!-- V7d · Biometric (manual HRV) -->
     <div class="gp-reminders">
       <div class="gp-reminders-title">◈ Biometric · Manual HRV Tracking</div>
-      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
+      <div style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:.8rem">
         Apple HealthKit and Google Fit live reads aren't possible from a desktop Electron app (those APIs are OS-locked to native iOS/Android). For now: enter HRV readings manually from your Apple Watch / Whoop / Oura / Polar app. Pre-session and post-session entries become a delta you can correlate with practice consistency.
         <br><br>
         <em>Future: an iOS companion app for live HealthKit sync.</em>
@@ -1280,13 +1280,13 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
         <button class="gp-btn primary" onclick="BIO.add()">Log</button>
       </div>
       <div id="gp-bio-trend" class="gp-bio-trend"></div>
-      <div id="gp-bio-history" style="font-size:12px;color:var(--muted);margin-top:.6rem;max-height:120px;overflow-y:auto"></div>
+      <div id="gp-bio-history" style="font-size:14px;color:var(--muted);margin-top:.6rem;max-height:120px;overflow-y:auto"></div>
     </div>
 
     <!-- Data management -->
     <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem">
-      <div style="font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ Data Management</div>
-      <div style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:1rem">
+      <div style="font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ Data Management</div>
+      <div style="font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:1rem">
         Your data lives locally on this machine — in IndexedDB (primary) and localStorage (mirror). No cloud, no sync.
         Export anytime as portable JSON. Reset wipes everything irreversibly.
       </div>
@@ -1298,8 +1298,8 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
 
     <!-- App info -->
     <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem">
-      <div style="font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ About</div>
-      <div style="font-size:14px;color:var(--silver);line-height:1.8">
+      <div style="font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ About</div>
+      <div style="font-size:16px;color:var(--silver);line-height:1.8">
         <div><strong style="color:var(--gold)">Gateway Protocol</strong> · V2.0.0 · Owned, not subscribed.</div>
         <div style="margin-top:.5rem">Source: <a href="https://github.com/amc198009/gateway-protocol" target="_blank" style="color:var(--gold2)">github.com/amc198009/gateway-protocol</a></div>
         <div style="margin-top:.5rem;font-style:italic;color:var(--muted)">All API keys stored encrypted via electron-store. Never leave your machine.</div>
@@ -1315,7 +1315,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
 
     <!-- V4c · Shadow Work Dialogue entry -->
     <div style="background:rgba(201,168,76,.05);border:.5px solid var(--border2);border-radius:4px;padding:1.5rem;margin-top:1.5rem;text-align:center">
-      <div style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Shadow Work Dialogue</div>
+      <div style="font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Shadow Work Dialogue</div>
       <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--silver);line-height:1.7;margin-bottom:1rem">Jung speaks through the Council. One question at a time, beneath the surface of whatever you bring. Ends when integration arrives.</div>
       <button class="gp-btn primary" onclick="SHADOW.open()">Begin Dialogue</button>
     </div>
@@ -1333,7 +1333,7 @@ body.gp-reduced .gp-btn.primary:hover::before{transition:none;transform:translat
       <span class="gp-shadow-head-l">◈ Shadow Dialogue · Jung</span>
       <span style="display:flex;align-items:center;gap:12px">
         <!-- V5d: route Jung's replies through TTS when on. Preserved in localStorage. -->
-        <label style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer">
+        <label style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer">
           <input type="checkbox" id="gp-shadow-voice" style="accent-color:var(--gold)"> Voice
         </label>
         <button class="gp-shadow-head-x" onclick="SHADOW.close()" title="Close & save to journal" aria-label="Close">×</button>
@@ -2694,9 +2694,9 @@ function buildFreqBands(){
   const el=document.getElementById('freq-bands');
   el.innerHTML=bands.map(b=>`
   <div class="band-row">
-    <div class="band-name">${b.name.split(' ')[0]}<br><span style="color:#3a3428;font-size:12px">${b.name.split(' ').slice(1).join(' ')}</span></div>
+    <div class="band-name">${b.name.split(' ')[0]}<br><span style="color:#3a3428;font-size:14px">${b.name.split(' ').slice(1).join(' ')}</span></div>
     <div class="band-track"><div class="band-fill" style="width:0%" data-w="${b.pct}%"></div></div>
-    <div class="band-state" style="font-size:12px">${b.state}</div>
+    <div class="band-state" style="font-size:14px">${b.state}</div>
   </div>`).join('');
   setTimeout(()=>document.querySelectorAll('.band-fill').forEach(f=>f.style.width=f.dataset.w),400);
 }
@@ -2802,38 +2802,38 @@ const VOICE={
     const panel=document.getElementById('voice-settings-panel');
     if(!panel)return;
     panel.innerHTML=`
-<div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
   <span>Voice Engine</span>
-  <span id="engine-badge" style="font-size:12px;padding:2px 8px;border-radius:10px;border:.5px solid var(--border);color:var(--gold)">Browser Voice</span>
+  <span id="engine-badge" style="font-size:14px;padding:2px 8px;border-radius:10px;border:.5px solid var(--border);color:var(--gold)">Browser Voice</span>
 </div>
 <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
-  <button class="gp-btn" id="btn-eng-ws"   onclick="VOICE._setEngine('webspeech')"  style="font-size:12px">Browser</button>
-  <button class="gp-btn" id="btn-eng-el"   onclick="VOICE._setEngine('elevenlabs')" style="font-size:12px">ElevenLabs</button>
-  <button class="gp-btn" id="btn-eng-oai"  onclick="VOICE._setEngine('openai')"     style="font-size:12px">OpenAI</button>
+  <button class="gp-btn" id="btn-eng-ws"   onclick="VOICE._setEngine('webspeech')"  style="font-size:14px">Browser</button>
+  <button class="gp-btn" id="btn-eng-el"   onclick="VOICE._setEngine('elevenlabs')" style="font-size:14px">ElevenLabs</button>
+  <button class="gp-btn" id="btn-eng-oai"  onclick="VOICE._setEngine('openai')"     style="font-size:14px">OpenAI</button>
 </div>
 
 <div id="panel-webspeech" style="display:flex;flex-direction:column;gap:10px">
-  <div style="font-size:13px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(201,168,76,.04);border:.5px solid var(--border);border-radius:4px">
+  <div style="font-size:15px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(201,168,76,.04);border:.5px solid var(--border);border-radius:4px">
     Built-in browser voice. Works instantly — no key needed. Quality varies by OS.<br>
     <strong style="color:var(--silver)">Tip:</strong> On macOS/iOS, enable <em>Siri Voices</em> in System Settings → Accessibility → Spoken Content for much better quality.
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <label style="font-size:12px;color:var(--muted);width:55px">Speed</label>
+    <label style="font-size:14px;color:var(--muted);width:55px">Speed</label>
     <input type="range" min="0.5" max="1.1" step="0.05" value="${this.wsRate}" oninput="VOICE.wsRate=+this.value;document.getElementById('ws-rate-val').textContent=this.value" style="flex:1">
-    <span id="ws-rate-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">${this.wsRate}</span>
+    <span id="ws-rate-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">${this.wsRate}</span>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <label style="font-size:12px;color:var(--muted);width:55px">Pitch</label>
+    <label style="font-size:14px;color:var(--muted);width:55px">Pitch</label>
     <input type="range" min="0.6" max="1.1" step="0.05" value="${this.wsPitch}" oninput="VOICE.wsPitch=+this.value;document.getElementById('ws-pitch-val').textContent=this.value" style="flex:1">
-    <span id="ws-pitch-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">${this.wsPitch}</span>
+    <span id="ws-pitch-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">${this.wsPitch}</span>
   </div>
 </div>
 
 <div id="panel-elevenlabs" style="display:none;flex-direction:column;gap:10px">
-  <div style="font-size:13px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(192,64,64,.06);border:.5px solid rgba(192,64,64,.25);border-radius:4px">
-    <strong style="color:#e08080">ElevenLabs blocks direct browser calls</strong> (no CORS). To use it, run the included <code style="font-size:12px;color:var(--gold)">proxy.js</code> on your machine — it takes 10 seconds. Or use <strong style="color:var(--silver)">OpenAI TTS</strong> instead, which works directly in the browser.
+  <div style="font-size:15px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(192,64,64,.06);border:.5px solid rgba(192,64,64,.25);border-radius:4px">
+    <strong style="color:#e08080">ElevenLabs blocks direct browser calls</strong> (no CORS). To use it, run the included <code style="font-size:14px;color:var(--gold)">proxy.js</code> on your machine — it takes 10 seconds. Or use <strong style="color:var(--silver)">OpenAI TTS</strong> instead, which works directly in the browser.
   </div>
-  <div style="font-size:12px;color:var(--muted);line-height:1.8;padding:.5rem;background:rgba(201,168,76,.04);border:.5px solid var(--border);border-radius:4px">
+  <div style="font-size:14px;color:var(--muted);line-height:1.8;padding:.5rem;background:rgba(201,168,76,.04);border:.5px solid var(--border);border-radius:4px">
     <strong style="color:var(--silver)">To run the proxy (handles both ElevenLabs + OpenAI):</strong><br>
     1. Make sure Node.js is installed<br>
     2. Open terminal in the same folder as this file<br>
@@ -2841,53 +2841,53 @@ const VOICE={
     4. Leave that terminal open — both voice engines will work
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <label style="font-size:12px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
+    <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
     <input type="password" id="el-key-input" placeholder="sk-..." value="${this.elKey}"
-      style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:13px;padding:5px 8px;border-radius:2px;outline:none"
+      style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:5px 8px;border-radius:2px;outline:none"
       oninput="VOICE.elKey=this.value;VOICE._save()">
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <label style="font-size:12px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
-    <select id="el-voice-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;padding:5px 8px;border-radius:2px;outline:none">
+    <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
+    <select id="el-voice-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:15px;padding:5px 8px;border-radius:2px;outline:none">
       ${EL_VOICES.map(v=>`<option value="${v.id}" ${v.id===this.elVoiceId?'selected':''}>${v.name} — ${v.desc}</option>`).join('')}
     </select>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <label style="font-size:12px;color:var(--muted);width:55px">Stability</label>
+    <label style="font-size:14px;color:var(--muted);width:55px">Stability</label>
     <input type="range" min="0.3" max="1" step="0.05" value="${this.elStability}" oninput="VOICE.elStability=+this.value;document.getElementById('el-stab-val').textContent=this.value" style="flex:1">
-    <span id="el-stab-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">${this.elStability}</span>
+    <span id="el-stab-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">${this.elStability}</span>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <label style="font-size:12px;color:var(--muted);width:55px">Clarity</label>
+    <label style="font-size:14px;color:var(--muted);width:55px">Clarity</label>
     <input type="range" min="0.3" max="1" step="0.05" value="${this.elSimilarity}" oninput="VOICE.elSimilarity=+this.value;document.getElementById('el-sim-val').textContent=this.value" style="flex:1">
-    <span id="el-sim-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">${this.elSimilarity}</span>
+    <span id="el-sim-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">${this.elSimilarity}</span>
   </div>
 </div>
 
 <div id="panel-openai" style="display:none;flex-direction:column;gap:10px">
-  <div style="font-size:13px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(192,64,64,.06);border:.5px solid rgba(192,64,64,.25);border-radius:4px">
-    <strong style="color:#e08080">OpenAI also blocks direct browser calls</strong> (same CORS issue). Run <code style="font-size:12px;color:var(--gold)">node proxy.js</code> — it handles both ElevenLabs and OpenAI in one command.
+  <div style="font-size:15px;color:var(--muted);line-height:1.7;padding:.6rem;background:rgba(192,64,64,.06);border:.5px solid rgba(192,64,64,.25);border-radius:4px">
+    <strong style="color:#e08080">OpenAI also blocks direct browser calls</strong> (same CORS issue). Run <code style="font-size:14px;color:var(--gold)">node proxy.js</code> — it handles both ElevenLabs and OpenAI in one command.
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <label style="font-size:12px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
+    <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">API Key</label>
     <input type="password" id="oai-key-input" placeholder="sk-..." value="${this.oaiKey}"
-      style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:13px;padding:5px 8px;border-radius:2px;outline:none"
+      style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:5px 8px;border-radius:2px;outline:none"
       oninput="VOICE.oaiKey=this.value;VOICE._save()">
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <label style="font-size:12px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
-    <select id="oai-voice-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;padding:5px 8px;border-radius:2px;outline:none">
+    <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">Voice</label>
+    <select id="oai-voice-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:15px;padding:5px 8px;border-radius:2px;outline:none">
       ${OAI_VOICES.map(v=>`<option value="${v.id}" ${v.id===this.oaiVoice?'selected':''}>${v.name} — ${v.desc}</option>`).join('')}
     </select>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <label style="font-size:12px;color:var(--muted);width:55px">Speed</label>
+    <label style="font-size:14px;color:var(--muted);width:55px">Speed</label>
     <input type="range" min="0.5" max="1.0" step="0.02" value="${this.oaiSpeed}" oninput="VOICE.oaiSpeed=+this.value;document.getElementById('oai-speed-val').textContent=this.value" style="flex:1">
-    <span id="oai-speed-val" style="font-size:12px;color:var(--gold);width:28px;text-align:right">${this.oaiSpeed}</span>
+    <span id="oai-speed-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">${this.oaiSpeed}</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <label style="font-size:12px;color:var(--muted);width:55px;flex-shrink:0">Model</label>
-    <select id="oai-model-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;padding:5px 8px;border-radius:2px;outline:none">
+    <label style="font-size:14px;color:var(--muted);width:55px;flex-shrink:0">Model</label>
+    <select id="oai-model-select" style="flex:1;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:15px;padding:5px 8px;border-radius:2px;outline:none">
       <option value="tts-1" ${this.oaiModel==='tts-1'?'selected':''}>tts-1 — Fast · Low latency</option>
       <option value="tts-1-hd" ${this.oaiModel==='tts-1-hd'?'selected':''}>tts-1-hd — Studio quality</option>
     </select>
@@ -2895,8 +2895,8 @@ const VOICE={
 </div>
 
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.75rem">
-  <button class="gp-btn primary" onclick="VOICE._testSpeak()" style="font-size:12px">▶ Test Voice</button>
-  <button class="gp-btn" onclick="VOICE.stop()" style="font-size:12px">■ Stop</button>
+  <button class="gp-btn primary" onclick="VOICE._testSpeak()" style="font-size:14px">▶ Test Voice</button>
+  <button class="gp-btn" onclick="VOICE.stop()" style="font-size:14px">■ Stop</button>
 </div>`;
 
     // Wire selects
@@ -3318,12 +3318,12 @@ function buildAffirmations(){
   const merged=[...builtIn,...custom.map(c=>({code:c.code,text:c.text,intent:c.intent,_custom:true}))];
   allEl.innerHTML=merged.map(a=>`
   <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:.75rem 1rem">
-    <div style="font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;opacity:.7;display:flex;justify-content:space-between">
+    <div style="font-size:14px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;opacity:.7;display:flex;justify-content:space-between">
       <span>${escapeHTML(a.code)}</span>
-      ${a._custom?'<span style="color:var(--gold2);font-size:11px;letter-spacing:1.5px">◈ Council-generated</span>':''}
+      ${a._custom?'<span style="color:var(--gold2);font-size:13px;letter-spacing:1.5px">◈ Council-generated</span>':''}
     </div>
     <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--silver);line-height:1.7">${escapeHTML(a.text)}</div>
-    <div style="font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${escapeHTML(a.intent||'')}</div>
+    <div style="font-size:14px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${escapeHTML(a.intent||'')}</div>
   </div>`).join('');
 }
 
@@ -3340,7 +3340,7 @@ function renderCurrentAffirm(){
   if(currentAffirm>=list.length) currentAffirm=0;
   const a=list[currentAffirm];
   document.getElementById('affirm-display').innerHTML=`
-    <div class="affirm-code">${escapeHTML(a.code)}${a._custom?' <span style="font-size:12px;color:var(--gold2);letter-spacing:1.5px;margin-left:8px">◈ Council</span>':''}</div>
+    <div class="affirm-code">${escapeHTML(a.code)}${a._custom?' <span style="font-size:14px;color:var(--gold2);letter-spacing:1.5px;margin-left:8px">◈ Council</span>':''}</div>
     <div class="affirm-text">${escapeHTML(a.text)}</div>
     <div class="affirm-intent">${escapeHTML(a.intent||'')}</div>`;
   document.getElementById('affirm-counter').textContent=`${currentAffirm+1} / ${list.length}`;
@@ -3577,19 +3577,19 @@ function renderJournalHistory(){
   const {journal=[]}=DB.load();
   const el=document.getElementById('journal-history');
   if(!el)return;
-  if(!journal.length){el.innerHTML='<p style="font-size:13px;color:var(--muted);text-align:center;padding:1rem 0;font-style:italic">No entries yet. Your first entry will appear here.</p>';return;}
+  if(!journal.length){el.innerHTML='<p style="font-size:15px;color:var(--muted);text-align:center;padding:1rem 0;font-style:italic">No entries yet. Your first entry will appear here.</p>';return;}
   el.innerHTML=journal.slice().reverse().map(e=>{
     const d=new Date(e.date);
     const dateStr=d.toLocaleDateString('en',{weekday:'long',month:'short',day:'numeric'});
     const timeStr=d.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
-    return`<div style="background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem;margin-bottom:10px">
+    return`<div style="background:rgba(17,17,32,.68);border:.5px solid rgba(201,168,76,.08);border-radius:4px;padding:1rem;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;flex-wrap:wrap;gap:4px">
         <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold)">${escapeHTML(dateStr)}</div>
-        <div style="font-size:12px;color:var(--muted);letter-spacing:1px">${escapeHTML(timeStr)}${e.session?' · '+escapeHTML(e.session):''}</div>
+        <div style="font-size:14px;color:var(--muted);letter-spacing:1px">${escapeHTML(timeStr)}${e.session?' · '+escapeHTML(e.session):''}</div>
       </div>
       ${e.data.map(item=>`
         <div style="margin-bottom:.5rem">
-          <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${escapeHTML(item.prompt)}</div>
+          <div style="font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${escapeHTML(item.prompt)}</div>
           <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--silver);line-height:1.7;font-style:italic">${escapeHTML(item.response)}</div>
         </div>`).join('')}
     </div>`;
@@ -3640,14 +3640,14 @@ function renderTierDisplay(){
     <div style="display:inline-block;text-align:center;padding:1rem 2rem;background:var(--card);border:.5px solid var(--border2);border-radius:4px;min-width:200px">
       <div style="font-size:32px;color:${tier.color};margin-bottom:4px">${tier.symbol}</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:21px;color:${tier.color};letter-spacing:2px">${tier.name}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:1px">${tier.desc}</div>
+      <div style="font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:1px">${tier.desc}</div>
       ${next?`
       <div style="margin-top:.75rem">
-        <div style="height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden">
+        <div style="height:2px;background:rgba(24,24,44,.80);border-radius:1px;overflow:hidden">
           <div style="height:100%;width:${pct}%;background:${tier.color};transition:width 1s ease"></div>
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:3px">${d.sessions||0} / ${next.min} sessions → ${next.name}</div>
-      </div>`:'<div style="font-size:12px;color:var(--gold);margin-top:.5rem">Maximum attainment</div>'}
+        <div style="font-size:14px;color:var(--muted);margin-top:3px">${d.sessions||0} / ${next.min} sessions → ${next.name}</div>
+      </div>`:'<div style="font-size:14px;color:var(--gold);margin-top:.5rem">Maximum attainment</div>'}
     </div>`;
 }
 
@@ -3715,12 +3715,12 @@ const TT={
       const counts=[3,6,9];
       const allDone=slots.every(s=>tt[`${day}-${s}`]);
       return`<div style="background:var(--card);border:.5px solid ${allDone?'var(--gold)':'var(--border)'};border-radius:4px;padding:6px;text-align:center;cursor:pointer">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px">Day ${day+1}</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px">Day ${day+1}</div>
         <div style="display:flex;gap:3px;justify-content:center">
           ${slots.map((s,si)=>`<div onclick="event.stopPropagation();TT.markSlot(${day},'${s}')"
             style="width:18px;height:18px;border-radius:50%;border:.5px solid ${tt[`${day}-${s}`]?'var(--gold)':'var(--border)'};
             background:${tt[`${day}-${s}`]?'rgba(201,168,76,.25)':'transparent'};
-            font-size:11px;display:flex;align-items:center;justify-content:center;color:${tt[`${day}-${s}`]?'var(--gold)':'var(--muted)'};
+            font-size:13px;display:flex;align-items:center;justify-content:center;color:${tt[`${day}-${s}`]?'var(--gold)':'var(--muted)'};
             cursor:pointer" title="${s==='M'?'Morning × 3':s==='N'?'Midday × 6':'Evening × 9'}">${tt[`${day}-${s}`]?'✓':counts[si]}</div>`).join('')}
         </div>
       </div>`;
@@ -3752,7 +3752,7 @@ function updateStats(){
     return`<div class="wp-row">
       <div class="wp-name">${w.name.replace('Wave ','W')}</div>
       <div class="wp-track"><div class="wp-fill" style="width:${pct}%"></div></div>
-      <div class="wp-pct" style="font-size:12px;color:var(--muted)">${comp}×</div>
+      <div class="wp-pct" style="font-size:14px;color:var(--muted)">${comp}×</div>
     </div>`;
   }).join('');
 
@@ -4023,7 +4023,7 @@ const PATTERNS={
       toast('Patterns: '+humanError(e));
       const raw=parseFailRaw(e);
       if(raw){
-        results.innerHTML='<div class="gp-pat-block"><div class="gp-pat-block-h">Unstructured Response</div><pre style="white-space:pre-wrap;font-size:13px;color:var(--muted);max-height:240px;overflow:auto">'+escapeHTML(raw)+'</pre></div>';
+        results.innerHTML='<div class="gp-pat-block"><div class="gp-pat-block-h">Unstructured Response</div><pre style="white-space:pre-wrap;font-size:15px;color:var(--muted);max-height:240px;overflow:auto">'+escapeHTML(raw)+'</pre></div>';
         results.classList.add('visible');
       }
     }finally{
@@ -4220,7 +4220,7 @@ const SYNC={
     document.getElementById('gp-sync-count').textContent=syncs.length;
     const list=document.getElementById('gp-sync-list');
     if(!syncs.length){
-      list.innerHTML='<div style="font-size:13px;color:var(--muted);font-style:italic;padding:1rem;text-align:center">No syncs yet. The field becomes visible the moment you start watching.</div>';
+      list.innerHTML='<div style="font-size:15px;color:var(--muted);font-style:italic;padding:1rem;text-align:center">No syncs yet. The field becomes visible the moment you start watching.</div>';
       return;
     }
     list.innerHTML=syncs.map(s=>{
@@ -4229,7 +4229,7 @@ const SYNC={
       const time=dt.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
       return `<div class="gp-sync-item">
         <div class="text">"${escapeHTML(s.text)}"</div>
-        <div class="meta">${date}<br>${time}<br><a href="#" onclick="SYNC.remove(${s.id});return false" style="color:var(--muted);text-decoration:none;font-size:11px">remove</a></div>
+        <div class="meta">${date}<br>${time}<br><a href="#" onclick="SYNC.remove(${s.id});return false" style="color:var(--muted);text-decoration:none;font-size:13px">remove</a></div>
       </div>`;
     }).join('');
   },
@@ -4237,7 +4237,7 @@ const SYNC={
     const syncs=DB.load().synchronicities||[];
     if(syncs.length<3){ toast('Need at least 3 synchronicities for field analysis.'); return; }
     const out=document.getElementById('gp-sync-analysis');
-    out.innerHTML='<div style="font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Council reading the field…</div>';
+    out.innerHTML='<div style="font-size:15px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Council reading the field…</div>';
     out.classList.add('visible');
     try{
       const payload=syncs.map(s=>({
@@ -4252,7 +4252,7 @@ const SYNC={
         </div>
         <div class="gp-pat-block">
           <div class="gp-pat-block-h">Time Clusters</div>
-          <div style="font-size:14px;color:var(--silver);line-height:1.7">${escapeHTML(r.timeClusters||'')}</div>
+          <div style="font-size:16px;color:var(--silver);line-height:1.7">${escapeHTML(r.timeClusters||'')}</div>
         </div>
         <div class="gp-pat-block">
           <div class="gp-pat-block-h">Themes</div>
@@ -4264,7 +4264,7 @@ const SYNC={
         </div>
       `;
     }catch(e){
-      out.innerHTML='<div style="color:#c04040;font-size:13px">Field reading failed: '+escapeHTML(humanError(e))+'</div>'+(function(){const raw=parseFailRaw(e); return raw?'<pre style="white-space:pre-wrap;font-size:13px;color:var(--muted);max-height:240px;overflow:auto;margin-top:.5rem">'+escapeHTML(raw)+'</pre>':'';})();
+      out.innerHTML='<div style="color:#c04040;font-size:15px">Field reading failed: '+escapeHTML(humanError(e))+'</div>'+(function(){const raw=parseFailRaw(e); return raw?'<pre style="white-space:pre-wrap;font-size:15px;color:var(--muted);max-height:240px;overflow:auto;margin-top:.5rem">'+escapeHTML(raw)+'</pre>':'';})();
     }
   }
 };
@@ -4493,10 +4493,10 @@ const NETWORK={
       // Every field from `msg` is host-broadcast and therefore untrusted —
       // a malicious host in a shared room could otherwise inject script.
       stateEl.innerHTML=`
-        <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Wave ${escapeHTML(String(msg.wave||'—'))} · ${escapeHTML(String(msg.sessionName||'no session'))}</div>
+        <div style="font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Wave ${escapeHTML(String(msg.wave||'—'))} · ${escapeHTML(String(msg.sessionName||'no session'))}</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold2);letter-spacing:4px;text-align:center;margin:.5rem 0">${mm}:${ss}</div>
-        <div style="font-size:14px;color:var(--gold);font-style:italic;text-align:center">${escapeHTML(msg.phase||'')}</div>
-        <div style="font-size:12px;color:${msg.running?'var(--gold)':'var(--muted)'};letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:.4rem">${msg.running?'◈ Active':'idle'}</div>
+        <div style="font-size:16px;color:var(--gold);font-style:italic;text-align:center">${escapeHTML(msg.phase||'')}</div>
+        <div style="font-size:14px;color:${msg.running?'var(--gold)':'var(--muted)'};letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:.4rem">${msg.running?'◈ Active':'idle'}</div>
       `;
     }
     if(msg.type==='cue'){
@@ -4778,7 +4778,7 @@ const INSTITUTE={
         <div>
           <div class="gp-cert-name">${escapeHTML(t.name)}${done?' · ✓':''}</div>
           <div class="gp-cert-sub">${escapeHTML(t.sub)}</div>
-          ${earnedAt?`<div style="font-size:12px;color:var(--gold);letter-spacing:1.5px;margin-top:.3rem">Earned ${new Date(+earnedAt).toLocaleDateString()}</div>`:''}
+          ${earnedAt?`<div style="font-size:14px;color:var(--gold);letter-spacing:1.5px;margin-top:.3rem">Earned ${new Date(+earnedAt).toLocaleDateString()}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
           <div class="gp-cert-progress">${progress}${unit} / ${target}${unit}</div>
@@ -4860,11 +4860,11 @@ const INSTITUTE={
       body{margin:0;padding:0;background:#0a0a0d;color:#e8e2d4;font-family:Georgia,serif}
       .cert{max-width:780px;margin:60px auto;padding:80px 60px;background:radial-gradient(ellipse at top,rgba(201,168,76,.08),transparent 70%),#0a0a0d;border:1px solid rgba(201,168,76,.4);border-radius:6px;text-align:center}
       h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:42px;letter-spacing:8px;color:#f0d88a;margin:0 0 12px}
-      .sub{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:50px}
+      .sub{font-size:15px;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:50px}
       .name{font-family:'Cormorant Garamond',Georgia,serif;font-size:64px;font-weight:300;color:#f0d88a;margin:30px 0;letter-spacing:6px}
       .line{font-size:16px;color:#aaa;margin:6px 0;font-style:italic}
-      .meta{margin-top:50px;font-size:13px;color:#888;letter-spacing:2px;text-transform:uppercase;line-height:2}
-      .sig{margin-top:40px;padding-top:20px;border-top:.5px solid #333;font-size:12px;color:#666;font-family:monospace;word-break:break-all;letter-spacing:0}
+      .meta{margin-top:50px;font-size:15px;color:#888;letter-spacing:2px;text-transform:uppercase;line-height:2}
+      .sig{margin-top:40px;padding-top:20px;border-top:.5px solid #333;font-size:14px;color:#666;font-family:monospace;word-break:break-all;letter-spacing:0}
       @media print{body{background:white;color:black}.cert{border-color:#c9a84c}h1,.name{color:#c9a84c}.line{color:#555}.meta,.sig{color:#888}}
     </style></head><body><div class="cert">
       <div class="sub">◈ Gateway Institute · Certificate of Completion</div>
@@ -4922,10 +4922,10 @@ const PROTOBUILD={
     const protos=DB.load().customProtocols||[];
     const list=document.getElementById('gp-proto-saved');
     if(!list) return;
-    if(!protos.length){ list.innerHTML='<div style="font-size:13px;color:var(--muted);font-style:italic;text-align:center;padding:.5rem">No custom protocols yet.</div>'; return; }
+    if(!protos.length){ list.innerHTML='<div style="font-size:15px;color:var(--muted);font-style:italic;text-align:center;padding:.5rem">No custom protocols yet.</div>'; return; }
     list.innerHTML=protos.slice().reverse().map(p=>`
       <div class="gp-proto-item">
-        <div><div class="name">${escapeHTML(p.name)}</div><div style="font-size:12px;color:var(--muted)">${p.phases.length} phases · ${p.totalMin} min</div></div>
+        <div><div class="name">${escapeHTML(p.name)}</div><div style="font-size:14px;color:var(--muted)">${p.phases.length} phases · ${p.totalMin} min</div></div>
         <div class="actions">
           <button onclick="PROTOBUILD.run(${p.id})">Run</button>
           <button onclick="PROTOBUILD.exportOne(${p.id})">Export</button>
@@ -5014,7 +5014,7 @@ const UPDATE_CHECK={
       '#gp-update-banner{position:fixed;top:0;left:0;right:0;z-index:9999;'+
         'background:rgba(15,15,18,.96);backdrop-filter:blur(8px);'+
         'border-bottom:.5px solid var(--gold);'+
-        'font-family:Montserrat,system-ui,sans-serif;font-size:13px;letter-spacing:1.5px;'+
+        'font-family:Montserrat,system-ui,sans-serif;font-size:15px;letter-spacing:1.5px;'+
         'color:var(--silver);text-transform:uppercase;'+
         'display:flex;justify-content:center;align-items:center;gap:18px;'+
         'padding:10px 16px;animation:gp-upd-in .35s ease-out}'+
@@ -5022,7 +5022,7 @@ const UPDATE_CHECK={
       '#gp-update-banner a{color:var(--gold);text-decoration:none;border-bottom:.5px solid var(--gold);padding-bottom:1px}'+
       '#gp-update-banner a:hover{color:var(--gold2);border-color:var(--gold2)}'+
       '#gp-update-banner button{background:transparent;border:none;color:var(--muted);'+
-        'font-size:13px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;padding:0 6px}'+
+        'font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;padding:0 6px}'+
       '#gp-update-banner button:hover{color:var(--silver)}'+
       '@keyframes gp-upd-in{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}';
     document.head.appendChild(css);
