@@ -98,6 +98,26 @@ ENV PORT=7070
 CMD ["node", "practice-room.js"]
 ```
 
+### Attaching the desktop .dmg to the server
+
+The server can also distribute the macOS build at `GET /download`, so visitors don't need to round-trip through GitHub Releases. Workflow per release:
+
+```bash
+# 1. Build the .dmg
+cd electron-app
+npm run make
+
+# 2. Copy it into the server's download dir
+mkdir -p ../server/download
+cp out/make/**/Gateway*.dmg ../server/download/Gateway.Protocol.dmg
+
+# 3. Deploy — the Docker image now contains the .dmg under /app/download/
+cd ../server
+npm run deploy
+```
+
+After the deploy, `https://gateway-protocol.fly.dev/download` serves the .dmg directly (with the right `Content-Type` and `Content-Disposition`). `server/download/*.dmg` is gitignored — the build artifact ships through the Docker image, not the repo.
+
 ### Render.com
 
 1. New → Web Service → connect this repo → set Root Directory to `server`

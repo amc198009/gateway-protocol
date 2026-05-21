@@ -23,8 +23,16 @@
  */
 
 const http = require('http');
+const fs = require('fs');
+const { join: joinPath } = require('path');
 const { WebSocketServer } = require('ws');
 const crypto = require('crypto');
+
+// Releases dir baked into the Docker image at build time. `npm run deploy`
+// from server/ copies the freshly-built .dmg into ./download/ before
+// `fly deploy` so the image carries it. Visitors can pull the build
+// directly at /download — no GitHub repo round-trip needed.
+const DOWNLOAD_DIR = joinPath(__dirname, 'download');
 
 const PORT = process.env.PORT || 7070;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -180,6 +188,7 @@ function renderLanding(stats) {
     <h2>Endpoints</h2>
     <div class="endpoints">
       <div class="endpoint"><span class="method">GET</span><span><code>/</code></span><span class="ep-desc">this page</span></div>
+      <div class="endpoint"><span class="method">GET</span><span><code>/download</code></span><span class="ep-desc">desktop app .dmg</span></div>
       <div class="endpoint"><span class="method">GET</span><span><code>/feed?wave=&code=&limit=</code></span><span class="ep-desc">list transmissions</span></div>
       <div class="endpoint"><span class="method">POST</span><span><code>/feed</code></span><span class="ep-desc">publish a transmission</span></div>
       <div class="endpoint"><span class="method">POST</span><span><code>/feed/:id/react</code></span><span class="ep-desc">+1 reaction</span></div>
@@ -188,8 +197,8 @@ function renderLanding(stats) {
   </div>
 
   <div class="ctas">
-    <a class="cta primary" href="https://github.com/amc198009/gateway-protocol/releases/latest" target="_blank" rel="noopener">Download for macOS ↓</a>
-    <a class="cta" href="https://github.com/amc198009/gateway-protocol" target="_blank" rel="noopener">View source on GitHub ↗</a>
+    <a class="cta primary" href="/download">Download for macOS ↓</a>
+    <a class="cta" href="https://github.com/amc198009/gateway-protocol/tree/${COMMIT}" target="_blank" rel="noopener">View source on GitHub ↗</a>
   </div>
   <p class="install-note">
     <strong>macOS Intel x64</strong> (Apple Silicon runs via Rosetta — native arm64 build still on the roadmap). The .dmg is unsigned, so the first launch will trigger a Gatekeeper warning. The workaround: drag the app to Applications, then right-click it and choose <em>Open</em> → <em>Open</em>. After that it launches normally.<br>
@@ -299,6 +308,43 @@ function handleFeedReact(req, res, id) {
   jsonResponse(res, 200, { ok: true, reactions: item.reactions });
 }
 
+// GET /download              → 302 redirect to the .dmg in DOWNLOAD_DIR
+// GET /download/<filename>   → stream the .dmg from DOWNLOAD_DIR
+// Filenames are whitelisted to `[A-Za-z0-9._-]+\.dmg` so the URL can't
+// be coaxed into a path traversal. Missing-build returns a 404 with a
+// hint instead of just dead-ending.
+function handleDownload(req, res, urlPath) {
+  let files = [];
+  try { files = fs.readdirSync(DOWNLOAD_DIR).filter(f => f.toLowerCase().endsWith('.dmg')); }
+  catch (e) { /* directory may not exist yet */ }
+
+  if (urlPath === '/download' || urlPath === '/download/') {
+    if (!files.length) {
+      return jsonResponse(res, 404, { error: 'no build attached to this server — try the Releases page' });
+    }
+    res.writeHead(302, { Location: '/download/' + encodeURIComponent(files[0]) });
+    return res.end();
+  }
+
+  const name = decodeURIComponent(urlPath.slice('/download/'.length));
+  if (!/^[A-Za-z0-9._-]+\.dmg$/.test(name)) {
+    return jsonResponse(res, 400, { error: 'bad filename' });
+  }
+  const filePath = joinPath(DOWNLOAD_DIR, name);
+  let stat;
+  try { stat = fs.statSync(filePath); }
+  catch (e) { return jsonResponse(res, 404, { error: 'not found' }); }
+
+  res.writeHead(200, {
+    'Content-Type': 'application/x-apple-diskimage',
+    'Content-Length': stat.size,
+    'Content-Disposition': `attachment; filename="${name}"`,
+    'Cache-Control': 'public, max-age=3600',
+    'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+  });
+  fs.createReadStream(filePath).pipe(res);
+}
+
 // Reject mutating requests that don't carry our custom client header.
 // Browsers only allow non-safelisted headers after a successful CORS
 // preflight, and a drive-by form on attacker.com can't set them — so
@@ -360,6 +406,10 @@ const server = http.createServer((req, res) => {
     if (!requireClient(req, res)) return;
     if (rateLimited('feed_react', clientIp(req))) return jsonResponse(res, 429, { error: 'slow down' });
     return handleFeedReact(req, res, reactMatch[1]);
+  }
+  // GET /download[...]  — direct .dmg distribution baked into the image.
+  if (req.method === 'GET' && (path === '/download' || path.startsWith('/download/'))) {
+    return handleDownload(req, res, path);
   }
 
   jsonResponse(res, 404, { error: 'not found' });
