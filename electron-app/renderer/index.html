@@ -4,13 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!--
-  Content Security Policy: explicit allowlist for the three LLM/TTS providers
-  the Council talks to. Blocks any XSS-driven exfiltration to a third party
-  even if a renderer interpolation escapes our escapeHTML() net. The
-  'unsafe-inline' on script-src is required for the inline app script; the
-  long-term fix is splitting renderer into ES modules and dropping it.
+  Content Security Policy: connect-src allows the three first-party LLM/TTS
+  providers, plus any HTTPS / WSS (for the user-picked Practice Rooms +
+  Feed server — V7 lets practitioners self-host, so we can't enumerate
+  them) and http/ws on localhost for dev. Still blocks form-action,
+  objects, and arbitrary frames. The 'unsafe-inline' on script-src is
+  required for the inline app script; long-term fix is splitting the
+  renderer into ES modules.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.anthropic.com https://api.openai.com https://api.elevenlabs.io; img-src 'self' data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss: http://localhost:* ws://localhost:*; img-src 'self' data:; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Gateway Protocol — Consciousness Evolution System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -3995,13 +3997,32 @@ const NETWORK={
     if(autoBox) autoBox.checked=!!this._cfg.autoJoinFeed;
     const shareBox=document.getElementById('gp-mirror-share-feed');
     if(shareBox) shareBox.checked=!!this._cfg.autoJoinFeed;
+    // Event delegation on the feed list — react buttons read their id from
+    // a data attribute rather than having it inlined in onclick, so a
+    // malicious feed server can't inject script via item.id.
+    const list=document.getElementById('gp-feed-list');
+    if(list && !list._delegated){
+      list._delegated=true;
+      list.addEventListener('click', evt => {
+        const btn=evt.target.closest('button[data-feed-id]');
+        if(btn) this.react(btn.dataset.feedId, btn);
+      });
+    }
     this._renderServerStatus();
     if(this._cfg.serverUrl) this._probeServer();
   },
 
   async saveConfig(){
+    const raw=(document.getElementById('gp-net-url').value||'').trim().replace(/\/+$/,'');
+    // Only accept http(s):// schemes — guards against the user (or a
+    // copy-paste accident) entering javascript:/data:/file: URLs that
+    // would otherwise flow into fetch() and `new WebSocket()`.
+    if(raw && !/^https?:\/\/[^\s]+$/i.test(raw)){
+      toast('Server URL must start with http:// or https://');
+      return;
+    }
     this._cfg={
-      serverUrl:(document.getElementById('gp-net-url').value||'').trim().replace(/\/+$/,''),
+      serverUrl:raw,
       autoJoinFeed:document.getElementById('gp-net-auto-share').checked,
     };
     try{ await GP_API.network.set(this._cfg); }catch(e){}
@@ -4124,8 +4145,10 @@ const NETWORK={
       const stateEl=document.getElementById('gp-room-active-state');
       const mm=String(Math.floor((msg.timerSeconds||0)/60)).padStart(2,'0');
       const ss=String((msg.timerSeconds||0)%60).padStart(2,'0');
+      // Every field from `msg` is host-broadcast and therefore untrusted —
+      // a malicious host in a shared room could otherwise inject script.
       stateEl.innerHTML=`
-        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Wave ${msg.wave||'—'} · ${msg.sessionName||'no session'}</div>
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Wave ${escapeHTML(String(msg.wave||'—'))} · ${escapeHTML(String(msg.sessionName||'no session'))}</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold2);letter-spacing:4px;text-align:center;margin:.5rem 0">${mm}:${ss}</div>
         <div style="font-size:12px;color:var(--gold);font-style:italic;text-align:center">${escapeHTML(msg.phase||'')}</div>
         <div style="font-size:10px;color:${msg.running?'var(--gold)':'var(--muted)'};letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:.4rem">${msg.running?'◈ Active':'idle'}</div>
@@ -4171,15 +4194,18 @@ const NETWORK={
       if(!items.length){ list.innerHTML='<div class="gp-net-empty">No transmissions match. Be the first to share.</div>'; return; }
       list.innerHTML=items.map(item=>{
         const ago=this._timeAgo(item.at);
+        // Everything below is server-provided — a malicious server could
+        // return script-shaped strings. Escape every field; carry the
+        // feed id on a data attribute consumed by event delegation above.
         return `<div class="gp-feed-item">
           <div class="gp-feed-item-meta">
             ${item.wave?`<span class="gp-feed-tag">${escapeHTML(item.wave)}</span>`:''}
             ${item.frequency?`<span class="gp-feed-tag">${escapeHTML(item.frequency)}</span>`:''}
             ${item.code?`<span class="gp-feed-tag">${escapeHTML(item.code)}</span>`:''}
-            <span style="opacity:.7">${ago}</span>
+            <span style="opacity:.7">${escapeHTML(ago)}</span>
           </div>
           <div class="gp-feed-text">"${escapeHTML(item.transmission)}"</div>
-          <button class="gp-feed-react" onclick="NETWORK.react('${item.id}',this)">◈ I needed this · ${item.reactions||0}</button>
+          <button class="gp-feed-react" data-feed-id="${escapeHTML(item.id)}">◈ I needed this · ${Number(item.reactions)||0}</button>
         </div>`;
       }).join('');
     }catch(e){
@@ -4189,8 +4215,14 @@ const NETWORK={
 
   async react(id,btn){
     if(!this._cfg.serverUrl) return;
+    // X-Gateway-Client is a custom header → forces a CORS preflight. The
+    // server requires it on every mutating route, so a CSRF form on a
+    // random page can't drive these endpoints.
     try{
-      const res=await fetch(this._cfg.serverUrl+'/feed/'+id+'/react',{method:'POST'});
+      const res=await fetch(this._cfg.serverUrl+'/feed/'+id+'/react',{
+        method:'POST',
+        headers:{'X-Gateway-Client':'1'},
+      });
       const data=await res.json();
       if(data.ok) btn.textContent='◈ I needed this · '+data.reactions;
     }catch(e){}
@@ -4203,7 +4235,7 @@ const NETWORK={
     try{
       await fetch(this._cfg.serverUrl+'/feed',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json','X-Gateway-Client':'1'},
         body:JSON.stringify({
           wave:rec.wave||'',
           frequency:rec.frequency||'',
@@ -4243,8 +4275,13 @@ const MEMORY={
   // Embed every journal entry that doesn't have a vector yet. Runs lazily —
   // typically once per new entry, fire-and-forget after saveJournal.
   async embedNewEntries(){
-    const haveKey=(JSON.parse(localStorage.getItem('gp_voice')||'{}').oaiKey || '').trim();
-    if(!haveKey) return; // can't embed without OpenAI; silently skip
+    // In V2 the OpenAI key lives in the encrypted vault and is hydrated
+    // onto VOICE.oaiKey at boot. In V1 (browser + proxy) localStorage is
+    // still the source. Both flows reduce to: do we have a non-empty key?
+    let haveKey='';
+    if(typeof VOICE!=='undefined' && VOICE.oaiKey) haveKey=VOICE.oaiKey;
+    else { try{ haveKey=JSON.parse(localStorage.getItem('gp_voice')||'{}').oaiKey||''; }catch(e){} }
+    if(!haveKey.trim()) return; // can't embed without OpenAI; silently skip
     const journal=DB.load().journal||[];
     const existing=await this._load();
     const haveIds=new Set(existing.map(e=>e.id));

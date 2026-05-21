@@ -17,7 +17,7 @@
  * ───────────────────────────────────────────────────────────────
  */
 
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, powerMonitor } = require('electron');
 const path = require('path');
 const https = require('https');
 
@@ -58,6 +58,17 @@ function createWindow() {
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
+  });
+
+  // Block renderer-initiated navigation away from the app shell. Anything
+  // that isn't loading another local file (we only load one) opens in the
+  // user's real browser instead — keeps the Electron window a single app
+  // process even if a stray link slips past click handling.
+  mainWindow.webContents.on('will-navigate', (e, url) => {
+    if (!url.startsWith('file://')) {
+      e.preventDefault();
+      shell.openExternal(url);
+    }
   });
 
   mainWindow.on('closed', () => { mainWindow = null; });
@@ -578,8 +589,16 @@ ipcMain.handle('gp:reminders-set', (_evt, cfg) => {
   return true;
 });
 
-// Schedule on app ready (after createWindow)
-app.whenReady().then(scheduleReminders);
+// Schedule on app ready (after createWindow) — and on resume, because
+// setTimeout can't reliably span system sleep: if the Mac slept for the
+// weekend, every overdue timer would fire at once on wake. powerMonitor
+// re-schedules from wall-clock so we never flood the user with stale
+// "morning" notifications at 9pm Sunday.
+app.whenReady().then(() => {
+  scheduleReminders();
+  try { powerMonitor.on('resume', scheduleReminders); }
+  catch (e) { console.warn('powerMonitor unavailable:', e); }
+});
 
 // ── IPC: V7 · Network config (server URL for Practice Rooms + Feed) ──
 const NETWORK_KEY = 'network';
