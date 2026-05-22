@@ -115,7 +115,17 @@ const CLIENT_HEADER = 'x-gateway-client';
 // fill the ring buffer or game the reactions counter. Production should
 // use a real rate-limit middleware backed by Redis.
 const RL_WINDOW_MS = 60 * 1000;
-const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20, byok: 30 };
+const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20, byok: 30, ws_upgrade: 30 };
+
+// ── WebSocket resource caps (Practice Rooms) ──────────────────────────
+// Without these, unauthenticated room sockets are a trivial DoS: huge frames,
+// unbounded rooms/clients, and zombie connections that never get cleaned up.
+const WS_MAX_PAYLOAD = 8 * 1024;        // 8 KB — room messages are tiny JSON
+const MAX_ROOMS = 500;                  // global cap on concurrent rooms
+const MAX_CLIENTS_PER_ROOM = 50;        // participants per room
+const MAX_WS_PER_IP = 10;               // concurrent sockets from one IP
+const WS_HEARTBEAT_MS = 30 * 1000;      // ping interval; drop unanswered peers
+const wsPerIp = new Map();              // ip → live socket count
 const rlBuckets = new Map(); // key: `${kind}:${ip}` → { count, resetAt }
 function rateLimited(kind, ip) {
   const key = kind + ':' + (ip || 'unknown');
@@ -794,26 +804,71 @@ const server = http.createServer((req, res) => {
 });
 
 // ── WebSocket server (Practice Rooms) ─────────────────────────────────
-const wss = new WebSocketServer({ noServer: true });
+const wss = new WebSocketServer({ noServer: true, maxPayload: WS_MAX_PAYLOAD });
+
+// Reply with a minimal HTTP error and tear down the socket before any WS
+// handshake — used to reject floods/over-capacity upgrades cheaply.
+function abortUpgrade(socket, status) {
+  const line = status === 429 ? '429 Too Many Requests' : '503 Service Unavailable';
+  try { socket.write(`HTTP/1.1 ${line}\r\nConnection: close\r\n\r\n`); } catch {}
+  try { socket.destroy(); } catch {}
+}
 
 server.on('upgrade', (req, socket, head) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const match = url.pathname.match(/^\/room\/([A-Z0-9]{4,12})$/i);
   if (!match) { socket.destroy(); return; }
+  const ip = clientIp(req);
+  // Cheap rejects before allocating a socket: reconnect storms, per-IP floods,
+  // and global/per-room capacity. New rooms are created lazily in joinRoom, so
+  // the room-cap check here is for the create-vs-join distinction.
+  if (rateLimited('ws_upgrade', ip)) { abortUpgrade(socket, 429); return; }
+  if ((wsPerIp.get(ip) || 0) >= MAX_WS_PER_IP) { abortUpgrade(socket, 429); return; }
   const code = match[1].toUpperCase();
+  const existing = rooms.get(code);
+  if (!existing && rooms.size >= MAX_ROOMS) { abortUpgrade(socket, 503); return; }
+  if (existing && existing.clients.size >= MAX_CLIENTS_PER_ROOM) { abortUpgrade(socket, 503); return; }
   wss.handleUpgrade(req, socket, head, ws => {
     ws._id = crypto.randomBytes(4).toString('hex');
     ws._code = code;
+    ws._ip = ip;
+    ws._isAlive = true;
+    wsPerIp.set(ip, (wsPerIp.get(ip) || 0) + 1);
+    ws.on('pong', () => { ws._isAlive = true; });
+    // Decrement the per-IP counter exactly once when this socket closes,
+    // independent of room membership bookkeeping.
+    ws.on('close', () => {
+      const n = (wsPerIp.get(ip) || 1) - 1;
+      if (n <= 0) wsPerIp.delete(ip); else wsPerIp.set(ip, n);
+    });
     joinRoom(ws, code);
   });
 });
 
+// Heartbeat: ping every client each interval and terminate any that didn't
+// answer the previous round. terminate() fires 'close', so room + per-IP
+// cleanup happen through the normal path.
+const wsHeartbeat = setInterval(() => {
+  for (const room of rooms.values()) {
+    for (const ws of room.clients) {
+      if (ws._isAlive === false) { try { ws.terminate(); } catch {} continue; }
+      ws._isAlive = false;
+      try { ws.ping(); } catch {}
+    }
+  }
+}, WS_HEARTBEAT_MS);
+if (wsHeartbeat.unref) wsHeartbeat.unref();
+wss.on('close', () => clearInterval(wsHeartbeat));
+
 function joinRoom(ws, code) {
   let room = rooms.get(code);
   if (!room) {
+    if (rooms.size >= MAX_ROOMS) { send(ws, { type: 'error', error: 'Server at capacity — try again shortly.' }); try { ws.close(); } catch {} return; }
     room = { code, wave: 0, clients: new Set(), hostId: ws._id, state: defaultState(), createdAt: Date.now(), lastActivityAt: Date.now() };
     rooms.set(code, room);
     console.log(`[Room ${code}] created (host=${ws._id})`);
+  } else if (room.clients.size >= MAX_CLIENTS_PER_ROOM) {
+    send(ws, { type: 'error', error: 'This room is full.' }); try { ws.close(); } catch {} return;
   }
   room.clients.add(ws);
   room.lastActivityAt = Date.now();

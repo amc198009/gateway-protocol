@@ -1593,7 +1593,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <div style="font-size:16px;color:var(--silver);line-height:1.8">
         <div><strong style="color:var(--gold)">Gateway Protocol</strong> · V2.0.0 · Owned, not subscribed.</div>
         <div style="margin-top:.5rem">Source: <a href="https://github.com/amc198009/gateway-protocol" target="_blank" style="color:var(--gold2)">github.com/amc198009/gateway-protocol</a></div>
-        <div style="margin-top:.5rem;font-style:italic;color:var(--muted)">All API keys stored encrypted via electron-store. Never leave your machine.</div>
+        <div style="margin-top:.5rem;font-style:italic;color:var(--muted)">All API keys stored in your OS keychain, encrypted. Never leave your machine.</div>
       </div>
     </div>
   </div>
@@ -1960,7 +1960,7 @@ const GP_API = {
     async get(){ if(!GP_ELECTRON) return {enabled:false}; return await window.gp.reminders.get(); },
     async set(cfg){ if(!GP_ELECTRON) return; return await window.gp.reminders.set(cfg); }
   },
-  // Mirror key writes to electron-store (encrypted at rest). Fire-and-forget.
+  // Mirror key writes to the OS-encrypted vault in main.js over IPC. Fire-and-forget.
   saveKey(name, value){
     if(GP_ELECTRON && window.gp.keys){
       window.gp.keys.set(name, value || '').catch(()=>{});
@@ -1989,23 +1989,19 @@ const GP_API = {
           localStorage.removeItem('gp_anthropic_key');
         }
       }catch(e){}
-      // Pull from vault into module-level memory only — never back to localStorage.
+      // The vault never returns plaintext to the renderer (there is no
+      // key-get). We only ask which providers are configured so the UI can
+      // show a "saved" state. The keys themselves stay in the main process,
+      // which makes every provider call over IPC.
       const [el,oai,ant]=await Promise.all([
-        window.gp.keys.get('elevenlabs'),
-        window.gp.keys.get('openai'),
-        window.gp.keys.get('anthropic'),
+        window.gp.keys.has('elevenlabs'),
+        window.gp.keys.has('openai'),
+        window.gp.keys.has('anthropic'),
       ]);
-      if(typeof VOICE!=='undefined'){
-        if(el ) VOICE.elKey =el;
-        if(oai) VOICE.oaiKey=oai;
+      if(typeof KEYS!=='undefined'){
+        KEYS._saved={elevenlabs:!!el, openai:!!oai, anthropic:!!ant};
+        KEYS.hydrate();
       }
-      if(typeof QM!=='undefined' && ant){
-        QM._key=ant;
-        const inp=document.getElementById('anthropic-key-input');
-        if(inp) inp.value=ant;
-      }
-      // Reflect the vault-loaded keys into the unified Settings inputs.
-      if(typeof KEYS!=='undefined') KEYS.hydrate();
     }catch(e){ console.warn('Key hydration failed:',e); }
   }
 };
@@ -2014,10 +2010,10 @@ const GP_API = {
 // One source of truth per provider, surfaced in two places: the inline fields
 // (Anthropic on the Journal/Mirror panel, OpenAI/ElevenLabs in the Sessions
 // voice panel) and the consolidated "◈ API Keys" block on the Settings screen.
-// Editing either keeps the other in sync. Persistence is unchanged — QM.saveKey
-// and VOICE._save still own it (encrypted electron-store vault on desktop,
-// localStorage on the web build, which is exactly what the BYOK transport reads
-// to send X-BYOK-Key).
+// Editing either keeps the other in sync. Persistence is owned by QM.saveKey
+// and VOICE._save (OS-encrypted vault in main.js on desktop; localStorage on
+// the web build, which is exactly what the BYOK transport reads to send
+// X-BYOK-Key). On desktop the renderer never holds the persisted plaintext.
 const KEYS={
   // provider → every input id that displays this key
   _inputs:{
@@ -2025,6 +2021,10 @@ const KEYS={
     openai:['set-key-openai','oai-key-input'],
     elevenlabs:['set-key-elevenlabs','el-key-input'],
   },
+  // Electron only: which providers have a key in the OS-encrypted vault. The
+  // plaintext is never returned to the renderer (no key-get), so this is the
+  // renderer's whole view of "is a key configured". Populated by hydrateKeys.
+  _saved:{},
   // Called from every key input's oninput. `src` is the element being typed in
   // — we never write back into it (would jump the caret).
   set(provider, value, src){
@@ -2032,23 +2032,37 @@ const KEYS={
     if(provider==='anthropic'){ if(typeof QM!=='undefined') QM.saveKey(value); }
     else if(provider==='openai'){ if(typeof VOICE!=='undefined'){ VOICE.oaiKey=value; VOICE._save(); } }
     else if(provider==='elevenlabs'){ if(typeof VOICE!=='undefined'){ VOICE.elKey=value; VOICE._save(); } }
+    this._saved[provider]=!!value;
     (this._inputs[provider]||[]).forEach(id=>{
       const el=document.getElementById(id);
       if(el && el!==src && el.value!==value) el.value=value;
     });
   },
-  // Populate the Settings inputs from current in-memory state + set the
-  // storage/availability notes. Safe to call anytime (skips missing elements).
+  // Populate the Settings inputs from current state + set the storage notes.
+  // Safe to call anytime (skips missing elements). In Electron we never have
+  // the plaintext, so a configured key shows as a masked "saved" placeholder.
   hydrate(){
-    let ant=(typeof QM!=='undefined' && QM._key)||'';
-    if(!ant){ try{ ant=localStorage.getItem('gp_anthropic_key')||''; }catch(e){} }
-    const oai=(typeof VOICE!=='undefined' && VOICE.oaiKey)||'';
-    const el =(typeof VOICE!=='undefined' && VOICE.elKey )||'';
-    const put=(id,v)=>{ const n=document.getElementById(id); if(n && document.activeElement!==n) n.value=v; };
-    put('set-key-anthropic',ant); put('set-key-openai',oai); put('set-key-elevenlabs',el);
+    const saved=this._saved||{};
+    const apply=(provider)=>{
+      (this._inputs[provider]||[]).forEach(id=>{
+        const n=document.getElementById(id);
+        if(!n || document.activeElement===n) return;
+        if(GP_ELECTRON){
+          if(saved[provider]){ n.value=''; n.placeholder='•••••••••••• saved (type to replace)'; }
+        }else{
+          // Web build keeps keys in this browser (BYOK) — reflect them directly.
+          let v='';
+          if(provider==='anthropic'){ v=(typeof QM!=='undefined' && QM._key)||''; if(!v){ try{ v=localStorage.getItem('gp_anthropic_key')||''; }catch(e){} } }
+          else if(provider==='openai'){ v=(typeof VOICE!=='undefined' && VOICE.oaiKey)||''; }
+          else if(provider==='elevenlabs'){ v=(typeof VOICE!=='undefined' && VOICE.elKey)||''; }
+          n.value=v;
+        }
+      });
+    };
+    apply('anthropic'); apply('openai'); apply('elevenlabs');
     const note=document.getElementById('keys-storage-note');
     if(note) note.textContent = GP_ELECTRON
-      ? 'Stored encrypted on this device (electron-store) — they never leave your machine.'
+      ? 'Stored in your OS keychain, encrypted — they never leave your machine and the app cannot read them back.'
       : 'Stored in this browser only and sent with your own requests as X-BYOK-Key; the server never keeps them.';
     const elNote=document.getElementById('set-key-el-note');
     if(elNote) elNote.textContent = GP_ELECTRON ? '' : '· desktop only';
@@ -3754,12 +3768,21 @@ const VOICE={
     this.speak('You are entering a state of deep relaxation. Mind awake. Body asleep. The Gateway is open.');
   },
 
+  // Whether a key for `provider` ('openai'|'elevenlabs') is available to make a
+  // call. In Electron the plaintext stays in main.js, so we trust the saved
+  // flag (or a key typed this session); on the web it's in memory/localStorage.
+  hasKey(provider){
+    if(provider==='openai' ? this.oaiKey : this.elKey) return true;
+    if(GP_ELECTRON) return !!(typeof KEYS!=='undefined' && KEYS._saved && KEYS._saved[provider]);
+    return false;
+  },
+
   speak(text,opts={}){
     if(!this.enabled||!text)return;
     this._showCue(text);
-    if(this.engine==='openai'&&this.oaiKey)      this._speakOpenAI(text);
-    else if(this.engine==='elevenlabs'&&this.elKey) this._speakElevenLabsProxy(text);
-    else                                            this._speakWebSpeech(text,opts);
+    if(this.engine==='openai'&&this.hasKey('openai'))          this._speakOpenAI(text);
+    else if(this.engine==='elevenlabs'&&this.hasKey('elevenlabs')) this._speakElevenLabsProxy(text);
+    else                                                       this._speakWebSpeech(text,opts);
   },
 
   async _speakElevenLabsProxy(text){
@@ -4218,6 +4241,16 @@ const QM={
       try{localStorage.setItem('gp_anthropic_key',this._key);}catch(e){}
     }
     GP_API.saveKey('anthropic', this._key);
+    if(typeof KEYS!=='undefined'){ KEYS._saved=KEYS._saved||{}; KEYS._saved.anthropic=!!this._key; }
+  },
+
+  // True if an Anthropic key is available to make a call. In Electron the
+  // plaintext lives only in main.js, so we rely on the saved flag (or a key
+  // typed this session); on the web the key is in this browser.
+  hasKey(){
+    if(this._key) return true;
+    if(GP_ELECTRON) return !!(typeof KEYS!=='undefined' && KEYS._saved && KEYS._saved.anthropic);
+    try{ return !!localStorage.getItem('gp_anthropic_key'); }catch(e){ return false; }
   },
 
   _buildEntry(){
@@ -4239,7 +4272,7 @@ const QM={
   },
 
   async invoke(){
-    if(!this._key){
+    if(!this.hasKey()){
       toast('Add your Anthropic API key in the Journal tab');
       // Scroll to key input
       document.getElementById('anthropic-key-input')?.scrollIntoView({behavior:'smooth'});
@@ -4665,15 +4698,13 @@ const PRESESSION={
     // V2 sources the key from the encrypted vault inside main.js — the
     // renderer only needs to know one exists. V1 still pulls it out of
     // localStorage to forward to the proxy.
-    const hasKey=GP_ELECTRON
-      ? (QM && QM._key ? QM._key : '')
-      : (localStorage.getItem('gp_anthropic_key')||'').trim();
+    const hasKey = (typeof QM!=='undefined') && QM.hasKey();
     if(!hasKey) return; // silently skip — banner stays hidden until they set a key
     if(this._inflight) return this._inflight;
     this._showLoading();
     this._inflight=(async()=>{
       try{
-        const rec=await GP_API.preSession({entries,key:hasKey});
+        const rec=await GP_API.preSession({entries});
         const when=Date.now();
         this._writeCache(rec,when);
         this._render(rec,when);
@@ -5849,13 +5880,18 @@ const MEMORY={
   // Embed every journal entry that doesn't have a vector yet. Runs lazily —
   // typically once per new entry, fire-and-forget after saveJournal.
   async embedNewEntries(){
-    // In V2 the OpenAI key lives in the encrypted vault and is hydrated
-    // onto VOICE.oaiKey at boot. In V1 (browser + proxy) localStorage is
-    // still the source. Both flows reduce to: do we have a non-empty key?
-    let haveKey='';
-    if(typeof VOICE!=='undefined' && VOICE.oaiKey) haveKey=VOICE.oaiKey;
-    else { try{ haveKey=JSON.parse(localStorage.getItem('gp_voice')||'{}').oaiKey||''; }catch(e){} }
-    if(!haveKey.trim()) return; // can't embed without OpenAI; silently skip
+    // In V2 the OpenAI key lives in the OS-encrypted vault inside main.js, so
+    // the renderer only knows whether one is configured. In V1 (browser +
+    // proxy) the key is in localStorage. Both reduce to: is a key available?
+    let haveKey=false;
+    if(GP_ELECTRON){
+      haveKey = (typeof KEYS!=='undefined' && KEYS._saved && KEYS._saved.openai)
+             || (typeof VOICE!=='undefined' && !!VOICE.oaiKey);
+    }else{
+      if(typeof VOICE!=='undefined' && VOICE.oaiKey) haveKey=true;
+      else { try{ haveKey=!!JSON.parse(localStorage.getItem('gp_voice')||'{}').oaiKey; }catch(e){} }
+    }
+    if(!haveKey) return; // can't embed without OpenAI; silently skip
     const journal=DB.load().journal||[];
     const existing=await this._load();
     const haveIds=new Set(existing.map(e=>e.id));
@@ -6147,14 +6183,32 @@ const PROTOBUILD={
     this.render();
     toast('Custom protocol saved: '+name);
   },
+  // Retroactively validate every stored protocol through the same sanitizer
+  // used on import. Older builds imported without validation, so a protocol
+  // persisted before this fix could still carry attacker-shaped fields; this
+  // rewrites the store once with clean copies so render AND run only ever see
+  // shape-checked data. Idempotent — a second pass changes nothing.
+  _migrateStored(){
+    const stored=DB.load().customProtocols||[];
+    const clean=[]; let changed=false;
+    for(const p of stored){
+      const c=this._sanitizeProtocol(p);
+      if(!c){ changed=true; continue; } // unrecoverable → drop
+      c.id=p.id; c.createdAt=p.createdAt;
+      if(c.name!==p.name || c.intention!==p.intention || c.totalMin!==p.totalMin || JSON.stringify(c.phases)!==JSON.stringify(p.phases)) changed=true;
+      clean.push(c);
+    }
+    if(changed){ const d=DB.load(); d.customProtocols=clean; DB.save(d); }
+    return clean;
+  },
   render(){
-    const protos=DB.load().customProtocols||[];
     const list=document.getElementById('gp-proto-saved');
     if(!list) return;
+    const protos=this._migrateStored();
     if(!protos.length){ list.innerHTML='<div style="font-size:15px;color:var(--muted);font-style:italic;text-align:center;padding:.5rem">No custom protocols yet.</div>'; return; }
     list.innerHTML=protos.slice().reverse().map(p=>`
       <div class="gp-proto-item">
-        <div><div class="name">${escapeHTML(p.name)}</div><div style="font-size:14px;color:var(--muted)">${p.phases.length} phases · ${p.totalMin} min</div></div>
+        <div><div class="name">${escapeHTML(p.name)}</div><div style="font-size:14px;color:var(--muted)">${Array.isArray(p.phases)?p.phases.length:0} phases · ${parseInt(p.totalMin,10)||0} min</div></div>
         <div class="actions">
           <button onclick="PROTOBUILD.run(${p.id})">Run</button>
           <button onclick="PROTOBUILD.exportOne(${p.id})">Export</button>
@@ -6164,7 +6218,8 @@ const PROTOBUILD={
     `).join('');
   },
   run(id){
-    const p=(DB.load().customProtocols||[]).find(x=>x.id===id);
+    const raw=(DB.load().customProtocols||[]).find(x=>x.id===id);
+    const p=raw && this._sanitizeProtocol(raw); // never run on unsanitized data
     if(!p) return;
     // Synthesize a session-shape object and select it via existing selectSession
     const sess={
@@ -6197,21 +6252,44 @@ const PROTOBUILD={
   importFile(){
     document.getElementById('gp-proto-import-input').click();
   },
+  // Coerce an untrusted (imported) protocol into a known-good shape, or null.
+  // Imported files are attacker-controllable: every field is type-checked,
+  // numerics are parsed to numbers, strings are length-capped, and unknown
+  // fields are dropped. This is the only thing that should ever produce a
+  // protocol object from external data — never spread the raw JSON.
+  _sanitizeProtocol(raw){
+    if(!raw || typeof raw!=='object' || Array.isArray(raw)) return null;
+    const clampInt=(v,min,max)=>{ const n=parseInt(v,10); return Number.isFinite(n)?Math.min(Math.max(n,min),max):min; };
+    const name=String(raw.name==null?'':raw.name).trim().slice(0,120);
+    if(!name) return null;
+    const intention=String(raw.intention==null?'':raw.intention).trim().slice(0,500);
+    if(!Array.isArray(raw.phases)) return null;
+    const phases=raw.phases.slice(0,40).map(ph=>{
+      if(!ph || typeof ph!=='object') return null;
+      const cue=String(ph.cue==null?'':ph.cue).trim().slice(0,300);
+      if(!cue) return null;
+      const nm=String(ph.name==null?(cue.split(' — ')[0]||cue):ph.name).trim().slice(0,120);
+      return { dur:clampInt(ph.dur,1,180), cue, name:nm };
+    }).filter(Boolean);
+    if(!phases.length) return null;
+    return { name, intention, phases, totalMin:phases.reduce((a,p)=>a+p.dur,0) };
+  },
   async handleImport(input){
     const file=input.files[0];
     if(!file) return;
     try{
       const txt=await file.text();
       const obj=JSON.parse(txt);
-      if(obj.type!=='GatewayProtocol-CustomProtocol-v1' || !obj.protocol){
+      if(!obj || obj.type!=='GatewayProtocol-CustomProtocol-v1' || !obj.protocol){
         toast('Not a valid Gateway Protocol export.'); return;
       }
-      const p=obj.protocol;
+      const clean=this._sanitizeProtocol(obj.protocol);
+      if(!clean){ toast('That protocol file is malformed or unsupported.'); return; }
       const d=DB.load();
-      d.customProtocols=[...(d.customProtocols||[]),{...p, id:Date.now(), createdAt:new Date().toISOString()}];
+      d.customProtocols=[...(d.customProtocols||[]),{...clean, id:Date.now(), createdAt:new Date().toISOString()}];
       DB.save(d);
       this.render();
-      toast('Imported: '+p.name);
+      toast('Imported: '+clean.name);
     }catch(e){ toast('Import failed: '+e.message); }
     input.value='';
   }
