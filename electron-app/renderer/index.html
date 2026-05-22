@@ -588,6 +588,47 @@ body.gp-readable .step-desc,
 body.gp-readable .gp-cotd-text{color:#c8bfa6}
 body.gp-readable .j-block textarea::placeholder{color:#5a5340}
 
+/* ═══ FIELD LEGIBILITY (always on) ═══
+   The particle field (#gp-three-canvas, z0) is intentionally vivid and fills
+   the viewport behind the content. Where gold/cream text sits directly on the
+   gold/white field, the colors collide and glyph edges disappear. We keep the
+   field fully dramatic and instead give text its own separation: a dark "moat"
+   around every glyph, plus a solid backing on the surfaces you read/write in. */
+
+/* Baseline glyph halo. text-shadow is inherited, so this softly darkens behind
+   all content text — enough to break the color collision, soft on the serif. */
+#app{ text-shadow:0 1px 6px rgba(0,0,0,.72); }
+
+/* Text that floats directly on the field with no panel behind it gets a deeper
+   halo: a tight outline + soft glow carve a dark gap around each letter. */
+.hero-tagline,.hero-sub,.council-badge,
+.section-title,.section-sub,.nav-btn,.gp-cotd-text{
+  text-shadow:0 0 2px rgba(0,0,0,.9),0 2px 16px rgba(0,0,0,.92);
+}
+
+/* Gradient-clipped hero title has a transparent fill (text-shadow won't show),
+   so a drop-shadow filter lifts it off the field instead. */
+.hero-title{ filter:drop-shadow(0 2px 12px rgba(0,0,0,.85)); }
+
+/* Writing/reading surfaces solid enough that the field can't bleed through what
+   you type — these were rgba(0,0,0,.3)/transparent, far too sheer. A light blur
+   further calms the field beneath while you write. */
+.gp-sync-input textarea,.gp-protobuild input,.gp-protobuild textarea,
+.gp-genaff textarea,.gp-genaff select,.gp-shadow-input textarea,
+.gp-room-form input,.gp-room-form select,.gp-feed-filter input,
+.gp-feed-filter select,.gp-bio-input input,.gp-reminders-row input[type=time]{
+  background:rgba(6,7,16,.9);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+}
+/* Typed text stays crisp on its solid backing — no halo inside fields. */
+#app input,#app select,#app textarea{ text-shadow:none; }
+
+/* Content panels: lift .68 → .92 opacity so the field reads as a calm backdrop
+   behind list items and readings, not a glittering texture inside them. */
+.phase,.step-item,.gp-feed-item,.gp-proto-item,.gp-sync-item,.gp-hrv-wrap{
+  background:rgba(13,14,28,.92);
+}
+
 /* ═══ BOOT REVEAL ═══ */
 /* First-paint intro. The all-seeing eye resolves first, then the title
    rises, then the subtitles and council badge, while the particle field
