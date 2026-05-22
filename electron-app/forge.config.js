@@ -13,9 +13,13 @@
  *   - So a full three-OS release needs a CI matrix with macos-latest,
  *     windows-latest, and ubuntu-latest runners each running `npm run make`.
  *
- * All builds are currently UNSIGNED. macOS shows the Gatekeeper warning;
- * Windows shows a SmartScreen warning. Signing (Apple Developer cert /
- * Windows Authenticode) is a separate, paid step — see TODO.md.
+ * Signing status:
+ *   macOS   → ad-hoc signed locally via the postPackage hook below. This makes
+ *             the build run on THIS machine without the Gatekeeper "cannot
+ *             verify… malware" warning. It is NOT a Developer ID signature —
+ *             other Macs will still warn; distribution needs notarization.
+ *   Windows → UNSIGNED (SmartScreen warning). Authenticode signing is a
+ *             separate, paid step — see TODO.md §1.
  */
 
 module.exports = {
@@ -79,4 +83,25 @@ module.exports = {
     },
   ],
   plugins: [],
+  hooks: {
+    // macOS builds are otherwise unsigned, which trips Gatekeeper. Apply an
+    // ad-hoc signature ("--sign -") to every packaged .app so it launches on
+    // the build machine without the malware warning. Local-only: this does NOT
+    // notarize or use a Developer ID, so other Macs still warn (see TODO.md §1).
+    // No-op on Windows/Linux.
+    postPackage: async (_forgeConfig, options) => {
+      if (options.platform !== 'darwin') return;
+      const { execFileSync } = require('node:child_process');
+      const path = require('node:path');
+      for (const out of options.outputPaths) {
+        const app = path.join(out, 'Gateway Protocol.app');
+        try {
+          execFileSync('codesign', ['--force', '--deep', '--sign', '-', app], { stdio: 'inherit' });
+          console.log(`✔ ad-hoc signed ${app}`);
+        } catch (e) {
+          console.warn(`⚠ ad-hoc sign failed for ${app}: ${e.message}`);
+        }
+      }
+    },
+  },
 };
