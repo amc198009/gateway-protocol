@@ -45,7 +45,7 @@
   --muted:#928974;
   --danger:#c04040;
 }
-html{scroll-behavior:smooth;font-size:18px}
+html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
   background:var(--void);
@@ -295,13 +295,19 @@ body{
    tall block, the hero + timer scale down, settings rows stack label-over-
    input, and full-screen overlays (shadow dialogue) fill the viewport. */
 @media(max-width:600px){
-  #app{padding:0 .7rem 3rem}
+  #app{padding:0 .7rem 3rem;overflow-wrap:break-word}
   .hero{padding:2rem .75rem 1.25rem}
   .hero-eye{width:60px;height:60px;margin-bottom:1rem}
   .hero-tagline{font-size:24px;letter-spacing:2px}
   .hero-sub{font-size:12px;letter-spacing:1.5px}
   .timer-time{font-size:42px;letter-spacing:4px}
   .solf-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* Legibility: section headings stay uppercase but tighter; the long
+     descriptive subtitles drop to sentence case (ALL-CAPS + wide tracking
+     is hard to read as a paragraph on a phone). */
+  .section-title{letter-spacing:2px}
+  .section-sub{text-transform:none;letter-spacing:.2px;font-size:14px;line-height:1.6}
 
   /* Nav: edge-to-edge horizontal scroll strip (no wrap → no tall nav block) */
   .nav{flex-wrap:nowrap;justify-content:flex-start;gap:6px;
