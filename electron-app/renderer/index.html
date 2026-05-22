@@ -3230,6 +3230,12 @@ function init(){
   VOICE.init();
   QM.init();
   AUDIO_UNLOCK.init(); // iOS/mobile: arm the first-gesture "tap to begin" audio unlock
+  // Web build: ask the browser to mark storage durable so the user's BYOK keys
+  // (localStorage) survive iOS Safari's 7-day eviction. Usually granted only
+  // once the PWA is installed to the Home Screen; harmless no-op otherwise.
+  if(!GP_ELECTRON && navigator.storage && navigator.storage.persist){
+    navigator.storage.persisted().then(p=>{ if(!p) navigator.storage.persist().catch(()=>{}); }).catch(()=>{});
+  }
   KEYS.hydrate(); // populate the unified API-key fields from loaded state (web: localStorage)
   buildStars();
   buildWaves();
