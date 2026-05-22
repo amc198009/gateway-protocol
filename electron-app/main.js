@@ -9,30 +9,100 @@
  *   elevenlabs-tts({ text, voiceId, model, stability, similarity })  → ArrayBuffer
  *   openai-tts   ({ text, voice, model, speed })                     → ArrayBuffer
  *   mirror       ({ entry })                                         → Anthropic JSON
- *   keys.get(name)  / keys.set(name, value) / keys.clear()           → string | void
+ *   keys.set(name, value) / keys.has(name)                           → void | bool
  *
- * Keys are pulled from electron-store on each call so the renderer
- * never has to ship them across IPC. The renderer manages key entry
- * UI; main.js owns persistence + transport.
+ * Keys are stored in an OS-encrypted vault (safeStorage) and read here on
+ * each call — the renderer can set or test for a key but can never read the
+ * plaintext back. The renderer manages key entry UI; main.js owns persistence
+ * + transport.
  * ───────────────────────────────────────────────────────────────
  */
 
-const { app, BrowserWindow, ipcMain, shell, powerMonitor } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, powerMonitor, safeStorage } = require('electron');
 const path = require('path');
 const https = require('https');
+const { URL } = require('url');
 
 // electron-store is ESM-only since v9; pin to v8 CommonJS (see package.json)
 const Store = require('electron-store');
+
+// Non-secret app config (reminders, network). The hardcoded key here only
+// obfuscates non-sensitive settings on disk — it must never hold API keys.
 const store = new Store({
   name: 'gateway-protocol-keys',
-  // electron-store encrypts at rest when encryptionKey is set. The key
-  // itself isn't a secret from a determined attacker on the same machine,
-  // but it stops casual `cat` of the JSON.
   encryptionKey: 'gateway-protocol-v2-local-only',
 });
 
+// ── Secret vault (OS-backed) ───────────────────────────────────
+// Provider API keys live in their own vault, encrypted with Electron's
+// safeStorage (macOS Keychain, libsecret on Linux, DPAPI on Windows). Only the
+// ciphertext is written to disk, it can only be decrypted by this app on this
+// machine/account, and there is no hardcoded key in the path. The plaintext is
+// never returned to the renderer — main.js makes all provider calls itself.
+const vault = new Store({ name: 'gateway-protocol-vault' });
+
+const ALLOWED_KEYS = new Set(['elevenlabs', 'openai', 'anthropic']);
+
+function secretsAvailable() {
+  try { return safeStorage.isEncryptionAvailable(); }
+  catch { return false; }
+}
+
+// Encrypt + persist a provider key. Empty value deletes it. Refuses to fall
+// back to plaintext if the OS secret store is unavailable.
+function setSecret(name, value) {
+  if (!value) { vault.delete(name); return; }
+  if (!secretsAvailable()) {
+    throw new Error('Secure key storage is unavailable on this system');
+  }
+  vault.set(name, safeStorage.encryptString(value).toString('base64'));
+}
+
+// Decrypt a stored key. Main-process only — never exposed over IPC.
+function getSecret(name) {
+  const blob = vault.get(name);
+  if (!blob) return '';
+  try { return safeStorage.decryptString(Buffer.from(blob, 'base64')); }
+  catch { return ''; }
+}
+
+function hasSecret(name) {
+  return !!vault.get(name);
+}
+
+// One-time migration: older builds stored keys in the obfuscated `store`,
+// which anyone with the hardcoded key can decrypt. Move any found into the
+// OS-encrypted vault, then delete the originals.
+function migrateLegacyKeys() {
+  if (!secretsAvailable()) return;
+  for (const name of ALLOWED_KEYS) {
+    try {
+      const legacy = store.get(name);
+      if (!legacy) continue;
+      // Move into the vault if it isn't already there, then always delete the
+      // legacy copy — the old store is decryptable with the hardcoded key, so
+      // a stale plaintext-equivalent must never be left behind, even when a
+      // vault value already exists.
+      if (!hasSecret(name)) setSecret(name, legacy);
+      store.delete(name);
+    } catch (e) { console.warn('Key migration failed for', name, e.message); }
+  }
+}
+
 // ── BrowserWindow ──────────────────────────────────────────────
 let mainWindow = null;
+
+// Only ever hand the OS a web/email URL. shell.openExternal will happily launch
+// file://, and OS-specific handlers for arbitrary custom schemes — a renderer
+// compromise must not be able to reach those. Anything else is dropped.
+const SAFE_EXTERNAL_PROTOCOLS = new Set(['https:', 'http:', 'mailto:']);
+function openExternalSafe(url) {
+  let parsed;
+  try { parsed = new URL(url); }
+  catch { return; } // not a parseable absolute URL → ignore
+  if (!SAFE_EXTERNAL_PROTOCOLS.has(parsed.protocol)) return;
+  shell.openExternal(parsed.href);
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -54,9 +124,10 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
-  // External links open in the default browser, not inside the app
+  // External links open in the default browser, not inside the app — but only
+  // if they're a safe web/mail URL (see openExternalSafe).
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    openExternalSafe(url);
     return { action: 'deny' };
   });
 
@@ -67,7 +138,7 @@ function createWindow() {
   mainWindow.webContents.on('will-navigate', (e, url) => {
     if (!url.startsWith('file://')) {
       e.preventDefault();
-      shell.openExternal(url);
+      openExternalSafe(url);
     }
   });
 
@@ -75,6 +146,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  migrateLegacyKeys();
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -111,7 +183,7 @@ function httpsPost({ hostname, path: urlPath, headers, body }) {
 
 // ── IPC: ElevenLabs TTS ────────────────────────────────────────
 ipcMain.handle('gp:elevenlabs-tts', async (_evt, opts) => {
-  const key = store.get('elevenlabs');
+  const key = getSecret('elevenlabs');
   if (!key) throw new Error('Missing ElevenLabs API key — set it in voice settings');
 
   const { text, voiceId, model, stability, similarity } = opts;
@@ -148,7 +220,7 @@ ipcMain.handle('gp:elevenlabs-tts', async (_evt, opts) => {
 
 // ── IPC: OpenAI TTS ────────────────────────────────────────────
 ipcMain.handle('gp:openai-tts', async (_evt, opts) => {
-  const key = store.get('openai');
+  const key = getSecret('openai');
   if (!key) throw new Error('Missing OpenAI API key — set it in voice settings');
 
   const { text, voice, model, speed } = opts;
@@ -196,7 +268,7 @@ A practitioner has just completed a Gateway Protocol journal entry. Read it care
 Return ONLY valid JSON. No preamble. No markdown fences. No text outside the JSON object.`;
 
 ipcMain.handle('gp:mirror', async (_evt, { entry }) => {
-  const key = store.get('anthropic');
+  const key = getSecret('anthropic');
   if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
 
   const body = JSON.stringify({
@@ -307,7 +379,7 @@ function tryParseCouncil(raw) {
 // so the renderer can show it to the user rather than swallowing the
 // transmission.
 async function anthropicJSONCall({ systemPrompt, userContent, maxTokens=1024 }) {
-  const key = store.get('anthropic');
+  const key = getSecret('anthropic');
   if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
 
   const post = async (content) => {
@@ -355,7 +427,7 @@ async function anthropicJSONCall({ systemPrompt, userContent, maxTokens=1024 }) 
 
 // Variant for non-JSON responses (multi-turn shadow dialogue returns free text)
 async function anthropicTextCall({ systemPrompt, messages, maxTokens=1024 }) {
-  const key = store.get('anthropic');
+  const key = getSecret('anthropic');
   if (!key) throw new Error('Missing Anthropic API key — set it in the Quantum Mirror panel');
 
   const body = JSON.stringify({
@@ -653,7 +725,7 @@ ipcMain.handle('gp:check-update', async () => {
 
 // ── IPC: V7c · OpenAI embeddings (for semantic journal memory) ───────
 ipcMain.handle('gp:embed', async (_evt, { text }) => {
-  const key = store.get('openai');
+  const key = getSecret('openai');
   if (!key) throw new Error('Missing OpenAI API key — needed for semantic journal memory');
   if (!text || !text.trim()) throw new Error('text required');
 
@@ -680,7 +752,7 @@ ipcMain.handle('gp:embed', async (_evt, { text }) => {
 // Variant of gp:mirror that takes pre-retrieved past entries and weaves
 // them into the user content so the Council can reference long-term history.
 ipcMain.handle('gp:mirror-with-context', async (_evt, { entry, pastEntries }) => {
-  const key = store.get('anthropic');
+  const key = getSecret('anthropic');
   if (!key) throw new Error('Missing Anthropic API key');
 
   let userContent = '';
@@ -718,21 +790,17 @@ ipcMain.handle('gp:mirror-with-context', async (_evt, { entry, pastEntries }) =>
 });
 
 // ── IPC: Key storage ───────────────────────────────────────────
-const ALLOWED_KEYS = new Set(['elevenlabs', 'openai', 'anthropic']);
-
-ipcMain.handle('gp:key-get', (_evt, name) => {
-  if (!ALLOWED_KEYS.has(name)) throw new Error('Unknown key: ' + name);
-  return store.get(name) || '';
-});
+// Note: there is deliberately no `key-get`. The renderer can store a key and
+// ask whether one exists, but it can never read the plaintext back — that
+// removes the XSS/exfiltration path. All provider calls happen in this process.
 
 ipcMain.handle('gp:key-set', (_evt, name, value) => {
   if (!ALLOWED_KEYS.has(name)) throw new Error('Unknown key: ' + name);
   if (typeof value !== 'string') throw new Error('Key value must be a string');
-  if (value) store.set(name, value);
-  else store.delete(name);
+  setSecret(name, value); // empty string deletes
 });
 
 ipcMain.handle('gp:key-has', (_evt, name) => {
   if (!ALLOWED_KEYS.has(name)) throw new Error('Unknown key: ' + name);
-  return !!store.get(name);
+  return hasSecret(name);
 });
