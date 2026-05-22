@@ -2186,6 +2186,24 @@ const THREE_FIELD={
   _ready:false,_raf:null,_reduced:false,_quality:'high',
   _state:{ breath:0, freqNorm:0.4, intensity:0.45, cinematic:false },
   _hue:{ r:0.78, g:0.66, b:0.30 }, // gold default — matches --gold #c9a84c
+  _energy:0, // V4.1 smoothed audio energy 0..1
+
+  // V4.1 · poll the live audio analysers (AMBIENT session + FIELD_AUDIO drone)
+  // and return a smoothed 0..1 energy. Buffers are cached on each analyser.
+  _pollEnergy(){
+    const read=(an)=>{
+      if(!an) return 0;
+      if(!an._buf || an._buf.length!==an.frequencyBinCount) an._buf=new Uint8Array(an.frequencyBinCount);
+      an.getByteFrequencyData(an._buf);
+      let s=0; for(let i=0;i<an._buf.length;i++) s+=an._buf[i];
+      return (s/an._buf.length)/140; // normalize toward 0..1
+    };
+    let e=0;
+    try{ if(typeof AMBIENT!=='undefined' && AMBIENT._running) e=Math.max(e,read(AMBIENT._analyser)); }catch(_){}
+    try{ if(typeof FIELD_AUDIO!=='undefined' && FIELD_AUDIO._running) e=Math.max(e,read(FIELD_AUDIO._analyser)); }catch(_){}
+    this._energy += (Math.min(1,e)-this._energy)*0.15; // smooth
+    return this._energy;
+  },
 
   // Soft radial-gradient sprite used as the point texture in high quality.
   // White core fading to transparent — tinted by material.color, brightened
@@ -2334,13 +2352,18 @@ const THREE_FIELD={
       return;
     }
 
-    // Hz-reactive rotation: low Hz=slow contemplative, high Hz=brisk
+    // V4.1: live audio energy — the field physically pulses to the sound
+    const energy=this._pollEnergy();
+
+    // Hz-reactive rotation: low Hz=slow contemplative, high Hz=brisk.
+    // Audio energy adds a subtle speed kick so loud passages feel alive.
     const rotSpeed=0.04+this._state.freqNorm*0.25;
-    this._points.rotation.y += 0.0015*rotSpeed;
+    this._points.rotation.y += 0.0015*rotSpeed + energy*0.004;
     this._points.rotation.x = -0.5 + Math.sin(t*0.08)*0.05;
 
     // Breath: expand on inhale, contract on exhale. Smooth via lerp.
-    const targetScale=1 + this._state.breath*0.14 + (this._state.cinematic?0.06:0);
+    // Audio energy adds a gentle pulse on top.
+    const targetScale=1 + this._state.breath*0.14 + (this._state.cinematic?0.06:0) + energy*0.10;
     const cur=this._points.scale.x || 1;
     const next=cur + (targetScale-cur)*0.08;
     this._points.scale.setScalar(next);
@@ -2356,7 +2379,8 @@ const THREE_FIELD={
     const g = f<0.5 ? 0.30+f*0.7 : 0.65-(f-0.5)*0.5;
     const b = f<0.5 ? 0.65-f*0.7 : 0.30+(f-0.5)*0.9;
     this._points.material.color.setRGB(r,g,b);
-    this._points.material.opacity = 0.35 + this._state.intensity*0.55;
+    // Brightness blooms with audio energy
+    this._points.material.opacity = Math.min(1, 0.35 + this._state.intensity*0.55 + energy*0.28);
 
     this._renderer.render(this._scene,this._camera);
   },
@@ -2431,7 +2455,8 @@ const AUDIO_UNLOCK={
 
 const FIELD_AUDIO={
   KEY:'gp_field_audio', VOL_KEY:'gp_field_audio_vol',
-  _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_oscOct:null,_lfo:null,_lfoGain:null,
+  _ctx:null,_master:null,_filter:null,_osc:null,_oscFifth:null,_oscOct:null,_lfo:null,_lfoGain:null,_analyser:null,
+  _chordTimer:null,_fifthRatio:1.5,_chordStep:0,
   _enabled:false,_running:false,_ducked:false,_userVol:1,_gen:0,
   _state:{freqNorm:0.4,breath:0,cinematic:false},
 
@@ -2483,6 +2508,8 @@ const FIELD_AUDIO={
     this._master=ctx.createGain();
     this._master.gain.value=0;
     this._master.connect(ctx.destination);
+    // V4.1: analyser tap for the audio-reactive field
+    try{ this._analyser=ctx.createAnalyser(); this._analyser.fftSize=256; this._master.connect(this._analyser); }catch(e){}
     this._master.gain.setTargetAtTime(this._targetVol(), ctx.currentTime, 2.5); // slow fade-in
 
     this._filter=ctx.createBiquadFilter();
@@ -2968,6 +2995,8 @@ const AMBIENT={
     this._masterGain.gain.setValueAtTime(0,ctx.currentTime);
     this._masterGain.gain.linearRampToValueAtTime(1,ctx.currentTime+3);
     this._masterGain.connect(ctx.destination);
+    // V4.1: analyser tap so the particle field can pulse to the session audio
+    try{ this._analyser=ctx.createAnalyser(); this._analyser.fftSize=256; this._masterGain.connect(this._analyser); }catch(e){}
 
     // Pink noise — V3c: prefer AudioWorklet, fall back to ScriptProcessor
     this._noiseGain=ctx.createGain();
