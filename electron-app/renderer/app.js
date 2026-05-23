@@ -109,6 +109,9 @@ const GP_ACTIONS = {
   'show-screen': (el, e) => { e.preventDefault(); showScreen(el.dataset.arg); },
   'mood-save': () => MOOD.save(),
   'apply-preset': (el) => applyPreset(el.dataset.arg),
+  'setup-goal': (el) => SETUP.pickGoal(el.dataset.arg),
+  'setup-next': () => SETUP.next(),
+  'setup-finish': () => SETUP.finish(),
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -193,7 +196,8 @@ const GP_EVENT_ACTIONS = {
     'network-clear-server','visuals-set-quality','visuals-set-motion','visuals-set-readable','bio-add',
     'export-download','confirm-reset','shadow-open','shadow-close','shadow-send','toggle-wave','start-wave',
     'toggle-solf','select-session-index','voice-set-engine','voice-test-speak','voice-stop','set-breath',
-    'tt-mark-slot','institute-issue','mood-save','apply-preset'
+    'tt-mark-slot','institute-issue','mood-save','apply-preset',
+    'setup-goal','setup-next','setup-finish'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
@@ -3811,7 +3815,7 @@ const ARRIVAL={
     if(never&&never.checked){ try{ localStorage.setItem(this.KEY,'1'); }catch(e){} }
     const ov=document.getElementById('gp-arrival');
     ov.classList.add('closing'); ov.setAttribute('aria-hidden','true');
-    setTimeout(()=>ov.classList.remove('show','closing'),1000);
+    setTimeout(()=>{ ov.classList.remove('show','closing'); if(typeof SETUP!=='undefined') SETUP.maybeBegin(); },1000);
   },
 
   complete(){
@@ -3828,6 +3832,56 @@ const ARRIVAL={
   },
 
   skip(){ this._finish(); }
+};
+
+// ═══════════════════════════ FIRST-RUN SETUP WIZARD ═══════════════════════════
+// Shown once, after the arrival ritual: pick what draws you here, optionally add
+// the Council key (kept in the OS keychain), then land on Today. Idempotent —
+// gated by a localStorage flag so it never reappears once completed.
+const SETUP = {
+  KEY:'gp_setup_done',
+  GOAL_KEY:'gp_goal',
+  GOALS:[
+    {k:'relaxation',label:'Deep rest'},
+    {k:'gateway',   label:'Gateway training'},
+    {k:'healing',   label:'Healing'},
+    {k:'manifest',  label:'Manifestation'},
+    {k:'shadow',    label:'Shadow work'},
+    {k:'explore',   label:'Just exploring'},
+  ],
+  _goal:null,
+  shouldShow(){ try{ return localStorage.getItem(this.KEY)!=='1'; }catch(e){ return false; } },
+  maybeBegin(){
+    if(!this.shouldShow()) return;
+    const ov=document.getElementById('gp-setup'); if(!ov || ov.classList.contains('show')) return;
+    const goals=document.getElementById('gp-setup-goals');
+    if(goals) goals.innerHTML=this.GOALS.map(g=>`<button data-act="setup-goal" data-arg="${g.k}">${g.label}</button>`).join('');
+    this._showStep(1);
+    this._prevFocus=document.activeElement;
+    ov.classList.add('show'); ov.setAttribute('aria-hidden','false');
+  },
+  _showStep(n){
+    document.querySelectorAll('#gp-setup .gp-setup-step').forEach(s=>{ s.hidden=(parseInt(s.dataset.step,10)!==n); });
+    const f=document.querySelector('#gp-setup .gp-setup-step:not([hidden]) button, #gp-setup .gp-setup-step:not([hidden]) input');
+    if(f) setTimeout(()=>{ try{ f.focus(); }catch(e){} },0);
+  },
+  pickGoal(k){
+    this._goal=k;
+    document.querySelectorAll('#gp-setup-goals button').forEach(b=>b.classList.toggle('sel', b.dataset.arg===k));
+  },
+  next(){ this._showStep(2); },
+  finish(){
+    const keyEl=document.getElementById('gp-setup-key');
+    const key=keyEl?keyEl.value.trim():'';
+    if(key && typeof KEYS!=='undefined'){ try{ KEYS.set('anthropic', key); }catch(e){} }
+    try{ localStorage.setItem(this.KEY,'1'); }catch(e){}
+    if(this._goal){ try{ localStorage.setItem(this.GOAL_KEY,this._goal); }catch(e){} }
+    const ov=document.getElementById('gp-setup');
+    if(ov){ ov.classList.remove('show'); ov.setAttribute('aria-hidden','true'); }
+    if(this._prevFocus && this._prevFocus.focus){ try{ this._prevFocus.focus(); }catch(e){} }
+    if(typeof showScreen==='function') showScreen('today');
+    toast('Welcome. Your field is open.');
+  }
 };
 
 // ═══════════════════════════ V4a · MONTHLY PATTERN RECOGNITION ═══════════════════════════
@@ -5165,6 +5219,9 @@ function confirmReset(){
   init();
   // V3: ritual arrival overlay (skippable; disabled via its own checkbox / Settings)
   try{ ARRIVAL.begin(); }catch(e){ console.warn('Arrival:',e); }
+  // First-run setup: if arrival is disabled it won't trigger setup on close,
+  // so kick it directly. maybeBegin() is idempotent (gated by its own flag).
+  try{ if(!ARRIVAL.shouldShow()) SETUP.maybeBegin(); }catch(e){ console.warn('Setup:',e); }
   // V8 — check for a newer build after the UI has settled. Update checks
   // are informational, not blocking; if the server is unreachable or
   // not configured the banner just doesn't appear.
