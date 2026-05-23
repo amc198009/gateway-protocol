@@ -64,6 +64,19 @@ jobs:
         working-directory: electron-app
         run: npm ci --no-audit --no-fund
 
+      # appdmg mounts the staging image at /Volumes/Gateway Protocol then
+      # detaches it by that exact path. If a stale same-named volume is already
+      # mounted, macOS mounts the new one at "…Protocol 1" and the detach fails
+      # ("No such file or directory"), breaking `make`. Force-detach leftovers
+      # so the volume mounts at the expected path.
+      - name: Detach stale Gateway Protocol volumes (macOS)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          for v in "/Volumes/Gateway Protocol"*; do
+            [ -d "$v" ] && hdiutil detach "$v" -force || true
+          done
+          exit 0
+
       - name: Build (electron-forge make · ${{ matrix.arch }})
         working-directory: electron-app
         run: npm run make -- --arch=${{ matrix.arch }}
