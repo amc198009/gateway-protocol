@@ -217,6 +217,24 @@ function gpDispatch(e){
 }
 ['click','input','change','keydown','blur'].forEach(type=>document.addEventListener(type,gpDispatch));
 document.addEventListener('error',gpDispatch,true);
+
+// Keyboard activation for non-native clickable controls — the cards we render
+// as <div role="button" tabindex="0" data-act="…">. Native button/a/input
+// already handle Enter/Space, so we skip them. Enter or Space fires the same
+// click action and we preventDefault so Space doesn't scroll the page.
+function gpKeyActivate(e){
+  if(e.key!=='Enter' && e.key!==' ' && e.key!=='Spacebar') return;
+  const el=e.target && e.target.closest ? e.target.closest('[data-act]') : null;
+  if(!el) return;
+  const tag=el.tagName;
+  if(tag==='BUTTON'||tag==='A'||tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+  const act=el.dataset.act;
+  if(!act || !GP_EVENT_ACTIONS.click.has(act)) return;
+  e.preventDefault();
+  if(el.dataset.stop==='true') e.stopPropagation();
+  GP_ACTIONS[act](el,e);
+}
+document.addEventListener('keydown',gpKeyActivate);
 // Council system prompts — VERBATIM parity with electron-app/main.js so the
 // hosted web build produces identical transmissions to the desktop app. If you
 // edit one, edit both (or extract to a shared module per server/MOBILE.md §Phase-2).
@@ -1849,7 +1867,7 @@ function buildWaves(){
     const needed=WAVE_REQS[i];
     const lockMsg=i>0&&!unlocked?`Complete Wave ${i} × ${needed} to unlock (${i>0?(DB.load().waveCompletions||[])[i-1]||0:0}\/${needed} done)`:'';
     return`
-  <div class="wave-card fade-in${unlocked?'':' wave-locked'}" id="wave-${i}" data-act="toggle-wave" data-id="${i}" data-unlocked="${unlocked}">
+  <div class="wave-card fade-in${unlocked?'':' wave-locked'}" id="wave-${i}" data-act="toggle-wave" data-id="${i}" data-unlocked="${unlocked}" role="button" tabindex="0" aria-label="Wave ${w.id}: ${w.name}${unlocked?'':' (locked)'}">
     <div class="wave-head">
       <div class="wave-num" style="opacity:${unlocked?1:0.3}">${w.id}</div>
       <div class="wave-info">
@@ -1915,7 +1933,7 @@ function recordWaveCompletion(waveIndex){
 function buildSolfeggio(){
   const g=document.getElementById('solf-grid');
   g.innerHTML=SOLFEGGIO.map((s,i)=>`
-  <div class="solf-card fade-in" id="solf-${i}" data-act="toggle-solf" data-id="${i}" data-hz="${s.hz}">
+  <div class="solf-card fade-in" id="solf-${i}" data-act="toggle-solf" data-id="${i}" data-hz="${s.hz}" role="button" tabindex="0" aria-label="${s.hz} Hz — ${s.name}">
     <div class="solf-hz">${s.hz}</div>
     <div class="solf-name">${s.name}</div>
     <div class="solf-effect">${s.effect}</div>
@@ -2029,7 +2047,7 @@ function buildFreqBands(){
 function buildSessions(){
   const g=document.getElementById('session-grid');
   g.innerHTML=SESSIONS.map((s,i)=>`
-  <div class="sess-card fade-in" id="sess-${i}" data-act="select-session-index" data-id="${i}">
+  <div class="sess-card fade-in" id="sess-${i}" data-act="select-session-index" data-id="${i}" role="button" tabindex="0" aria-label="Select session: ${s.name}, ${s.dur} minutes">
     <div class="sess-icon">${s.icon}</div>
     <div class="sess-name">${s.name}</div>
     <div class="sess-dur">${s.dur} min</div>
@@ -3072,7 +3090,8 @@ const TT={
       return`<div style="background:var(--card);border:.5px solid ${allDone?'var(--gold)':'var(--border)'};border-radius:4px;padding:6px;text-align:center;cursor:pointer">
         <div style="font-size:14px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px">Day ${day+1}</div>
         <div style="display:flex;gap:3px;justify-content:center">
-          ${slots.map((s,si)=>`<div data-act="tt-mark-slot" data-day="${day}" data-slot="${s}" data-stop="true"
+          ${slots.map((s,si)=>`<div data-act="tt-mark-slot" data-day="${day}" data-slot="${s}" data-stop="true" role="button" tabindex="0"
+            aria-pressed="${tt[`${day}-${s}`]?'true':'false'}" aria-label="Day ${day+1} ${s==='M'?'Morning × 3':s==='N'?'Midday × 6':'Evening × 9'}"
             style="width:18px;height:18px;border-radius:50%;border:.5px solid ${tt[`${day}-${s}`]?'var(--gold)':'var(--border)'};
             background:${tt[`${day}-${s}`]?'rgba(201,168,76,.25)':'transparent'};
             font-size:13px;display:flex;align-items:center;justify-content:center;color:${tt[`${day}-${s}`]?'var(--gold)':'var(--muted)'};
@@ -3096,7 +3115,7 @@ function updateStats(){
   const sg2=document.getElementById('streak-grid');
   if(sg2)sg2.innerHTML=Array.from({length:21},(_,i)=>{
     const done=(d.streak||[]).includes(i);
-    return`<div class="s-dot ${done?'done':''}" data-act="toggle-day" data-id="${i}">${done?'✓':i+1}</div>`;
+    return`<div class="s-dot ${done?'done':''}" data-act="toggle-day" data-id="${i}" role="button" tabindex="0" aria-pressed="${done?'true':'false'}" aria-label="Day ${i+1}${done?' complete':''}">${done?'✓':i+1}</div>`;
   }).join('');
 
   const wp=document.getElementById('wave-progress');
@@ -3776,15 +3795,33 @@ const SHADOW={
       if(ev.key==='Enter' && !ev.shiftKey){ ev.preventDefault(); this.send(); }
     };
     ta.addEventListener('keydown',this._enter);
+    // Focus trap: keep Tab within the modal so keyboard users can't tab out
+    // into the hidden app behind it. Remember the trigger to restore on close.
+    this._prevFocus = document.activeElement;
+    const modal = document.getElementById('gp-shadow-modal');
+    this._trap = (ev)=>{
+      if(ev.key!=='Tab') return;
+      const f = modal.querySelectorAll('a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])');
+      const items = Array.from(f).filter(el=>el.offsetParent!==null);
+      if(!items.length) return;
+      const first=items[0], last=items[items.length-1];
+      if(ev.shiftKey && document.activeElement===first){ ev.preventDefault(); last.focus(); }
+      else if(!ev.shiftKey && document.activeElement===last){ ev.preventDefault(); first.focus(); }
+    };
+    modal.addEventListener('keydown', this._trap);
   },
 
   close(){
     if(!this._open) return;
     this._open=false;
-    document.getElementById('gp-shadow-modal').classList.remove('visible');
+    const modal=document.getElementById('gp-shadow-modal');
+    modal.classList.remove('visible');
     if(this._esc){ document.removeEventListener('keydown',this._esc); this._esc=null; }
     const ta=document.getElementById('gp-shadow-input');
     if(this._enter){ ta.removeEventListener('keydown',this._enter); this._enter=null; }
+    if(this._trap){ modal.removeEventListener('keydown',this._trap); this._trap=null; }
+    // Restore focus to whatever opened the dialogue.
+    if(this._prevFocus && this._prevFocus.focus){ try{ this._prevFocus.focus(); }catch(e){} this._prevFocus=null; }
     // Save the dialogue as a journal entry under a "Shadow Dialogue" session
     if(this._history.length>=2){
       const entry={

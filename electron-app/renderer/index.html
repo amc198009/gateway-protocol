@@ -43,6 +43,18 @@
   --muted:#928974;
   --danger:#c04040;
 }
+/* Accessibility — keyboard focus ring. Uses box-shadow (not outline) so it
+   shows even on the inputs that set inline `outline:none`. Only on
+   :focus-visible, so mouse clicks don't paint a ring. Dark inner + gold outer
+   ring stays visible on any surface. */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
+select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
+.nav-btn:focus-visible, label:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--void), 0 0 0 4px var(--gold2);
+  border-radius: 3px;
+}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
@@ -1029,7 +1041,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <div class="timer-session" id="timer-session-name">Select a session above</div>
       <!-- V5c: only visible in cinematic mode for wave-derived sessions -->
       <div id="cinematic-wave-context"></div>
-      <div class="timer-phase-display" id="timer-phase">—</div>
+      <div class="timer-phase-display" id="timer-phase" role="status" aria-live="polite" aria-label="Session phase">—</div>
       <div class="timer-time" id="timer-display">00:00</div>
       <svg class="timer-progress" width="100" height="100" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(201,168,76,0.08)" stroke-width="1.5"/>
@@ -1182,7 +1194,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     </div>
 
     <!-- Mirror output panel — hidden until response arrives -->
-    <div id="mirror-output" style="display:none;margin-top:1rem">
+    <div id="mirror-output" role="region" aria-label="Council transmission" aria-live="polite" style="display:none;margin-top:1rem">
       <div style="font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:1rem;opacity:.7">Council Transmission</div>
 
       <div style="background:var(--card);border:.5px solid var(--border2);border-radius:4px;padding:1.25rem;margin-bottom:10px">
@@ -1226,7 +1238,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       </div>
     </div>
 
-    <div id="mirror-loading" style="display:none;text-align:center;padding:2rem">
+    <div id="mirror-loading" role="status" aria-live="polite" style="display:none;text-align:center;padding:2rem">
       <div style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);letter-spacing:2px;font-style:italic">The Council is reading your entry…</div>
       <div id="mirror-dots" style="font-size:22px;color:var(--gold);margin-top:.5rem;letter-spacing:4px">◈</div>
     </div>
@@ -1381,7 +1393,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       </div>
       <div id="gp-room-active" style="display:none">
         <div class="gp-room-code" id="gp-room-active-code"></div>
-        <div class="gp-room-presence" id="gp-room-active-presence">— practitioner connected</div>
+        <div class="gp-room-presence" id="gp-room-active-presence" role="status" aria-live="polite">— practitioner connected</div>
         <div class="gp-room-host" id="gp-room-active-host"></div>
         <div class="gp-room-display" id="gp-room-active-state" style="margin-top:1rem"></div>
         <div class="btn-row" style="margin-top:1rem;justify-content:center">
@@ -1636,7 +1648,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
   </div>
 </div>
 
-<div id="toast">Entry anchored ✓</div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true">Entry anchored ✓</div>
 
 <script src="app.js" defer></script>
 </body>
