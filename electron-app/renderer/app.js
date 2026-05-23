@@ -803,7 +803,15 @@ const THREE_FIELD={
     const canvas=document.getElementById('gp-three-canvas');
     if(!canvas) return false;
 
-    this._renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:true,powerPreference:'low-power'});
+    // WebGL context creation throws on machines without a usable GPU. The
+    // particle field is purely decorative, so swallow the failure and keep the
+    // CSS/SVG fallback live rather than letting it bubble up and abort boot.
+    try {
+      this._renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:true,powerPreference:'low-power'});
+    } catch(e) {
+      console.warn('WebGL unavailable — keeping CSS fallback:', e.message);
+      return false;
+    }
     this._renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
     this._renderer.setClearColor(0x000000,0);
 
@@ -1735,8 +1743,9 @@ let audioCtx=null,oscillator=null,gainNode=null;
 function init(){
   // V3a: initialize Three.js particle field FIRST. On success it sets
   // body.gp-three-ready, which hides the legacy starfield + SVG via CSS.
-  // On failure (e.g. WebGL unavailable), the legacy visuals stay live.
-  THREE_FIELD.init();
+  // On failure (e.g. WebGL unavailable), the legacy visuals stay live. The
+  // field is decorative — never let its failure abort the functional UI build.
+  try { THREE_FIELD.init(); } catch(e){ console.warn('Particle field init failed — using fallback visuals:', e); }
   // Apply saved visual prefs + reconcile OS reduce-motion. Must run after
   // THREE_FIELD.init so setQuality/setCalm reach the live field.
   VISUALS.init();
@@ -1761,6 +1770,7 @@ function init(){
   buildJournal();
   buildProgress();
   buildCouncil();
+  renderToday(); // default home — render once at boot (it's the active screen)
   observeFadeIns();
   // V2 #2: wire up the adaptive session engine. init() reads cache + binds
   // buttons; request() fires an async Council call if cache stale or absent.
@@ -1819,7 +1829,69 @@ function _swapScreen(id, navBtn){
   if(navBtn) navBtn.classList.add('active');
   // Keep the unified API-key fields current whenever Settings opens.
   if(id==='settings' && typeof KEYS!=='undefined') KEYS.hydrate();
+  // Refresh the Today dashboard each time it's shown (stats/recommendation move).
+  if(id==='today' && typeof renderToday==='function') renderToday();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Today dashboard: reframes the app around the core loop. Pulls from existing
+// state only (DB stats/journal + the cached pre-session recommendation), so it
+// never blocks on the network and degrades gracefully when there's no data yet.
+function renderToday(){
+  const body=document.getElementById('gp-today-body');
+  if(!body) return;
+  const d=DB.load();
+  const h=new Date().getHours();
+  const greet = h<5?'Still awake' : h<12?'Good morning' : h<18?'Good afternoon' : 'Good evening';
+  const gEl=document.getElementById('gp-today-greeting'); if(gEl) gEl.textContent=greet+'.';
+  const streak=(d.streak||[]).length;
+  const subEl=document.getElementById('gp-today-sub');
+  if(subEl) subEl.textContent = streak>0
+    ? `${streak}-day streak · ${d.sessions||0} sessions · ${d.minutes||0} minutes`
+    : 'Begin your practice — the field is open.';
+  let rec=null;
+  try{ const c=JSON.parse(localStorage.getItem('gp_presession_cache')||'null'); if(c&&c.rec) rec=c.rec; }catch(e){}
+  const ROMAN=['','I','II','III','IV','V','VI','VII'];
+  const recHtml = rec ? `
+    <div class="gp-today-rec">${escapeHTML(rec.intention||'Your next session is ready.')}</div>
+    <div class="gp-today-rec-meta">Wave ${ROMAN[rec.recommendedWave]||rec.recommendedWave||'—'}${rec.recommendedFreq?' · '+rec.recommendedFreq+' Hz':''}${rec.recommendedBreath?' · '+escapeHTML(rec.recommendedBreath):''}</div>`
+  : `
+    <div class="gp-today-rec">Choose a session and let the Council guide your practice.</div>
+    <div class="gp-today-rec-meta">Journal a few entries to unlock a personalized recommendation.</div>`;
+  const journal=d.journal||[];
+  const last=journal[journal.length-1];
+  let lastHtml;
+  if(last){
+    const when=last.date?new Date(last.date).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'';
+    const firstResp=(last.data||[]).map(x=>x.response).filter(Boolean)[0]||'';
+    lastHtml=`<span class="when">${escapeHTML(last.session||'Journal')}${when?' · '+when:''}</span>${escapeHTML(firstResp.slice(0,160))}${firstResp.length>160?'…':''}`;
+  } else {
+    lastHtml=`<div class="gp-today-empty">No journal entries yet. After a session, anchor what shifted.</div>`;
+  }
+  body.innerHTML=`
+    <div class="gp-today-grid">
+      <div class="gp-today-card">
+        <h3>Today's Practice</h3>
+        ${recHtml}
+        <button class="gp-today-cta" data-act="show" data-arg="sessions">Begin a session →</button>
+        <div class="gp-today-quick">
+          <button data-act="show" data-arg="journal">Journal</button>
+          <button data-act="show" data-arg="council">Council</button>
+          <button data-act="show" data-arg="breath">Breathwork</button>
+          <button data-act="show" data-arg="progress">Progress</button>
+        </div>
+      </div>
+      <div class="gp-today-card">
+        <h3>Your Field</h3>
+        <div class="gp-today-stats">
+          <div class="gp-today-stat"><div class="v">${d.sessions||0}</div><div class="l">Sessions</div></div>
+          <div class="gp-today-stat"><div class="v">${d.minutes||0}</div><div class="l">Minutes</div></div>
+          <div class="gp-today-stat"><div class="v">${streak}</div><div class="l">Day Streak</div></div>
+        </div>
+        <h3 style="margin-top:22px">Last Entry</h3>
+        <div class="gp-today-last">${lastHtml}</div>
+      </div>
+    </div>`;
 }
 function _navTo(id, navBtn){
   const reduced=document.body.classList.contains('gp-reduced')||

@@ -55,6 +55,29 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
   border-radius: 3px;
 }
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+/* Nav separator between the core loop and the deeper library */
+.nav-sep{display:inline-block;width:1px;align-self:stretch;min-height:1.4em;margin:0 .35rem;background:var(--border)}
+/* Today dashboard */
+.gp-today-greeting{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:34px;letter-spacing:.5px;color:var(--gold2);margin-bottom:.2rem}
+.gp-today-sub{font-size:14px;color:var(--muted);letter-spacing:1px;margin-bottom:1.6rem}
+.gp-today-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start}
+@media (max-width:760px){.gp-today-grid{grid-template-columns:1fr}}
+.gp-today-card{background:var(--card);border:.5px solid var(--border);border-radius:6px;padding:24px 22px}
+.gp-today-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.gp-today-rec{font-size:17px;color:var(--text);line-height:1.6;margin-bottom:6px}
+.gp-today-rec-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+.gp-today-cta{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--void);background:var(--gold);border:none;padding:13px 24px;border-radius:3px;cursor:pointer;transition:all .2s}
+.gp-today-cta:hover{background:var(--gold2)}
+.gp-today-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.gp-today-stat{text-align:center}
+.gp-today-stat .v{font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--gold2);line-height:1}
+.gp-today-stat .l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.gp-today-quick{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.gp-today-quick button{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:transparent;border:.5px solid var(--border);padding:11px 16px;border-radius:3px;cursor:pointer;transition:all .2s}
+.gp-today-quick button:hover{border-color:var(--gold);background:var(--glow)}
+.gp-today-last{font-size:15px;color:var(--silver);line-height:1.7}
+.gp-today-last .when{font-size:12px;color:var(--muted);letter-spacing:1px;display:block;margin-bottom:6px}
+.gp-today-empty{font-size:15px;color:var(--muted);font-style:italic;line-height:1.7}
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
@@ -915,24 +938,36 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     </div>
   </div>
 
-  <!-- NAV -->
-  <nav class="nav">
-    <button class="nav-btn active" data-act="show" data-arg="waves">Waves I–VII</button>
-    <button class="nav-btn" data-act="show" data-arg="solfeggio">Solfeggio</button>
+  <!-- NAV — core practice loop first (Today · Sessions · Journal · Council ·
+       Progress), then the deeper library. -->
+  <nav class="nav" aria-label="Primary">
+    <button class="nav-btn active" data-act="show" data-arg="today">Today</button>
     <button class="nav-btn" data-act="show" data-arg="sessions">Sessions</button>
+    <button class="nav-btn" data-act="show" data-arg="journal">Journal</button>
+    <button class="nav-btn" data-act="show" data-arg="council">Council</button>
+    <button class="nav-btn" data-act="show" data-arg="progress">Progress</button>
+    <span class="nav-sep" aria-hidden="true"></span>
+    <button class="nav-btn" data-act="show" data-arg="waves">Waves I–VII</button>
+    <button class="nav-btn" data-act="show" data-arg="solfeggio">Solfeggio</button>
     <button class="nav-btn" data-act="show" data-arg="breath">Breathwork</button>
     <button class="nav-btn" data-act="show" data-arg="protocols">Protocols</button>
     <button class="nav-btn" data-act="show" data-arg="affirmations">Affirmations</button>
-    <button class="nav-btn" data-act="show" data-arg="journal">Journal</button>
-    <button class="nav-btn" data-act="show" data-arg="progress">Progress</button>
     <button class="nav-btn" data-act="show" data-arg="synchronicity">Synchronicity</button>
     <button class="nav-btn" data-act="show" data-arg="network">Network</button>
-    <button class="nav-btn" data-act="show" data-arg="council">Council</button>
     <button class="nav-btn" data-act="show" data-arg="settings">Settings</button>
   </nav>
 
+  <!-- ════ SCREEN: TODAY (dashboard / home) ════ -->
+  <div id="screen-today" class="screen active">
+    <div class="fade-in visible">
+      <div id="gp-today-greeting" class="gp-today-greeting">Welcome back</div>
+      <div id="gp-today-sub" class="gp-today-sub">Your practice, at a glance.</div>
+      <div id="gp-today-body"></div>
+    </div>
+  </div>
+
   <!-- ════ SCREEN: WAVES ════ -->
-  <div id="screen-waves" class="screen active">
+  <div id="screen-waves" class="screen">
     <div class="fade-in visible">
       <div class="section-title">The Seven Waves</div>
       <div class="section-sub">Monroe Institute's complete Gateway Experience — accurately rendered. Each wave builds on the last. Do not skip levels.</div>
