@@ -107,6 +107,8 @@ const GP_ACTIONS = {
   'arrival-complete': () => ARRIVAL.complete(),
   show: (el) => show(el.dataset.arg, el),
   'show-screen': (el, e) => { e.preventDefault(); showScreen(el.dataset.arg); },
+  'mood-save': () => MOOD.save(),
+  'apply-preset': (el) => applyPreset(el.dataset.arg),
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -191,7 +193,7 @@ const GP_EVENT_ACTIONS = {
     'network-clear-server','visuals-set-quality','visuals-set-motion','visuals-set-readable','bio-add',
     'export-download','confirm-reset','shadow-open','shadow-close','shadow-send','toggle-wave','start-wave',
     'toggle-solf','select-session-index','voice-set-engine','voice-test-speak','voice-stop','set-breath',
-    'tt-mark-slot','institute-issue'
+    'tt-mark-slot','institute-issue','mood-save','apply-preset'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
@@ -1343,7 +1345,7 @@ const DB={
   KEY:'gateway_protocol_v1',
   IDB_KEY:'main',
   _cache:null,
-  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[]};},
+  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[],moods:[]};},
 
   // Boot-time hydration. Called once before init() runs. Idempotent.
   async hydrate(){
@@ -1868,7 +1870,12 @@ function renderToday(){
   } else {
     lastHtml=`<div class="gp-today-empty">No journal entries yet. After a session, anchor what shifted.</div>`;
   }
+  const lastMood = (typeof MOOD!=='undefined') ? MOOD.latest() : null;
+  const moodLine = lastMood ? `<div class="gp-today-mood-now">Last check-in: <strong>${escapeHTML(MOOD.summary(lastMood))}</strong></div>` : '';
+  const presetChips = (typeof PRESETS!=='undefined') ? Object.keys(PRESETS).map(k=>
+    `<button data-act="apply-preset" data-arg="${k}">${escapeHTML(PRESETS[k].label)}</button>`).join('') : '';
   body.innerHTML=`
+    <div class="gp-today-presets" aria-label="Quick intents">${presetChips}</div>
     <div class="gp-today-grid">
       <div class="gp-today-card">
         <h3>Today's Practice</h3>
@@ -1888,10 +1895,74 @@ function renderToday(){
           <div class="gp-today-stat"><div class="v">${d.minutes||0}</div><div class="l">Minutes</div></div>
           <div class="gp-today-stat"><div class="v">${streak}</div><div class="l">Day Streak</div></div>
         </div>
+        ${moodLine}
         <h3 style="margin-top:22px">Last Entry</h3>
         <div class="gp-today-last">${lastHtml}</div>
       </div>
-    </div>`;
+    </div>
+    ${(typeof MOOD!=='undefined') ? MOOD.cardHtml() : ''}`;
+}
+
+// Mood check-in: five bipolar 1–5 self-report scales captured before practice.
+// Stored locally only; honest self-report (no inference). The latest reading is
+// surfaced on Today and is available to the adaptive engine / Council.
+const MOOD = {
+  DIMS: [
+    { key:'calm',      lo:'Activated', hi:'Calm' },
+    { key:'energy',    lo:'Depleted',  hi:'Energized' },
+    { key:'clarity',   lo:'Foggy',     hi:'Clear' },
+    { key:'openness',  lo:'Guarded',   hi:'Open' },
+    { key:'grounding', lo:'Scattered', hi:'Grounded' },
+  ],
+  latest(){ const m=(DB.load().moods||[]); return m[m.length-1]||null; },
+  cardHtml(){
+    const rows = this.DIMS.map(d=>`
+      <div class="gp-mood-row">
+        <span class="gp-mood-lo">${d.lo}</span>
+        <input type="range" min="1" max="5" step="1" value="3" id="gp-mood-${d.key}" class="gp-mood-range" aria-label="${d.lo} to ${d.hi}">
+        <span class="gp-mood-hi">${d.hi}</span>
+      </div>`).join('');
+    return `
+      <div class="gp-today-card gp-mood-card">
+        <h3>How are you arriving?</h3>
+        <div class="gp-mood-help">A quick, private check-in. It shapes your recommendation — nothing leaves your device.</div>
+        ${rows}
+        <button class="gp-today-cta" data-act="mood-save" style="margin-top:10px">Save check-in</button>
+      </div>`;
+  },
+  save(){
+    const entry={ date:new Date().toISOString() };
+    this.DIMS.forEach(d=>{ const el=document.getElementById('gp-mood-'+d.key); entry[d.key]=el?(parseInt(el.value,10)||3):3; });
+    const dd=DB.load();
+    dd.moods=[...(dd.moods||[]), entry].slice(-90);
+    DB.save(dd);
+    toast('Check-in saved ✓');
+    if(typeof renderToday==='function') renderToday();
+  },
+  // Short human label of a reading — names only the dimensions at the poles.
+  summary(m){
+    if(!m) return '';
+    const named=this.DIMS.map(d=> m[d.key]>=4?d.hi : m[d.key]<=2?d.lo : null).filter(Boolean);
+    return named.length ? named.join(' · ') : 'Centered';
+  }
+};
+
+// Intent presets: one tap configures session + breath for a clear intent,
+// mapping to the existing SESSIONS / BREATH_PATTERNS, then lands on Sessions.
+const PRESETS = {
+  sleep:    { s:6, b:5, label:'Sleep' },
+  reset:    { s:1, b:2, label:'Reset' },
+  deepwork: { s:2, b:0, label:'Deep Work' },
+  gateway:  { s:3, b:1, label:'Gateway' },
+  manifest: { s:5, b:4, label:'Manifest' },
+  pain:     { s:4, b:5, label:'Pain Relief' },
+};
+function applyPreset(key){
+  const p=PRESETS[key]; if(!p) return;
+  try{ if(typeof selectSessionByIndex==='function') selectSessionByIndex(p.s); }catch(e){}
+  try{ if(typeof setBreath==='function') setBreath(p.b); }catch(e){}
+  if(typeof showScreen==='function') showScreen('sessions');
+  toast(p.label+' loaded · press Begin');
 }
 function _navTo(id, navBtn){
   const reduced=document.body.classList.contains('gp-reduced')||
@@ -3293,11 +3364,24 @@ const PRESESSION={
 
   _collectEntries(){
     const journal=(DB.load().journal||[]).slice(-this.MAX_ENTRIES);
-    return journal.map(j=>({
+    const entries=journal.map(j=>({
       date:new Date(j.date).toLocaleDateString(),
       session:j.session||null,
       data:Array.isArray(j.data)?j.data:[]
     }));
+    // Fold the latest mood check-in in as the most-recent context so the
+    // Council's recommendation reflects how the practitioner is arriving today.
+    try{
+      if(typeof MOOD!=='undefined'){
+        const m=MOOD.latest();
+        if(m) entries.push({
+          date:new Date(m.date).toLocaleDateString(),
+          session:'Arrival check-in',
+          data:[{prompt:'Current state (self-reported)', response:MOOD.summary(m)}]
+        });
+      }
+    }catch(e){}
+    return entries;
   },
 
   _readCache(){
