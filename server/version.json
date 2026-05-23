@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
-  "releasedAt": "2026-05-20T23:36:15Z",
-  "notes": "V7 — Practice Rooms, Transmission Feed, Semantic Memory, Certifications, Custom Protocols. Plus security hardening (CSP, vault-only key storage, CSRF + rate limits on the server)."
+  "version": "3.1.0",
+  "releasedAt": "2026-05-23T05:38:56Z",
+  "notes": "V3.1 — Security hardening release. OS-keychain API-key vault (Electron safeStorage, no plaintext to the renderer), strict imported-protocol validation, external-URL allowlisting, WebSocket DoS limits (payload cap, per-IP rate limit, room/client caps, heartbeat), CORS allowlist + upstream timeout/size caps, and a stricter Content-Security-Policy with no inline scripts. Upgraded to Electron 42, plus native Apple Silicon (arm64) builds."
 }
