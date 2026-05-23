@@ -202,6 +202,42 @@ const feed = []; // ring buffer, oldest at index 0
 // Styled landing page rendered when a browser hits `GET /`. Matches the
 // desktop app's dark + gold aesthetic. Auto-refreshes the live stats
 // every 15s via a tiny inline script that re-fetches `/` with JSON Accept.
+// Landing-page inline script (stats auto-refresh). Kept inline but pinned by
+// a CSP hash so the page can carry a real script-src 'self' policy. The hash
+// is computed once from the exact bytes below, so it can never drift.
+const LANDING_SCRIPT = `
+// Auto-refresh stats every 15s. Uses Accept: application/json so the
+// server returns the raw stats payload, not this whole HTML page.
+async function refresh(){
+  try{
+    const r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
+    const s = await r.json();
+    document.querySelector('[data-stat="rooms"]').textContent = s.rooms;
+    document.querySelector('[data-stat="feed"]').textContent  = s.feedSize;
+    const u = s.uptime|0;
+    const d = (u/86400|0), h = ((u%86400)/3600|0), m = ((u%3600)/60|0), sec = u%60;
+    document.querySelector('[data-stat="uptime"]').textContent =
+      d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s');
+  }catch(e){}
+}
+setInterval(refresh, 15000);
+`;
+const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LANDING_SCRIPT).digest('base64') + "'";
+// CSP for the landing response: external Google Fonts stylesheet + inline
+// <style> (style-src), font files (font-src), same-origin stats fetch
+// (connect-src), and only the hash-pinned inline script (script-src).
+const LANDING_CSP = [
+  "default-src 'self'",
+  `script-src 'self' ${LANDING_SCRIPT_HASH}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src https://fonts.gstatic.com",
+  "connect-src 'self'",
+  "img-src 'self' data:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+
 function renderLanding(stats) {
   const fmtUptime = s => {
     const d = Math.floor(s/86400), h = Math.floor((s%86400)/3600);
@@ -321,23 +357,7 @@ function renderLanding(stats) {
 
 </div>
 
-<script>
-// Auto-refresh stats every 15s. Uses Accept: application/json so the
-// server returns the raw stats payload, not this whole HTML page.
-async function refresh(){
-  try{
-    const r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
-    const s = await r.json();
-    document.querySelector('[data-stat="rooms"]').textContent = s.rooms;
-    document.querySelector('[data-stat="feed"]').textContent  = s.feedSize;
-    const u = s.uptime|0;
-    const d = (u/86400|0), h = ((u%86400)/3600|0), m = ((u%3600)/60|0), sec = u%60;
-    document.querySelector('[data-stat="uptime"]').textContent =
-      d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s');
-  }catch(e){}
-}
-setInterval(refresh, 15000);
-</script>
+<script>${LANDING_SCRIPT}</script>
 </body>
 </html>`;
 }
@@ -781,6 +801,9 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache',
+        'Content-Security-Policy': LANDING_CSP,
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'no-referrer',
       });
       return res.end(renderLanding(stats));
     }
