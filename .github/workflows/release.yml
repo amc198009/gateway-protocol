@@ -33,7 +33,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13        # Intel runner → native x64 .dmg
+          # Both macOS arches build on Apple Silicon runners (macos-14): the
+          # app has no native node modules, so `make --arch=x64` cross-builds a
+          # valid Intel .app/.dmg, and arm64 runners are far more available than
+          # the scarce Intel (macos-13) pool that previously stalled releases.
+          - os: macos-14        # Apple Silicon runner → cross-built x64 .dmg
             platform: macos-x64
             arch: x64
           - os: macos-14        # Apple Silicon runner → native arm64 .dmg
