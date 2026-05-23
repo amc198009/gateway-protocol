@@ -36,7 +36,10 @@ module.exports = {
     // ── macOS ──
     {
       name: '@electron-forge/maker-dmg',
-      config: { name: 'Gateway Protocol', format: 'ULFO' },
+      // overwrite:true so appdmg recreates the image instead of tripping on a
+      // leftover .dmg/mount from a previous attempt — a common CI flake where
+      // a stale "/Volumes/Gateway Protocol" makes hdiutil detach fail.
+      config: { name: 'Gateway Protocol', format: 'ULFO', overwrite: true },
       platforms: ['darwin'],
     },
     // ── Windows ──
