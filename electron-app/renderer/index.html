@@ -78,6 +78,18 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 .gp-today-last{font-size:15px;color:var(--silver);line-height:1.7}
 .gp-today-last .when{font-size:12px;color:var(--muted);letter-spacing:1px;display:block;margin-bottom:6px}
 .gp-today-empty{font-size:15px;color:var(--muted);font-style:italic;line-height:1.7}
+.gp-today-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.gp-today-presets button{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:transparent;border:.5px solid var(--border);padding:10px 16px;border-radius:20px;cursor:pointer;transition:all .2s}
+.gp-today-presets button:hover{border-color:var(--gold);background:var(--glow);color:var(--gold2)}
+.gp-mood-card{margin-top:18px}
+.gp-mood-help{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.gp-mood-row{display:grid;grid-template-columns:92px 1fr 92px;align-items:center;gap:12px;margin-bottom:12px}
+.gp-mood-row .gp-mood-lo{font-size:12px;color:var(--muted);text-align:right;letter-spacing:.5px}
+.gp-mood-row .gp-mood-hi{font-size:12px;color:var(--silver);letter-spacing:.5px}
+.gp-mood-range{width:100%;accent-color:var(--gold)}
+.gp-today-mood-now{font-size:14px;color:var(--silver);margin-top:14px}
+.gp-today-mood-now strong{color:var(--gold2);font-weight:400}
+@media (max-width:560px){.gp-mood-row{grid-template-columns:64px 1fr 64px;gap:8px}}
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
