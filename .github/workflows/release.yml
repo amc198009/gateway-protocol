@@ -4,8 +4,9 @@ name: Release
 # artifacts to the GitHub Release for the pushed tag.
 #
 #   Tag a release:   git tag v3.1.0 && git push origin v3.1.0
-#   → this workflow builds on three runners and uploads:
-#       macOS   .dmg + .zip   (x64 — runs on Apple Silicon via Rosetta)
+#   → this workflow builds on four runners and uploads:
+#       macOS   .dmg + .zip   (native x64 AND native arm64; files are
+#                              arch-suffixed so both attach to one Release)
 #       Windows Setup.exe + .nupkg
 #       Linux   .deb + .rpm + .zip
 #
@@ -33,11 +34,17 @@ jobs:
       matrix:
         include:
           - os: macos-13        # Intel runner → native x64 .dmg
-            platform: macos
+            platform: macos-x64
+            arch: x64
+          - os: macos-14        # Apple Silicon runner → native arm64 .dmg
+            platform: macos-arm64
+            arch: arm64
           - os: windows-latest
             platform: windows
+            arch: x64
           - os: ubuntu-latest
             platform: linux
+            arch: x64
     steps:
       - uses: actions/checkout@v4
 
@@ -57,9 +64,24 @@ jobs:
         working-directory: electron-app
         run: npm ci --no-audit --no-fund
 
-      - name: Build (electron-forge make · x64)
+      - name: Build (electron-forge make · ${{ matrix.arch }})
         working-directory: electron-app
-        run: npm run make -- --arch=x64
+        run: npm run make -- --arch=${{ matrix.arch }}
+
+      # maker-dmg names the disk image after the app, not the arch, so the
+      # x64 and arm64 macOS jobs would both emit "Gateway Protocol.dmg" and
+      # collide as Release assets. Suffix the macOS .dmg/.zip with the arch.
+      - name: Disambiguate macOS artifacts by arch
+        if: startsWith(matrix.platform, 'macos')
+        shell: bash
+        working-directory: electron-app/out/make
+        run: |
+          find . -type f \( -name '*.dmg' -o -name '*.zip' \) -print0 | while IFS= read -r -d '' f; do
+            dir=$(dirname "$f"); base=$(basename "$f"); ext="${base##*.}"; stem="${base%.*}"
+            case "$stem" in *-${{ matrix.arch }}) continue;; esac
+            mv "$f" "$dir/${stem}-${{ matrix.arch }}.${ext}"
+            echo "renamed -> ${stem}-${{ matrix.arch }}.${ext}"
+          done
 
       - name: List built artifacts
         shell: bash
