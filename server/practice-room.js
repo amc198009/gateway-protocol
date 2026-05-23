@@ -90,10 +90,35 @@ function readVersion() {
 
 const PORT = process.env.PORT || 7070;
 const HOST = process.env.HOST || '0.0.0.0';
-const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*';
 // Production gating: Fly sets FLY_APP_NAME on every deployed machine; an
 // explicit NODE_ENV=production also counts. Used to fail fast on unsafe config.
 const IS_PRODUCTION = process.env.NODE_ENV === 'production' || !!process.env.FLY_APP_NAME;
+
+// ── CORS allowlist ────────────────────────────────────────────────────
+// ALLOW_ORIGIN is a comma-separated allowlist of browser origins permitted to
+// read cross-origin responses. The hosted web app is same-origin so it never
+// needs CORS; the desktop build runs from file:// (Origin: null) and is allowed
+// explicitly below. '*' (the legacy value) keeps the wildcard as an escape
+// hatch. The API uses no cookies, so this is defense-in-depth: it stops an
+// arbitrary website's JS from reading responses, while first-party clients work.
+const CANONICAL_ORIGIN = 'https://gateway-protocol.fly.dev';
+const ORIGIN_LIST = (process.env.ALLOW_ORIGIN || CANONICAL_ORIGIN).split(',').map(s => s.trim()).filter(Boolean);
+const ALLOW_ANY_ORIGIN = ORIGIN_LIST.includes('*');
+const ALLOWED_ORIGINS = new Set(ORIGIN_LIST);
+const ALLOW_ORIGIN = ALLOW_ANY_ORIGIN ? '*' : ORIGIN_LIST[0] || CANONICAL_ORIGIN; // startup banner / fallback
+// Resolve the Access-Control-Allow-Origin value for one request.
+function corsOrigin(req) {
+  if (ALLOW_ANY_ORIGIN) return '*';
+  const origin = req.headers.origin;
+  // Desktop (file://) and non-browser clients send Origin: null or none —
+  // first-party and credential-less, so allow them (echoes 'null', which the
+  // desktop's null-origin fetch accepts).
+  if (!origin || origin === 'null') return 'null';
+  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  // Not allowlisted: return a value that won't match the caller's Origin, so
+  // the browser blocks it from reading the response.
+  return ORIGIN_LIST[0] || CANONICAL_ORIGIN;
+}
 // Phase-A monetization: a single hosted "Founder's Supporter" link
 // (Gumroad / Lemon Squeezy / Stripe Payment Link). Pay-what-you-want,
 // honor-system — the app stays free. The landing-page CTA only renders
@@ -319,7 +344,8 @@ setInterval(refresh, 15000);
 function jsonResponse(res, status, body, extraHeaders) {
   res.writeHead(status, Object.assign({
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+    'Access-Control-Allow-Origin': res._corsOrigin || ALLOW_ORIGIN,
+    'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization',
   }, extraHeaders || {}));
@@ -422,7 +448,8 @@ function handleDownload(req, res, urlPath) {
     'Content-Disposition': `attachment; filename="${name}"`,
     'Accept-Ranges': 'bytes',
     'Cache-Control': 'public, max-age=3600',
-    'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+    'Access-Control-Allow-Origin': res._corsOrigin || ALLOW_ORIGIN,
+    'Vary': 'Origin',
   };
 
   // Range support — a dropped 99MB download resumes instead of restarting.
@@ -556,18 +583,51 @@ function readBody(req, max) {
   });
 }
 
-// Forward a POST upstream with server-injected auth; pipe the response back
-// (works for JSON and binary/audio alike — content-type is copied through).
+// Upstream relay guards: a hung provider must not pin a client connection
+// forever, and a runaway response must not be streamed without bound. TTS
+// audio is the largest legitimate payload (a few MB), so the cap is generous.
+const UPSTREAM_TIMEOUT_MS = 60 * 1000;
+const UPSTREAM_MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+
+// Forward a POST upstream with server-injected auth; stream the response back
+// (works for JSON and binary/audio alike — content-type is copied through),
+// bounded by a timeout and a max response size.
 function httpsRelay({ hostname, path: upPath, headers, body }, clientRes) {
-  const up = https.request({ hostname, path: upPath, method: 'POST', headers }, r => {
-    clientRes.writeHead(r.statusCode, {
-      'Content-Type': r.headers['content-type'] || 'application/json',
-      'Access-Control-Allow-Origin': ALLOW_ORIGIN,
-      'Cache-Control': 'no-store',
-    });
-    r.pipe(clientRes);
-  });
-  up.on('error', e => { try { jsonResponse(clientRes, 502, { error: 'upstream: ' + e.message }); } catch (_) {} });
+  let done = false; // response fully handled (success, cap, or error)
+  const fail = (status, msg) => {
+    if (done) return; done = true;
+    // Only send a JSON error if we haven't started streaming the body yet.
+    if (!clientRes.headersSent) { try { jsonResponse(clientRes, status, { error: msg }); } catch (_) {} }
+    else { try { clientRes.destroy(); } catch (_) {} }
+  };
+
+  const up = https.request(
+    { hostname, path: upPath, method: 'POST', headers, timeout: UPSTREAM_TIMEOUT_MS },
+    r => {
+      clientRes.writeHead(r.statusCode, {
+        'Content-Type': r.headers['content-type'] || 'application/json',
+        'Access-Control-Allow-Origin': clientRes._corsOrigin || ALLOW_ORIGIN,
+        'Vary': 'Origin',
+        'Cache-Control': 'no-store',
+      });
+      let bytes = 0;
+      r.on('data', chunk => {
+        if (done) return;
+        bytes += chunk.length;
+        if (bytes > UPSTREAM_MAX_BYTES) {
+          done = true;
+          try { r.destroy(); } catch (_) {}
+          try { clientRes.destroy(); } catch (_) {} // truncate — abuse/oversize
+          return;
+        }
+        clientRes.write(chunk);
+      });
+      r.on('end', () => { if (!done) { done = true; clientRes.end(); } });
+      r.on('error', () => fail(502, 'upstream stream error'));
+    }
+  );
+  up.on('timeout', () => { try { up.destroy(); } catch (_) {} fail(504, 'upstream timeout'); });
+  up.on('error', e => fail(502, 'upstream: ' + e.message));
   up.write(body); up.end();
 }
 
@@ -684,13 +744,18 @@ async function handleByok(req, res, kind) {
 
 // ── HTTP server (also hosts the WS upgrade) ───────────────────────────
 const server = http.createServer((req, res) => {
+  // Resolve the per-request CORS origin once and stash it, so every responder
+  // (jsonResponse, httpsRelay, downloads) reflects the right value.
+  res._corsOrigin = corsOrigin(req);
   // CORS preflight — must echo the same Allow-Headers as actual responses
   // or the X-Gateway-Client header won't survive the preflight.
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+      'Access-Control-Allow-Origin': res._corsOrigin,
+      'Vary': 'Origin',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization, X-BYOK-Key',
+      'Access-Control-Max-Age': '600',
     });
     return res.end();
   }

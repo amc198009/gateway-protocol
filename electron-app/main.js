@@ -159,23 +159,42 @@ app.on('window-all-closed', () => {
 
 // ── HTTPS helpers ──────────────────────────────────────────────
 
+// Bounds on every upstream provider call: a hung provider must not block the
+// UI forever, and a runaway response must not grow memory without limit. TTS
+// audio is the largest legitimate payload (a few MB), so the cap is generous.
+const HTTPS_TIMEOUT_MS = 60 * 1000;
+const HTTPS_MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+
 /**
  * POST JSON to an HTTPS endpoint, resolve with { status, buffer }.
  * Used for TTS (we want raw audio bytes) and Anthropic (we want JSON bytes).
+ * Aborts on timeout or if the response exceeds HTTPS_MAX_BYTES.
  */
 function httpsPost({ hostname, path: urlPath, headers, body }) {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (fn, arg) => { if (settled) return; settled = true; fn(arg); };
+
     const req = https.request(
-      { hostname, path: urlPath, method: 'POST', headers },
+      { hostname, path: urlPath, method: 'POST', headers, timeout: HTTPS_TIMEOUT_MS },
       (res) => {
         const chunks = [];
-        res.on('data', (d) => chunks.push(d));
-        res.on('end', () =>
-          resolve({ status: res.statusCode, buffer: Buffer.concat(chunks) })
-        );
+        let bytes = 0;
+        res.on('data', (d) => {
+          bytes += d.length;
+          if (bytes > HTTPS_MAX_BYTES) {
+            try { req.destroy(); } catch {}
+            finish(reject, new Error('upstream response too large'));
+            return;
+          }
+          chunks.push(d);
+        });
+        res.on('end', () => finish(resolve, { status: res.statusCode, buffer: Buffer.concat(chunks) }));
+        res.on('error', (e) => finish(reject, e));
       }
     );
-    req.on('error', reject);
+    req.on('timeout', () => { try { req.destroy(); } catch {} finish(reject, new Error('upstream request timed out')); });
+    req.on('error', (e) => finish(reject, e));
     req.write(body);
     req.end();
   });
