@@ -91,6 +91,9 @@ function readVersion() {
 const PORT = process.env.PORT || 7070;
 const HOST = process.env.HOST || '0.0.0.0';
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*';
+// Production gating: Fly sets FLY_APP_NAME on every deployed machine; an
+// explicit NODE_ENV=production also counts. Used to fail fast on unsafe config.
+const IS_PRODUCTION = process.env.NODE_ENV === 'production' || !!process.env.FLY_APP_NAME;
 // Phase-A monetization: a single hosted "Founder's Supporter" link
 // (Gumroad / Lemon Squeezy / Stripe Payment Link). Pay-what-you-want,
 // honor-system — the app stays free. The landing-page CTA only renders
@@ -481,7 +484,9 @@ const OPENAI_EMBED_MODELS = new Set(['text-embedding-3-small', 'text-embedding-3
 // optionally-gated, metered surface:
 //
 //   • Access token  — if API_ACCESS_TOKEN is set, every /api POST must send
-//     Authorization: Bearer <token>. Empty = open beta (still rate-limited).
+//     Authorization: Bearer <token>. Empty = open beta (still rate-limited),
+//     allowed in dev only; in production the server refuses to start without
+//     a token (see the startup safety check before server.listen).
 //   • Global budget  — a hard daily credit ceiling across ALL callers. The
 //     real spend circuit-breaker: even total abuse can't exceed it.
 //   • Per-client budget — a daily ceiling per identity (token / X-Gateway-Id
@@ -958,6 +963,19 @@ function broadcast(room, msg) {
 }
 function send(ws, msg) {
   try { ws.send(JSON.stringify(msg)); } catch {}
+}
+
+// ── Startup safety check ──────────────────────────────────────────────
+// ENABLE_API_PROXY=1 with no API_ACCESS_TOKEN means anyone who can reach the
+// server can spend our provider credits (bounded only by the rate limit and
+// daily budget — not by authentication). That's fine for local dev, but in
+// production we fail fast so the misconfiguration can never ship silently.
+if (API_PROXY_ON && !API_ACCESS_TOKEN) {
+  if (IS_PRODUCTION) {
+    console.error('FATAL: ENABLE_API_PROXY=1 requires API_ACCESS_TOKEN in production — refusing to start the unauthenticated managed relay.');
+    process.exit(1);
+  }
+  console.warn('⚠  API proxy enabled WITHOUT API_ACCESS_TOKEN (open beta). Dev only — set API_ACCESS_TOKEN before deploying.');
 }
 
 // ── Startup ──────────────────────────────────────────────────────────
