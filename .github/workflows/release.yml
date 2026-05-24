@@ -85,20 +85,31 @@ jobs:
         working-directory: electron-app
         run: npm run make -- --arch=${{ matrix.arch }}
 
-      # maker-dmg names the disk image after the app, not the arch, so the
-      # x64 and arm64 macOS jobs would both emit "Gateway Protocol.dmg" and
-      # collide as Release assets. Suffix the macOS .dmg/.zip with the arch.
-      - name: Disambiguate macOS artifacts by arch
-        if: startsWith(matrix.platform, 'macos')
+      # Normalize artifact filenames to stable, space-free names so the
+      # Gateway Protocol server can 302 to a fixed
+      # `releases/latest/download/<name>` URL (see RELEASE_ASSETS in
+      # server/practice-room.js), and so the two macOS arches don't collide as
+      # Release assets. Runs on every OS (windows-latest has git-bash).
+      - name: Normalize artifact filenames
         shell: bash
         working-directory: electron-app/out/make
         run: |
-          find . -type f \( -name '*.dmg' -o -name '*.zip' \) -print0 | while IFS= read -r -d '' f; do
-            dir=$(dirname "$f"); base=$(basename "$f"); ext="${base##*.}"; stem="${base%.*}"
-            case "$stem" in *-${{ matrix.arch }}) continue;; esac
-            mv "$f" "$dir/${stem}-${{ matrix.arch }}.${ext}"
-            echo "renamed -> ${stem}-${{ matrix.arch }}.${ext}"
-          done
+          ren() { [ -f "$1" ] && mv -f "$1" "$(dirname "$1")/$2" && echo "renamed $1 -> $2"; }
+          case "${{ matrix.platform }}" in
+            windows)
+              find . -name '*.exe' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-Setup.exe"; done
+              find . -name '*.zip' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-windows.zip"; done
+              ;;
+            linux)
+              find . -name '*.deb' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-linux-amd64.deb"; done
+              find . -name '*.rpm' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-linux-x86_64.rpm"; done
+              find . -name '*.zip' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-linux.zip"; done
+              ;;
+            macos-*)
+              find . -name '*.dmg' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-mac-${{ matrix.arch }}.dmg"; done
+              find . -name '*.zip' -print0 | while IFS= read -r -d '' f; do ren "$f" "Gateway-Protocol-mac-${{ matrix.arch }}.zip"; done
+              ;;
+          esac
 
       - name: List built artifacts
         shell: bash

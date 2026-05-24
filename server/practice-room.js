@@ -35,6 +35,17 @@ const crypto = require('crypto');
 // directly at /download — no GitHub repo round-trip needed.
 const DOWNLOAD_DIR = joinPath(__dirname, 'download');
 
+// Windows/Linux installers are large and platform-built, so — unlike the macOS
+// .dmg that's baked into this image — they're published to GitHub Releases by
+// .github/workflows/release.yml (which normalizes them to these stable names).
+// These routes 302 to the latest release asset; macOS stays served locally.
+const RELEASE_BASE = 'https://github.com/amc198009/gateway-protocol/releases/latest/download/';
+const RELEASE_ASSETS = {
+  'windows':   'Gateway-Protocol-Setup.exe',
+  'linux':     'Gateway-Protocol-linux-amd64.deb',
+  'linux-rpm': 'Gateway-Protocol-linux-x86_64.rpm',
+};
+
 // ── Hosted web app (sovereign BYOK PWA) + PWA assets ───────────────────
 // The renderer is copied into ./app at deploy time (`npm run deploy` runs
 // `sync:app`, mirroring how ./download carries the .dmg). PWA assets
@@ -341,13 +352,18 @@ if('IntersectionObserver' in window && !reduce){
 
   // Hero primary CTA
   if(mobile){ setText('hero-cta','Open the web app →'); setHref('hero-cta','/app'); }
-  else if(win||linux){ setText('hero-cta','Open the web app →'); setHref('hero-cta','/app'); }
+  else if(win){ setText('hero-cta','Download for Windows ↓'); setHref('hero-cta','/download/windows'); }
+  else if(linux){ setText('hero-cta','Download for Linux ↓'); setHref('hero-cta','/download/linux'); }
 
   // Desktop conversion card (macOS keeps the default download)
-  if(win||linux){
-    setText('cd-title', win ? 'On your Windows PC' : 'On your Linux machine');
-    setText('cd-body','A native installer is on the roadmap — for now, run the sovereign web app in any browser. Bring your own key.');
-    setText('cd-cta','Open the web app →'); setHref('cd-cta','/app');
+  if(win){
+    setText('cd-title','On your Windows PC');
+    setText('cd-body','Native installer (.exe). Unsigned for now, so SmartScreen may warn — click “More info → Run anyway”. Prefer no install? The web app runs in any browser.');
+    setText('cd-cta','Download for Windows ↓'); setHref('cd-cta','/download/windows');
+  } else if(linux){
+    setText('cd-title','On your Linux machine');
+    setText('cd-body','Debian/Ubuntu .deb (an .rpm is also published on the Releases page). Or run the sovereign web app in any browser.');
+    setText('cd-cta','Download .deb ↓'); setHref('cd-cta','/download/linux');
   }
 
   // Phone conversion card
@@ -770,7 +786,8 @@ function renderLanding(stats) {
     <div class="card reveal">
       <div class="endpoints">
         <div class="endpoint"><span class="method">GET</span><span><code>/</code></span><span class="ep-desc">this page</span></div>
-        <div class="endpoint"><span class="method">GET</span><span><code>/download</code></span><span class="ep-desc">desktop app .dmg</span></div>
+        <div class="endpoint"><span class="method">GET</span><span><code>/download</code></span><span class="ep-desc">macOS .dmg (baked in)</span></div>
+        <div class="endpoint"><span class="method">GET</span><span><code>/download/windows · /download/linux</code></span><span class="ep-desc">302 → latest GitHub Release installer</span></div>
         <div class="endpoint"><span class="method">GET</span><span><code>/version</code></span><span class="ep-desc">latest desktop version (drives in-app update banner)</span></div>
         <div class="endpoint"><span class="method">GET</span><span><code>/feed?wave=&code=&limit=</code></span><span class="ep-desc">list transmissions</span></div>
         <div class="endpoint"><span class="method">POST</span><span><code>/feed</code></span><span class="ep-desc">publish a transmission</span></div>
@@ -885,6 +902,14 @@ function handleFeedReact(req, res, id) {
 // be coaxed into a path traversal. Missing-build returns a 404 with a
 // hint instead of just dead-ending.
 function handleDownload(req, res, urlPath) {
+  // OS-specific installers live on GitHub Releases (Windows/Linux). Redirect
+  // to the latest release asset before touching the local .dmg directory.
+  const osKey = urlPath.slice('/download/'.length);
+  if (Object.prototype.hasOwnProperty.call(RELEASE_ASSETS, osKey)) {
+    res.writeHead(302, { Location: RELEASE_BASE + RELEASE_ASSETS[osKey], 'Cache-Control': 'no-cache' });
+    return res.end();
+  }
+
   let files = [];
   try { files = fs.readdirSync(DOWNLOAD_DIR).filter(f => f.toLowerCase().endsWith('.dmg')); }
   catch (e) { /* directory may not exist yet */ }
