@@ -321,6 +321,46 @@ if('IntersectionObserver' in window && !reduce){
   window.addEventListener('resize', update);
   update();
 })();
+
+// ── OS-aware CTAs: tailor the download/web-app wording to the visitor.
+//    Desktop is macOS-only today; Windows/Linux are pointed at the web app.
+//    Phone copy adapts to iPhone vs Android. SSR default = Mac + iPhone. ──
+(function(){
+  var ua=navigator.userAgent||'', uad=navigator.userAgentData;
+  var plat=(uad && uad.platform) ? uad.platform.toLowerCase() : '';
+  var uaMobile=(uad && typeof uad.mobile==='boolean') ? uad.mobile : /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  var ios=/iPhone|iPad|iPod/i.test(ua) || plat==='ios' || (/Mac/i.test(ua) && navigator.maxTouchPoints>1);
+  var android=/Android/i.test(ua) || plat==='android';
+  var win=/Windows|Win64|Win32/i.test(ua) || plat.indexOf('win')>=0;
+  var linux=!android && (/Linux/i.test(ua) || plat.indexOf('linux')>=0);
+  var phone=ios||android, mobile=uaMobile||phone;
+
+  function setText(id,t){ var el=document.getElementById(id); if(el && t!=null) el.textContent=t; }
+  function setHref(id,h){ var el=document.getElementById(id); if(el) el.setAttribute('href',h); }
+  function hide(id){ var el=document.getElementById(id); if(el) el.style.display='none'; }
+
+  // Hero primary CTA
+  if(mobile){ setText('hero-cta','Open the web app →'); setHref('hero-cta','/app'); }
+  else if(win||linux){ setText('hero-cta','Open the web app →'); setHref('hero-cta','/app'); }
+
+  // Desktop conversion card (macOS keeps the default download)
+  if(win||linux){
+    setText('cd-title', win ? 'On your Windows PC' : 'On your Linux machine');
+    setText('cd-body','A native installer is on the roadmap — for now, run the sovereign web app in any browser. Bring your own key.');
+    setText('cd-cta','Open the web app →'); setHref('cd-cta','/app');
+  }
+
+  // Phone conversion card
+  if(android){
+    setText('cp-title','On your Android');
+    setText('cp-body','Install the web app — bring your own key. Scan to open, then tap “Install app” in the browser menu.');
+  } else if(ios){
+    setText('cp-title','On your iPhone');
+  }
+
+  // macOS Gatekeeper instructions are only relevant to Mac visitors.
+  if(mobile||win||linux) hide('install-mac');
+})();
 `;
 const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LANDING_SCRIPT).digest('base64') + "'";
 // CSP for the landing response: external Google Fonts stylesheet + inline
@@ -607,7 +647,7 @@ function renderLanding(stats) {
       <h1>Gateway Protocol</h1>
       <p class="tagline">A sovereign practice field for the Gateway Process — Community Practice Rooms and the Transmission Feed. <em>Owned, not subscribed.</em></p>
       <div class="ctas">
-        <a class="cta primary" href="/download">Download for macOS ↓</a>
+        <a class="cta primary" id="hero-cta" href="/download">Download for macOS ↓</a>
         ${SUPPORT_URL ? `<a class="cta ghost" href="${SUPPORT_URL}" target="_blank" rel="noopener">◈ Become a Founder ↗</a>` : `<a class="cta ghost" href="#features">Explore the network</a>`}
       </div>
       <div class="stats">
@@ -701,14 +741,14 @@ function renderLanding(stats) {
       <p>Sovereign on desktop, installable on your phone — owned, not subscribed.</p>
     </div>
     <div class="conv-grid">
-      <div class="conv-card reveal">
-        <h3>On your Mac</h3>
-        <p>The full sovereign desktop app. Encrypted local keys, the complete Council of Five, offline-capable.</p>
-        <a class="cta primary" href="/download">Download for macOS ↓</a>
+      <div class="conv-card reveal" id="card-desktop">
+        <h3 id="cd-title">On your Mac</h3>
+        <p id="cd-body">The full sovereign desktop app. Encrypted local keys, the complete Council of Five, offline-capable.</p>
+        <a class="cta primary" id="cd-cta" href="/download">Download for macOS ↓</a>
       </div>
-      <div class="conv-card phone reveal">
-        <h3>On your phone</h3>
-        <p>Install the web app — bring your own key. Scan to open on iPhone, then Share → Add to Home Screen.</p>
+      <div class="conv-card phone reveal" id="card-phone">
+        <h3 id="cp-title">On your phone</h3>
+        <p id="cp-body">Install the web app — bring your own key. Scan to open on iPhone, then Share → Add to Home Screen.</p>
         <img class="qr" src="/qr-app.svg" alt="QR code linking to the Gateway Protocol web app" width="142" height="142">
         <a class="cta ghost" href="/app">Open the web app →</a>
       </div>
@@ -740,7 +780,7 @@ function renderLanding(stats) {
     </div>
   </section>
 
-  <section class="section install reveal">
+  <section class="section install reveal" id="install-mac">
     <div class="card">
       <h3>Installing on macOS</h3>
       <p><strong>macOS Intel x64.</strong> Apple Silicon runs via Rosetta; native arm64 is on the roadmap. The app is unsigned (no Apple Developer certificate yet), so the first launch shows <em>“Gateway Protocol cannot be opened because the developer cannot be verified.”</em> That's expected — to open it:</p>
