@@ -1842,6 +1842,8 @@ function _swapScreen(id, navBtn){
   if(id==='settings' && typeof KEYS!=='undefined') KEYS.hydrate();
   // Refresh the Today dashboard each time it's shown (stats/recommendation move).
   if(id==='today' && typeof renderToday==='function') renderToday();
+  // Stop the biofield animation loop when navigating away (saves CPU).
+  else if(typeof BIOFIELD!=='undefined') BIOFIELD.unmount();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1909,7 +1911,9 @@ function renderToday(){
         <div class="gp-today-last">${lastHtml}</div>
       </div>
     </div>
-    ${(typeof MOOD!=='undefined') ? MOOD.cardHtml() : ''}`;
+    ${(typeof MOOD!=='undefined') ? MOOD.cardHtml() : ''}
+    ${(typeof BIOFIELD!=='undefined') ? BIOFIELD.cardHtml() : ''}`;
+  if(typeof BIOFIELD!=='undefined') BIOFIELD.mount();
 }
 
 // Mood check-in: five bipolar 1–5 self-report scales captured before practice.
@@ -2078,6 +2082,69 @@ const VOICE_AFFECT = {
   },
   discard(){ this._lastResult=null; this._setStatus('Discarded. Nothing was saved.'); },
   latest(){ const v=(DB.load().voiceCheckins||[]); return v[v.length-1]||null; }
+};
+
+// ═══════════════ BIOFIELD VISUALIZATION (honest, derived) ═══════════════
+// NOT a measured aura — a transparent, on-brand rendering DERIVED from the
+// practitioner's own check-ins. Hue follows valence, radius/density follow
+// energy, pulse rate follows arousal. Always labeled "derived visualization"
+// with an explicit legend. Pure 2D canvas (no WebGL), so it runs everywhere.
+const gpClamp01 = (x)=> Math.max(0, Math.min(1, isFinite(x)?x:0));
+const BIOFIELD = {
+  _raf:null, _canvas:null, _ctx:null, _t:0,
+  // Normalize the latest mood + voice check-ins into a 0..1 state.
+  state(){
+    let arousal=0.5, valence=0.5, energy=0.4;
+    try{
+      const m=(typeof MOOD!=='undefined')?MOOD.latest():null;
+      if(m){
+        energy=(m.energy-1)/4;
+        valence=((m.calm-1)/4)*0.5 + ((m.openness-1)/4)*0.5;
+        arousal=1-((m.calm-1)/4);
+      }
+      const v=(typeof VOICE_AFFECT!=='undefined')?VOICE_AFFECT.latest():null;
+      if(v){ energy=Math.max(energy, gpClamp01(v.energy/0.3)); arousal=Math.max(arousal, gpClamp01(v.tempo/4)); }
+    }catch(e){}
+    return { arousal:gpClamp01(arousal), valence:gpClamp01(valence), energy:gpClamp01(energy) };
+  },
+  cardHtml(){
+    const hasData = (typeof MOOD!=='undefined' && MOOD.latest()) || (typeof VOICE_AFFECT!=='undefined' && VOICE_AFFECT.latest());
+    return `<div class="gp-today-card gp-biofield-card">
+      <h3>Your Biofield <span class="gp-derived">derived visualization</span></h3>
+      <canvas id="gp-biofield" width="640" height="240" class="gp-biofield-canvas" aria-label="A visualization derived from your latest check-ins"></canvas>
+      <div class="gp-biofield-legend">${hasData
+        ? 'Hue follows valence (calm &amp; open → gold; tense → cool blue) · radius &amp; density follow energy · pulse rate follows arousal. Rendered from your latest check-in — it is an interpretation, not a measurement.'
+        : 'Save a mood or voice check-in above to render your biofield. It is a visualization derived from your own signals — not a measured aura.'}</div>
+    </div>`;
+  },
+  mount(){
+    this._canvas=document.getElementById('gp-biofield'); if(!this._canvas) return;
+    this._ctx=this._canvas.getContext('2d'); if(!this._ctx) return;
+    const s=this.state();
+    const reduced = document.body.classList.contains('gp-reduced') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    cancelAnimationFrame(this._raf); this._raf=null;
+    if(reduced){ this._draw(s,0); return; }
+    const loop=()=>{ this._t+=0.016; this._draw(s,this._t); this._raf=requestAnimationFrame(loop); };
+    loop();
+  },
+  unmount(){ if(this._raf){ cancelAnimationFrame(this._raf); this._raf=null; } },
+  _draw(s,t){
+    const ctx=this._ctx, w=this._canvas.width, h=this._canvas.height, cx=w/2, cy=h/2;
+    ctx.clearRect(0,0,w,h);
+    const pulse=1+0.07*Math.sin(t*(1+s.arousal*3));
+    const rings=4+Math.round(s.energy*6);
+    const baseR=(20+s.energy*34)*pulse;
+    const hue=220-(s.valence*175);                       // cool blue → gold
+    for(let i=rings;i>=1;i--){
+      const r=baseR*(i/rings)*3.0;
+      const a=(0.04+0.10*(1-i/rings))*(0.55+0.45*s.energy);
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${hue.toFixed(0)},70%,60%,${a.toFixed(3)})`; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(cx,cy,baseR*0.55,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${hue.toFixed(0)},85%,72%,0.55)`; ctx.fill();
+  }
 };
 function _navTo(id, navBtn){
   const reduced=document.body.classList.contains('gp-reduced')||
