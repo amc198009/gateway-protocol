@@ -149,6 +149,9 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 @media (prefers-reduced-motion: reduce){.gp-async-spin{animation:none}}
 .gp-async-retry{margin-top:10px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:transparent;border:.5px solid var(--border);padding:9px 16px;border-radius:3px;cursor:pointer;transition:all .2s}
 .gp-async-retry:hover{border-color:var(--gold);background:var(--glow)}
+/* V6·T2 coherence bloom — brief golden field bloom on sustained coherence */
+body.gp-coherence-bloom::after{content:"";position:fixed;inset:0;z-index:8000;pointer-events:none;background:radial-gradient(circle at 50% 55%, rgba(240,216,138,.35), rgba(201,168,76,.12) 35%, transparent 70%);animation:gp-bloom 2.6s ease-out forwards}
+@keyframes gp-bloom{0%{opacity:0;transform:scale(.6)}25%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
@@ -958,7 +961,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     <div class="gp-arrival-breath" id="gp-arrival-breath"><span id="gp-arrival-breath-label"></span></div>
     <div class="gp-arrival-text" id="gp-arrival-text"></div>
     <div class="gp-arrival-prompt" id="gp-arrival-prompt">
-      <input id="gp-arrival-intention" type="text" placeholder="Set one intention for this session… (optional)" autocomplete="off">
+      <input id="gp-arrival-intention" type="text" placeholder="Set one intention for this session… (optional)" autocomplete="off" aria-label="Set one intention for this session… (optional)">
       <button class="gp-btn primary" data-act="arrival-complete">Enter</button>
     </div>
     <label class="gp-arrival-dismiss"><input type="checkbox" id="gp-arrival-never"> Don't show this on launch</label>
@@ -1054,11 +1057,12 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
 <!-- COMMAND PALETTE (⌘K / Ctrl+K) -->
 <div id="gp-palette" class="gp-palette-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Command palette">
   <div class="gp-palette-box">
-    <input id="gp-palette-input" type="text" class="gp-palette-input" placeholder="Type a command or screen…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="gp-palette-list" aria-autocomplete="list">
+    <input id="gp-palette-input" type="text" class="gp-palette-input" placeholder="Type a command or screen…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="gp-palette-list" aria-autocomplete="list" aria-label="Type a command or screen…">
     <div id="gp-palette-list" class="gp-palette-list" role="listbox" aria-label="Commands"></div>
   </div>
 </div>
 
+  <main id="gp-main">
   <!-- ════ SCREEN: TODAY (dashboard / home) ════ -->
   <div id="screen-today" class="screen active">
     <div class="fade-in visible">
@@ -1148,19 +1152,19 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:14px;color:var(--muted);width:80px">Pink Noise</label>
           <input type="range" min="0" max="1" step="0.05" value="0.35" id="noise-vol"
-            data-act="ambient-noise" style="flex:1">
+            data-act="ambient-noise" style="flex:1" aria-label="Noise volume">
           <span id="noise-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">35%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:14px;color:var(--muted);width:80px">Solfeggio</label>
           <input type="range" min="0" max="1" step="0.05" value="0.12" id="solf-vol"
-            data-act="ambient-solfeggio" style="flex:1">
+            data-act="ambient-solfeggio" style="flex:1" aria-label="Solfeggio volume">
           <span id="solf-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">12%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:14px;color:var(--muted);width:80px">Binaural</label>
           <input type="range" min="0" max="1" step="0.05" value="0.18" id="bin-vol"
-            data-act="ambient-binaural" style="flex:1">
+            data-act="ambient-binaural" style="flex:1" aria-label="Binaural volume">
           <span id="bin-val" style="font-size:14px;color:var(--gold);width:28px;text-align:right">18%</span>
         </div>
         <div style="font-size:14px;color:var(--muted);line-height:1.6;padding:.4rem .5rem;background:rgba(201,168,76,.03);border-radius:3px">
@@ -1238,17 +1242,17 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     <div class="section-sub">Compose your own protocol — name, intention, and phases with timed cues. Saves locally; export to share, import to receive. Future versions will publish to a community marketplace.</div>
 
     <div class="gp-protobuild">
-      <input id="gp-proto-name" placeholder="Protocol name (e.g. 'Sovereign Receiving')">
+      <input id="gp-proto-name" placeholder="Protocol name (e.g. 'Sovereign Receiving')" aria-label="Protocol name">
       <textarea id="gp-proto-intention" placeholder="The intention — what state, condition, or shift this protocol anchors"></textarea>
       <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:.6rem 0 .3rem">Phases · each with duration + cue text</div>
       <div id="gp-proto-phases">
         <div class="gp-phase-row">
-          <input type="number" min="1" max="60" placeholder="min" value="5">
-          <input type="text" placeholder="Phase name + cue (e.g. 'Resonant tuning — hum until you feel it')">
+          <input type="number" min="1" max="60" placeholder="min" value="5" aria-label="Phase duration in minutes">
+          <input type="text" placeholder="Phase name + cue (e.g. 'Resonant tuning — hum until you feel it')" aria-label="Phase name and cue">
         </div>
         <div class="gp-phase-row">
-          <input type="number" min="1" max="60" placeholder="min" value="10">
-          <input type="text" placeholder="">
+          <input type="number" min="1" max="60" placeholder="min" value="10" aria-label="Phase duration in minutes">
+          <input type="text" placeholder="" aria-label="Phase name and cue">
         </div>
       </div>
       <div class="btn-row" style="margin-top:.6rem">
@@ -1257,7 +1261,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
         <button class="gp-btn" data-act="protobuild-import-file">Import JSON…</button>
       </div>
       <div class="gp-protobuild-saved" id="gp-proto-saved"></div>
-      <input type="file" id="gp-proto-import-input" accept=".json" style="display:none" data-act="protobuild-handle-import">
+      <input type="file" id="gp-proto-import-input" accept=".json" style="display:none" data-act="protobuild-handle-import" aria-label="Import protocol file">
     </div>
   </div>
 
@@ -1327,7 +1331,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <div style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:.6rem">Required once. Get free key at <strong style="color:var(--silver)">console.anthropic.com</strong> → API Keys.</div>
       <input type="password" id="anthropic-key-input" placeholder="sk-ant-..."
         style="width:100%;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
-        data-act="keys-set" data-arg="anthropic">
+        data-act="keys-set" data-arg="anthropic" aria-label="Anthropic API key">
     </div>
 
     <!-- Mirror output panel — hidden until response arrives -->
@@ -1513,7 +1517,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
           no chat, no video, no identifiers. Pure synchronized practice.
         </div>
         <div class="gp-room-form">
-          <input id="gp-room-code-input" placeholder="ROOM CODE (4–12 chars)" maxlength="12">
+          <input id="gp-room-code-input" placeholder="ROOM CODE (4–12 chars)" maxlength="12" aria-label="ROOM CODE (4–12 chars)">
           <select id="gp-room-wave-select">
             <option value="0">Choose Wave…</option>
             <option value="1">Wave I — Discovery</option>
@@ -1553,7 +1557,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
           <option value="Wave V">Wave V</option><option value="Wave VI">Wave VI</option>
           <option value="Wave VII">Wave VII</option>
         </select>
-        <input id="gp-feed-code-filter" placeholder="Filter by code (e.g. 528, 369…)" data-act="network-load-feed-change">
+        <input id="gp-feed-code-filter" placeholder="Filter by code (e.g. 528, 369…)" data-act="network-load-feed-change" aria-label="Filter by code (e.g. 528, 369…)">
         <button class="gp-btn" data-act="network-load-feed">Refresh</button>
       </div>
       <div class="gp-feed-list" id="gp-feed-list">
@@ -1577,19 +1581,19 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
         <label style="width:110px;flex-shrink:0;color:var(--silver)">Anthropic</label>
         <input type="password" id="set-key-anthropic" placeholder="sk-ant-..." autocomplete="off"
           style="flex:1;min-width:0;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
-          data-act="keys-set" data-arg="anthropic">
+          data-act="keys-set" data-arg="anthropic" aria-label="Anthropic API key">
       </div>
       <div class="gp-reminders-row" style="gap:10px;margin-top:.5rem">
         <label style="width:110px;flex-shrink:0;color:var(--silver)">OpenAI</label>
         <input type="password" id="set-key-openai" placeholder="sk-..." autocomplete="off"
           style="flex:1;min-width:0;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
-          data-act="keys-set" data-arg="openai">
+          data-act="keys-set" data-arg="openai" aria-label="OpenAI API key">
       </div>
       <div class="gp-reminders-row" style="gap:10px;margin-top:.5rem">
         <label style="width:110px;flex-shrink:0;color:var(--silver)">ElevenLabs <span id="set-key-el-note" style="font-size:12px;color:var(--gold);opacity:.8"></span></label>
         <input type="password" id="set-key-elevenlabs" placeholder="sk-..." autocomplete="off"
           style="flex:1;min-width:0;background:var(--surface);border:.5px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:15px;padding:6px 8px;border-radius:2px;outline:none"
-          data-act="keys-set" data-arg="elevenlabs">
+          data-act="keys-set" data-arg="elevenlabs" aria-label="ElevenLabs API key">
       </div>
     </div>
 
@@ -1641,7 +1645,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       </div>
       <div class="gp-reminders-row" style="gap:10px;margin-top:.6rem">
         <label style="color:var(--muted);min-width:90px">Presence</label>
-        <input type="range" id="gp-field-audio-vol" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--gold)">
+        <input type="range" id="gp-field-audio-vol" min="0" max="1.5" step="0.05" value="1" style="flex:1;accent-color:var(--gold)" aria-label="Field audio volume">
       </div>
       <div class="divider" style="margin:.9rem 0"></div>
       <div class="gp-reminders-row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
@@ -1663,15 +1667,15 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       </div>
       <div class="gp-reminders-row">
         <span>Morning Activation</span>
-        <input type="time" id="gp-rem-morning" value="07:30" data-act="reminders-save">
+        <input type="time" id="gp-rem-morning" value="07:30" data-act="reminders-save" aria-label="Morning reminder time">
       </div>
       <div class="gp-reminders-row">
         <span>Midday Reset</span>
-        <input type="time" id="gp-rem-midday" value="13:00" data-act="reminders-save">
+        <input type="time" id="gp-rem-midday" value="13:00" data-act="reminders-save" aria-label="Midday reminder time">
       </div>
       <div class="gp-reminders-row">
         <span>Evening Integration</span>
-        <input type="time" id="gp-rem-evening" value="21:00" data-act="reminders-save">
+        <input type="time" id="gp-rem-evening" value="21:00" data-act="reminders-save" aria-label="Evening reminder time">
       </div>
       <div style="font-size:14px;color:var(--muted);margin-top:.6rem;line-height:1.6">
         Reminders fire as native OS notifications. They're scheduled by the app and persist while the app is running.
@@ -1687,7 +1691,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       </div>
       <div class="gp-reminders-row" style="margin-bottom:.4rem">
         <label style="width:120px">Server URL</label>
-        <input id="gp-net-url" type="text" placeholder="https://gateway-protocol.fly.dev" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:16px" data-act="network-save-config-blur">
+        <input id="gp-net-url" type="text" placeholder="https://gateway-protocol.fly.dev" style="flex:1;background:rgba(0,0,0,.3);color:var(--text);border:.5px solid var(--border);border-radius:2px;padding:6px 10px;font-family:inherit;font-size:16px" data-act="network-save-config-blur" aria-label="https://gateway-protocol.fly.dev">
       </div>
       <div class="btn-row" style="margin-bottom:.5rem;flex-wrap:wrap">
         <button class="gp-btn" data-act="network-use-hosted" style="font-size:14px">◈ Use hosted server</button>
@@ -1709,7 +1713,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
         <em>Future: an iOS companion app for live HealthKit sync.</em>
       </div>
       <div class="gp-bio-input">
-        <input type="number" id="gp-bio-hrv" placeholder="HRV ms" min="0" max="500" step="1">
+        <input type="number" id="gp-bio-hrv" placeholder="HRV ms" min="0" max="500" step="1" aria-label="HRV ms">
         <select id="gp-bio-context">
           <option value="resting">Resting baseline</option>
           <option value="pre">Pre-session</option>
@@ -1783,6 +1787,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <button data-act="shadow-send">Send</button>
     </div>
   </div>
+  </main>
 </div>
 
 <div id="toast" role="status" aria-live="polite" aria-atomic="true">Entry anchored ✓</div>
