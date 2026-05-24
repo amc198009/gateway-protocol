@@ -1,5 +1,5 @@
 {
-  "version": "3.3.1",
+  "version": "3.3.2",
   "releasedAt": "2026-05-24T00:00:00Z",
-  "notes": "V3.3.1 — Data portability & honesty. Import a backup to restore your data, and delete just your on-device check-in history (mood, voice, camera) without touching anything else. Added clear info notes distinguishing estimated/interpretive signals from measurements (coherence is a breathing-based proxy, not a clinical HRV reading; solfeggio framing is contemplative, not clinical). Everything stays on your device."
+  "notes": "V3.3.2 — Richer on-device signals & a sense of company. The optional camera check-in now reads steadiness vs. fidget and presence more honestly (still fully on-device, no images stored or sent). And a new Collective Field on the Network screen shows an anonymous, aggregate sense of how many are practicing right now — you're not practicing alone. No identifiers, counts only."
 }
