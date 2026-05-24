@@ -54,6 +54,9 @@ jobs:
       - name: Accessibility lint (static WCAG checks)
         run: node scripts/a11y-lint.mjs
 
+      - name: Performance budget (renderer payload size)
+        run: node scripts/perf-budget.mjs
+
       - name: Verify no secrets accidentally committed
         run: |
           # Look for anything that looks like an API key in tracked files
