@@ -1,0 +1,2954 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gateway Protocol — A sovereign space for consciousness practice</title>
+<meta name="description" content="A sovereign, local-first platform for structured consciousness practice. Owned, not subscribed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("eb8b3b70-d6e9-4754-8e73-60eb96d2f2bb") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("c9d659ac-7175-47db-9164-3219358cc14a") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("b7ca47f4-b966-411e-9dcd-14b906cf778f") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("7ccc49b2-24c9-4152-93fc-2f8bfc5a42f0") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("e16260b3-4642-4649-a853-49627a3e4cb8") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("eb8b3b70-d6e9-4754-8e73-60eb96d2f2bb") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c9d659ac-7175-47db-9164-3219358cc14a") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b7ca47f4-b966-411e-9dcd-14b906cf778f") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7ccc49b2-24c9-4152-93fc-2f8bfc5a42f0") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("e16260b3-4642-4649-a853-49627a3e4cb8") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("44b95b94-47c7-46e1-adaf-237f6dd5ebcd") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("97a698f0-595a-4d08-a9d0-943cd64b8630") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("3051a3c0-4f64-4ce6-bb83-881565b0b07f") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("fb61c253-0b77-4e3c-9431-75e0df5b8fee") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("b0ab77d3-6189-4145-acd0-8869738013e9") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("44b95b94-47c7-46e1-adaf-237f6dd5ebcd") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("97a698f0-595a-4d08-a9d0-943cd64b8630") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3051a3c0-4f64-4ce6-bb83-881565b0b07f") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fb61c253-0b77-4e3c-9431-75e0df5b8fee") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b0ab77d3-6189-4145-acd0-8869738013e9") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("44b95b94-47c7-46e1-adaf-237f6dd5ebcd") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("97a698f0-595a-4d08-a9d0-943cd64b8630") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("3051a3c0-4f64-4ce6-bb83-881565b0b07f") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fb61c253-0b77-4e3c-9431-75e0df5b8fee") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("b0ab77d3-6189-4145-acd0-8869738013e9") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("b55434fe-cc6b-4f3e-a8d1-a6cdf6fb5c51") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("89fcc17c-de2d-485f-af44-ab139352bbef") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("56b30a39-905c-4418-a4f7-35b7663c3cbd") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("33190896-bdec-4ec7-9d18-478b09e2c4dc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("af27dcc8-4c8c-470e-89fe-12cf4be315c4") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("b55434fe-cc6b-4f3e-a8d1-a6cdf6fb5c51") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("89fcc17c-de2d-485f-af44-ab139352bbef") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("56b30a39-905c-4418-a4f7-35b7663c3cbd") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("33190896-bdec-4ec7-9d18-478b09e2c4dc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("af27dcc8-4c8c-470e-89fe-12cf4be315c4") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b55434fe-cc6b-4f3e-a8d1-a6cdf6fb5c51") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("89fcc17c-de2d-485f-af44-ab139352bbef") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("56b30a39-905c-4418-a4f7-35b7663c3cbd") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("33190896-bdec-4ec7-9d18-478b09e2c4dc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("af27dcc8-4c8c-470e-89fe-12cf4be315c4") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("b55434fe-cc6b-4f3e-a8d1-a6cdf6fb5c51") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("89fcc17c-de2d-485f-af44-ab139352bbef") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("56b30a39-905c-4418-a4f7-35b7663c3cbd") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("33190896-bdec-4ec7-9d18-478b09e2c4dc") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("af27dcc8-4c8c-470e-89fe-12cf4be315c4") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+
+
+<style>
+/* ───────────────────────── tokens ───────────────────────── */
+:root{
+  --void-0:#000004;
+  --void-1:#02020a;
+  --void-2:#05050f;
+  --card:#0f0f22;
+  --card-2:#0a0a1a;
+  --hairline:rgba(201,168,76,0.20);
+  --hairline-strong:rgba(201,168,76,0.42);
+  --gold:#c9a84c;
+  --gold-light:#f0d88a;
+  --gold-deep:#8a7332;
+  --silver:#bcc2d6;
+  --text:#ece7da;
+  --muted:#928974;
+  --muted-2:#5a5446;
+
+  --serif:'Cormorant Garamond','Hoefler Text','Garamond',serif;
+  --sans:'Montserrat',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+
+  --maxw:1240px;
+  --gutter:clamp(20px,5vw,72px);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void-1);
+  color:var(--text);
+  font-family:var(--sans);
+  font-weight:300;
+  line-height:1.75;
+  font-size:16px;
+  letter-spacing:0.01em;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+img,svg,canvas{display:block;max-width:100%}
+::selection{background:rgba(201,168,76,0.35);color:var(--gold-light)}
+
+/* ───────────────────────── fixed cosmic field ───────────────────────── */
+.field{
+  position:fixed;inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(40,30,70,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(60,40,20,0.18) 0%, transparent 65%),
+    linear-gradient(180deg, var(--void-0) 0%, var(--void-1) 40%, var(--void-2) 100%);
+}
+#starfield{position:fixed;inset:0;z-index:-1;width:100vw;height:100vh;pointer-events:none}
+.aura{
+  position:fixed;
+  width:560px;height:560px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:0;
+  background:radial-gradient(circle at center,
+    rgba(240,216,138,0.06) 0%,
+    rgba(201,168,76,0.025) 28%,
+    rgba(201,168,76,0) 60%);
+  transform:translate(-50%,-50%);
+  transition:opacity .6s ease;
+  mix-blend-mode:screen;
+  filter:blur(8px);
+}
+
+/* ───────────────────────── chrome ───────────────────────── */
+.chrome{
+  position:fixed;top:0;left:0;right:0;
+  z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px var(--gutter);
+  pointer-events:none;
+}
+.chrome > *{pointer-events:auto}
+.mark{
+  display:flex;align-items:center;gap:12px;
+  color:var(--gold);
+  font-family:var(--sans);
+  font-size:11px;
+  font-weight:400;
+  letter-spacing:0.36em;
+  text-transform:uppercase;
+}
+.mark .glyph{width:10px;height:10px;display:inline-block}
+.nav{
+  display:flex;gap:36px;
+  font-family:var(--sans);
+  font-size:10.5px;
+  font-weight:300;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+}
+.nav a{
+  color:var(--muted);text-decoration:none;
+  transition:color .4s ease;
+  position:relative;
+}
+.nav a:hover{color:var(--gold-light)}
+.nav a::after{
+  content:"";position:absolute;left:0;right:0;bottom:-6px;
+  height:1px;background:var(--gold);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.nav a:hover::after{transform:scaleX(1)}
+@media (max-width:760px){ .nav{display:none} }
+
+.scrollcue{
+  position:fixed;
+  left:50%;bottom:28px;
+  transform:translateX(-50%);
+  z-index:40;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  color:var(--muted);
+  font-family:var(--sans);font-size:9.5px;
+  letter-spacing:0.42em;text-transform:uppercase;
+  opacity:0;transition:opacity 1s ease 2.4s;
+  pointer-events:none;
+}
+.scrollcue.on{opacity:.7}
+.scrollcue .line{
+  width:1px;height:42px;
+  background:linear-gradient(180deg,transparent,var(--gold) 60%,transparent);
+  animation:cueLine 2.6s ease-in-out infinite;
+}
+@keyframes cueLine{
+  0%{transform:scaleY(0);transform-origin:top}
+  45%{transform:scaleY(1);transform-origin:top}
+  55%{transform:scaleY(1);transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}
+}
+
+/* ───────────────────────── layout ───────────────────────── */
+section{position:relative;padding:140px var(--gutter)}
+.wrap{max-width:var(--maxw);margin:0 auto;position:relative}
+.eyebrow{
+  display:flex;align-items:center;gap:12px;
+  font-family:var(--sans);font-size:10.5px;font-weight:400;
+  letter-spacing:0.42em;text-transform:uppercase;
+  color:var(--gold);
+  margin:0 0 26px;
+}
+.eyebrow .glyph{width:9px;height:9px}
+.eyebrow .num{color:var(--muted-2);letter-spacing:0.3em}
+
+h1,h2,h3,h4{
+  font-family:var(--serif);
+  font-weight:300;
+  color:var(--text);
+  line-height:1.08;
+  letter-spacing:-0.005em;
+  margin:0 0 28px;
+  text-wrap:balance;
+}
+h1{font-size:clamp(56px,9vw,144px);font-weight:300;letter-spacing:-0.015em}
+h2{font-size:clamp(36px,5.4vw,76px)}
+h3{font-size:clamp(24px,2.8vw,38px);margin-bottom:14px}
+h4{font-size:clamp(18px,1.6vw,22px);margin-bottom:8px;color:var(--gold-light);font-weight:400}
+p{margin:0 0 22px;max-width:62ch;color:var(--text);font-size:16.5px}
+p.lead{font-size:20px;line-height:1.65;color:var(--text);max-width:58ch}
+p.dim{color:var(--muted)}
+em.gold{color:var(--gold-light);font-style:italic;font-family:var(--serif);font-weight:400}
+
+.divider{
+  height:1px;width:120px;
+  background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);
+  margin:80px auto;
+  opacity:.55;
+}
+.glyph{
+  display:inline-block;
+  fill:none;stroke:currentColor;stroke-width:1.2;
+  color:var(--gold);
+}
+
+/* ───────────────────────── reveal system ───────────────────────── */
+.reveal{opacity:0;transform:translateY(28px);filter:blur(8px);
+  transition:opacity 1.4s cubic-bezier(.2,.7,.2,1),
+             transform 1.4s cubic-bezier(.2,.7,.2,1),
+             filter 1.4s ease;
+  transition-delay:var(--d,0ms);
+}
+.reveal.in{opacity:1;transform:translateY(0);filter:blur(0)}
+
+.mask-reveal{display:inline-block;overflow:hidden;vertical-align:bottom}
+.mask-reveal > span{
+  display:inline-block;
+  transform:translateY(110%);
+  transition:transform 1.5s cubic-bezier(.2,.7,.2,1);
+  transition-delay:var(--d,0ms);
+}
+.in .mask-reveal > span,
+.mask-reveal.in > span{transform:translateY(0)}
+
+/* ───────────────────────── threshold (hero) ───────────────────────── */
+.threshold{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  padding:140px var(--gutter) 120px;
+  position:relative;
+}
+.threshold .core{
+  position:relative;
+  width:100%;
+  max-width:1100px;
+}
+
+.rings{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+  z-index:0;
+}
+.rings svg{
+  width:min(120vh,1200px);
+  height:min(120vh,1200px);
+  opacity:0;
+  animation:ringsIn 3s cubic-bezier(.2,.7,.2,1) .4s forwards;
+}
+@keyframes ringsIn{
+  0%{opacity:0;transform:scale(.6)}
+  100%{opacity:1;transform:scale(1)}
+}
+.rings .ring{
+  transform-origin:center;
+  transform-box:fill-box;
+  animation:ringBreath 8s ease-in-out infinite;
+}
+.rings .ring:nth-child(1){animation-delay:0s}
+.rings .ring:nth-child(2){animation-delay:.6s}
+.rings .ring:nth-child(3){animation-delay:1.2s}
+.rings .ring:nth-child(4){animation-delay:1.8s}
+.rings .ring:nth-child(5){animation-delay:2.4s}
+@keyframes ringBreath{
+  0%,100%{opacity:.10;transform:scale(1)}
+  50%{opacity:.32;transform:scale(1.025)}
+}
+.rings .spin{
+  transform-origin:center;
+  animation:spin 240s linear infinite;
+}
+@keyframes spin{ to{transform:rotate(360deg)} }
+.rings .spin-rev{
+  transform-origin:center;
+  animation:spin 360s linear infinite reverse;
+}
+
+.halo{
+  position:absolute;
+  left:50%;top:50%;
+  width:min(86vh,820px);height:min(86vh,820px);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  background:radial-gradient(circle at center,
+    rgba(240,216,138,0.20) 0%,
+    rgba(201,168,76,0.08) 22%,
+    rgba(120,80,40,0.05) 38%,
+    transparent 60%);
+  filter:blur(20px);
+  opacity:0;
+  animation:haloIn 2.8s ease 1s forwards, haloBreath 9s ease-in-out 4s infinite;
+  z-index:0;
+}
+@keyframes haloIn{ to{opacity:1} }
+@keyframes haloBreath{
+  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}
+  50%{transform:translate(-50%,-50%) scale(1.08);opacity:1}
+}
+
+.threshold .markline{
+  position:relative;z-index:2;
+  font-family:var(--sans);
+  font-size:10.5px;letter-spacing:0.42em;text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:38px;
+  display:flex;justify-content:center;align-items:center;gap:14px;
+  opacity:0;animation:fadeIn 1.6s ease .2s forwards;
+}
+.threshold .markline svg{width:11px;height:11px}
+.threshold .markline .bar{display:inline-block;width:42px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.threshold .markline .bar.r{background:linear-gradient(90deg,var(--gold),transparent)}
+
+.wordmark{
+  position:relative;z-index:2;
+  font-family:var(--serif);
+  font-weight:300;
+  font-size:clamp(64px,11vw,180px);
+  line-height:.95;
+  letter-spacing:-0.018em;
+  color:var(--text);
+}
+.wordmark .w{display:inline-block;overflow:hidden;padding:0 .03em}
+.wordmark .w > span{
+  display:inline-block;
+  transform:translateY(110%);
+  animation:rise 1.8s cubic-bezier(.2,.7,.2,1) var(--d,0s) forwards;
+}
+@keyframes rise{ to{transform:translateY(0)} }
+.wordmark .gateway{
+  font-style:italic;
+  background:linear-gradient(180deg,#f7e3a2 0%,#c9a84c 50%,#8a7332 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  position:relative;
+}
+.wordmark .gateway::after{
+  content:attr(data-text);
+  position:absolute;left:0;top:0;
+  background:linear-gradient(110deg,
+    transparent 30%,
+    rgba(255,240,200,0.9) 45%,
+    rgba(255,240,200,0.0) 60%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  background-size:300% 100%;
+  animation:shimmer 7s ease-in-out 3s infinite;
+}
+@keyframes shimmer{
+  0%{background-position:130% 0}
+  60%{background-position:-130% 0}
+  100%{background-position:-130% 0}
+}
+
+.tagline{
+  position:relative;z-index:2;
+  margin:42px auto 0;
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(20px,2.4vw,28px);
+  color:var(--silver);
+  max-width:760px;
+  opacity:0;animation:fadeIn 2s ease 1.6s forwards;
+}
+.circuit{
+  position:relative;z-index:2;
+  margin:54px auto 0;
+  display:flex;align-items:center;justify-content:center;
+  gap:22px;flex-wrap:wrap;
+  font-family:var(--sans);
+  font-size:10.5px;letter-spacing:0.46em;text-transform:uppercase;
+  color:var(--muted);
+  opacity:0;animation:fadeIn 2s ease 2.0s forwards;
+}
+.circuit .dot{width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,.7)}
+.circuit .step{position:relative}
+.circuit .step.active{color:var(--gold-light)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ───────────────────────── practice loop ring ───────────────────────── */
+.loop{
+  position:relative;
+  width:min(440px,80vw);
+  aspect-ratio:1;
+  margin:60px auto 0;
+}
+.loop svg{width:100%;height:100%;overflow:visible}
+.loop .label{
+  position:absolute;
+  font-family:var(--sans);
+  font-size:10.5px;letter-spacing:0.4em;text-transform:uppercase;
+  color:var(--muted);
+  transition:color .5s ease;
+}
+.loop .label.is-active{color:var(--gold-light)}
+.loop .center{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  color:var(--muted);
+  font-size:10.5px;letter-spacing:.4em;text-transform:uppercase;
+}
+.loop .center .word{
+  font-family:var(--serif);font-style:italic;font-size:34px;
+  letter-spacing:0;text-transform:none;
+  color:var(--gold-light);margin-top:8px;
+  min-height:42px;
+}
+
+/* ───────────────────────── council ───────────────────────── */
+.council{
+  position:relative;
+  margin-top:70px;
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:24px;
+  align-items:stretch;
+}
+.cmember{
+  position:relative;
+  background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  border:1px solid var(--hairline);
+  padding:36px 30px 30px;
+  overflow:hidden;
+  isolation:isolate;
+  min-height:240px;
+  transition:transform .8s cubic-bezier(.2,.7,.2,1),border-color .8s ease;
+}
+.cmember::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 80% -20%,rgba(201,168,76,0.16),transparent 50%);
+  opacity:0;transition:opacity .8s ease;
+  z-index:0;
+}
+.cmember:hover{transform:translateY(-4px);border-color:var(--hairline-strong)}
+.cmember:hover::before{opacity:1}
+.cmember > *{position:relative;z-index:1}
+.cmember .order{
+  font-family:var(--sans);font-size:10px;letter-spacing:.4em;
+  color:var(--muted-2);text-transform:uppercase;margin-bottom:18px;
+}
+.cmember h4{font-family:var(--serif);font-weight:400;color:var(--text);font-size:28px;margin-bottom:6px}
+.cmember .domain{
+  font-family:var(--sans);font-size:10.5px;letter-spacing:.36em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:18px;
+}
+.cmember .blurb{font-size:14px;color:var(--muted);line-height:1.65}
+
+.cmember.c1{grid-column:span 4}
+.cmember.c2{grid-column:span 4}
+.cmember.c3{grid-column:span 4}
+.cmember.c4{grid-column:span 6}
+.cmember.c5{grid-column:span 6}
+@media (max-width:900px){
+  .cmember{grid-column:span 12 !important}
+}
+
+.qm-orb{
+  position:relative;
+  grid-column:span 12;
+  margin-top:40px;
+  padding:52px 40px;
+  border:1px solid var(--hairline);
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(201,168,76,0.10),transparent 60%),
+    linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  text-align:center;
+  overflow:hidden;
+}
+.qm-orb .ornament{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:.5;
+}
+.qm-orb h3{position:relative;z-index:1;font-family:var(--serif);font-style:italic;color:var(--gold-light);font-size:clamp(28px,3.2vw,40px)}
+.qm-orb p{margin-left:auto;margin-right:auto;color:var(--silver)}
+
+/* ───────────────────────── six movements thread ───────────────────────── */
+.movements{
+  position:relative;
+  margin-top:80px;
+}
+.thread{
+  position:absolute;
+  left:32px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,transparent,var(--hairline) 5%,var(--hairline) 95%,transparent);
+  z-index:0;
+}
+.thread .fill{
+  position:absolute;left:0;top:0;width:100%;height:0;
+  background:linear-gradient(180deg,var(--gold-light) 0%,var(--gold) 60%,var(--gold-deep) 100%);
+  box-shadow:0 0 12px rgba(240,216,138,.6),0 0 24px rgba(201,168,76,.35);
+  transition:height .3s linear;
+}
+.movement{
+  position:relative;
+  display:grid;grid-template-columns:80px 1fr;
+  gap:24px;
+  padding:46px 0 46px 0;
+  align-items:start;
+}
+.movement::after{
+  content:"";position:absolute;
+  left:26px;top:58px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--void-1);
+  border:1px solid var(--hairline);
+  z-index:1;
+  transition:border-color .5s ease,background .5s ease,box-shadow .8s ease;
+}
+.movement.in::after{
+  border-color:var(--gold);
+  background:var(--gold);
+  box-shadow:0 0 0 4px rgba(201,168,76,0.12),0 0 22px rgba(240,216,138,.65);
+}
+.movement .step{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  color:var(--gold);font-size:42px;line-height:1;
+  padding-left:62px;
+}
+.movement h3{font-family:var(--serif);font-weight:400;font-size:30px;color:var(--text);margin-bottom:10px}
+.movement p{color:var(--muted);font-size:15.5px;max-width:62ch}
+.movement .tag{
+  display:inline-block;
+  margin-top:14px;
+  font-family:var(--sans);font-size:10px;letter-spacing:.36em;text-transform:uppercase;
+  color:var(--gold);
+  padding:6px 12px;border:1px solid var(--hairline);
+}
+
+@media (max-width:700px){
+  .thread{left:18px}
+  .movement::after{left:12px}
+  .movement{grid-template-columns:48px 1fr;gap:14px}
+  .movement .step{padding-left:36px;font-size:30px}
+}
+
+/* ───────────────────────── two-column block (sovereign) ───────────────────────── */
+.two-col{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:32px;margin-top:60px;
+}
+@media (max-width:860px){ .two-col{grid-template-columns:1fr} }
+.panel{
+  background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  border:1px solid var(--hairline);
+  padding:40px 36px;
+  position:relative;
+  overflow:hidden;
+}
+.panel .topline{
+  font-family:var(--sans);font-size:10px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:24px;
+}
+.panel h3{font-family:var(--serif);font-weight:400;color:var(--text);font-size:30px;margin-bottom:18px}
+.panel p{color:var(--muted);font-size:15.5px}
+.panel strong{color:var(--gold-light);font-weight:400}
+
+/* ───────────────────────── inside the platform ───────────────────────── */
+.platform{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:24px;
+  margin-top:70px;
+}
+.feature{
+  background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  border:1px solid var(--hairline);
+  padding:34px 32px 30px;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  min-height:280px;
+}
+.feature .topline{
+  font-family:var(--sans);font-size:10px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:18px;
+}
+.feature h3{font-family:var(--serif);font-weight:400;font-size:26px;color:var(--text);margin-bottom:12px}
+.feature p{color:var(--muted);font-size:14.5px;line-height:1.7;margin-bottom:18px}
+.feature .visual{
+  flex:1;
+  min-height:120px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.f-waves{grid-column:span 7}
+.f-bloom{grid-column:span 5}
+.f-breath{grid-column:span 5}
+.f-369{grid-column:span 4}
+.f-mirror{grid-column:span 3}
+.f-trends{grid-column:span 6}
+.f-rooms{grid-column:span 6}
+@media (max-width:1000px){
+  .feature{grid-column:span 12 !important}
+}
+
+/* Gateway Waves visualizer */
+.waves{position:relative;width:100%;height:160px}
+.waves svg{width:100%;height:100%;overflow:visible}
+.waves .wlabel{
+  position:absolute;top:0;
+  font-family:var(--sans);font-size:9px;letter-spacing:.3em;color:var(--muted-2);
+}
+.waves .windicator{
+  position:absolute;left:0;right:0;top:0;
+  display:flex;justify-content:space-between;
+  pointer-events:none;
+}
+.waves .wpip{
+  font-family:var(--serif);font-style:italic;font-size:14px;color:var(--muted-2);
+  width:14%;text-align:center;transition:color .8s ease;
+}
+.waves .wpip.cur{color:var(--gold-light);text-shadow:0 0 10px rgba(240,216,138,.6)}
+
+/* coherence bloom */
+.bloom{position:relative;width:100%;height:160px}
+.bloom canvas{width:100%;height:100%}
+.bloom .readout{
+  position:absolute;bottom:6px;left:0;right:0;
+  display:flex;justify-content:space-between;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.3em;color:var(--muted-2);text-transform:uppercase;
+}
+.bloom .readout span{color:var(--gold)}
+
+/* breath visualizer */
+.breaths{display:flex;gap:18px;width:100%;justify-content:space-around;align-items:center}
+.breath{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
+}
+.breath .bubble{
+  width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--gold);
+  background:radial-gradient(circle at center,rgba(240,216,138,0.18),transparent 70%);
+  position:relative;
+  transition:transform 4s ease-in-out;
+}
+.breath.b1 .bubble{animation:breath55 10s ease-in-out infinite}
+.breath.b2 .bubble{animation:breath555 15s ease-in-out infinite}
+.breath.b3 .bubble{animation:box16 16s steps(64) infinite}
+.breath.b4 .bubble{animation:b478 19s ease-in-out infinite}
+@keyframes breath55{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
+@keyframes breath555{0%{transform:scale(1)}33%{transform:scale(1.7)}66%{transform:scale(1.7)}100%{transform:scale(1)}}
+@keyframes box16{0%{transform:scale(1)}25%{transform:scale(1.7)}50%{transform:scale(1.7)}75%{transform:scale(1)}100%{transform:scale(1)}}
+@keyframes b478{0%{transform:scale(1)}21%{transform:scale(1.7)}58%{transform:scale(1.7)}100%{transform:scale(1)}}
+
+/* tesla 369 */
+.t369{display:flex;gap:14px;align-items:center;justify-content:center;width:100%}
+.t369 .num{position:relative;width:64px;height:64px}
+.t369 svg{width:100%;height:100%;transform:rotate(-90deg)}
+.t369 .digit{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-style:italic;font-size:30px;color:var(--gold-light);
+}
+
+/* mirror feature visual */
+.mirror-vis{
+  width:80px;height:80px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 35%,rgba(240,216,138,0.55) 0%,rgba(201,168,76,0.0) 60%),
+    radial-gradient(circle at center,rgba(20,20,40,0.9),rgba(2,2,10,1) 80%);
+  border:1px solid var(--hairline-strong);
+  position:relative;
+  animation:mirrorPulse 6s ease-in-out infinite;
+}
+@keyframes mirrorPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 40px 6px rgba(201,168,76,.18)}}
+
+/* trends sparkline */
+.trends{width:100%;height:80px}
+.trends svg{width:100%;height:100%;overflow:visible}
+
+/* rooms (collective field) */
+.rooms{position:relative;width:100%;height:120px}
+.rooms svg{width:100%;height:100%;overflow:visible}
+
+/* ───────────────────────── honesty matrix ───────────────────────── */
+.matrix{
+  margin-top:60px;
+  border:1px solid var(--hairline);
+  background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+}
+.matrix .row{
+  display:grid;
+  grid-template-columns:200px 1fr 1fr;
+  border-bottom:1px solid var(--hairline);
+}
+.matrix .row:last-child{border-bottom:none}
+.matrix .row > div{padding:22px 26px}
+.matrix .row.head > div{
+  font-family:var(--sans);font-size:10px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--gold);
+}
+.matrix .label{
+  color:var(--text);font-family:var(--serif);font-size:20px;border-right:1px solid var(--hairline);
+}
+.matrix .measured{color:var(--silver);font-size:14.5px;border-right:1px solid var(--hairline)}
+.matrix .interpretive{color:var(--muted);font-size:14.5px;font-style:italic}
+.matrix .row.head .label{font-family:var(--sans);font-size:10px;font-style:normal}
+@media (max-width:760px){
+  .matrix .row{grid-template-columns:1fr}
+  .matrix .label,.matrix .measured{border-right:none;border-bottom:1px solid var(--hairline)}
+}
+
+/* ───────────────────────── begin / CTA ───────────────────────── */
+.begin{
+  text-align:center;
+  padding:170px var(--gutter) 170px;
+  position:relative;
+}
+.begin .threesteps{
+  display:flex;gap:18px;justify-content:center;flex-wrap:wrap;
+  margin:42px auto 50px;max-width:920px;
+}
+.begin .step3{
+  flex:1 1 240px;
+  border:1px solid var(--hairline);
+  padding:26px 22px;
+  background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  text-align:left;
+}
+.begin .step3 .n{
+  font-family:var(--serif);font-style:italic;color:var(--gold);font-size:28px;line-height:1;
+}
+.begin .step3 h4{margin-top:14px;font-family:var(--serif);font-weight:400;color:var(--text);font-size:20px}
+.begin .step3 p{color:var(--muted);font-size:14px;margin:6px 0 0}
+
+.btn{
+  display:inline-flex;align-items:center;gap:14px;
+  padding:18px 36px;
+  background:linear-gradient(180deg,#d8b757 0%,#b9923d 100%);
+  color:#0c0a04;
+  font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.4em;text-transform:uppercase;
+  text-decoration:none;
+  border:1px solid #e2c269;
+  position:relative;overflow:hidden;
+  transition:transform .4s ease,box-shadow .6s ease;
+  box-shadow:0 0 0 0 rgba(201,168,76,0);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,0.35) 50%,transparent 70%);
+  transform:translateX(-100%);
+  transition:transform .9s ease;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 50px -10px rgba(201,168,76,.6)}
+.btn:hover::before{transform:translateX(100%)}
+
+/* ───────────────────────── footer ───────────────────────── */
+footer{
+  padding:80px var(--gutter) 100px;
+  text-align:center;
+  position:relative;
+}
+footer .trail{
+  font-family:var(--sans);font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--muted);margin-top:24px;
+}
+footer .discl{
+  font-family:var(--sans);font-size:11.5px;color:var(--muted-2);
+  max-width:760px;margin:18px auto 0;line-height:1.7;font-style:italic;
+}
+footer .glyph-lg{width:18px;height:18px;color:var(--gold)}
+
+/* fine print divider element */
+.hairline{height:1px;background:var(--hairline);width:100%;margin:0}
+
+/* ──────────────────────── cinematic intro overlay ──────────────────────── */
+.intro{
+  position:fixed;inset:0;
+  background:#000004;
+  z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  pointer-events:none;
+}
+.intro.gone{opacity:0;transition:opacity 1.6s ease;pointer-events:none}
+.intro.removed{display:none}
+.intro::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 50% 50%, rgba(20,18,40,0.45) 0%, transparent 60%);
+  opacity:0;
+  animation:introVeil 1.2s ease .2s forwards;
+}
+@keyframes introVeil{to{opacity:1}}
+.intro .stage{
+  position:relative;width:min(86vh,820px);height:min(86vh,820px);
+  display:flex;align-items:center;justify-content:center;
+}
+.intro svg.iring{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.intro .iring circle{
+  fill:none;stroke:#c9a84c;
+  stroke-dasharray:var(--len);
+  stroke-dashoffset:var(--len);
+  animation:drawRing 2.2s cubic-bezier(.2,.7,.2,1) var(--d,0s) forwards;
+  opacity:0;
+}
+@keyframes drawRing{
+  0%{opacity:0;stroke-dashoffset:var(--len)}
+  30%{opacity:.7}
+  100%{opacity:.5;stroke-dashoffset:0}
+}
+.intro .ihalo{
+  position:absolute;left:50%;top:50%;
+  width:60%;height:60%;
+  transform:translate(-50%,-50%) scale(.2);
+  border-radius:50%;
+  background:radial-gradient(circle at center,
+    rgba(240,216,138,0.55) 0%,
+    rgba(201,168,76,0.18) 28%,
+    rgba(80,60,30,0.05) 50%,
+    transparent 70%);
+  filter:blur(28px);
+  opacity:0;
+  animation:ihaloBloom 2.6s cubic-bezier(.2,.7,.2,1) 1.2s forwards;
+}
+@keyframes ihaloBloom{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}
+  60%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
+  100%{opacity:.85;transform:translate(-50%,-50%) scale(1)}
+}
+.intro .iglyph{
+  position:relative;z-index:2;
+  width:34px;height:34px;
+  color:#f0d88a;
+  opacity:0;
+  animation:iglyphIn 1.4s ease 2.2s forwards;
+  transform:rotate(0deg);
+}
+@keyframes iglyphIn{
+  0%{opacity:0;transform:rotate(-90deg) scale(.5)}
+  100%{opacity:1;transform:rotate(0deg) scale(1)}
+}
+.intro .iword{
+  position:absolute;bottom:14%;left:50%;transform:translateX(-50%);
+  font-family:var(--sans);font-size:11px;letter-spacing:.5em;text-transform:uppercase;
+  color:var(--gold);
+  opacity:0;
+  animation:iwordIn 1.2s ease 3s forwards;
+}
+@keyframes iwordIn{to{opacity:1}}
+.intro .skip{
+  position:absolute;top:24px;right:28px;
+  pointer-events:auto;
+  background:transparent;border:1px solid var(--hairline);
+  padding:9px 18px;
+  color:var(--muted);
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  cursor:pointer;
+  transition:color .4s ease,border-color .4s ease;
+}
+.intro .skip:hover{color:var(--gold-light);border-color:var(--hairline-strong)}
+
+/* ──────────────────────── gateway waves I–VII section ──────────────────────── */
+.wavelist{
+  margin-top:60px;
+  display:grid;
+  grid-template-columns:1fr;
+  border-top:1px solid var(--hairline);
+}
+.wavebar{
+  display:grid;
+  grid-template-columns:90px 1fr 1.4fr 240px;
+  gap:28px;
+  align-items:center;
+  padding:28px 0;
+  border-bottom:1px solid var(--hairline);
+  position:relative;
+  cursor:default;
+  transition:background .6s ease;
+}
+.wavebar:hover{background:linear-gradient(90deg,transparent,rgba(201,168,76,0.04),transparent)}
+.wavebar.locked{opacity:.55}
+.wavebar .roman{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  color:var(--gold);font-size:54px;line-height:1;text-align:left;
+  padding-left:6px;
+  letter-spacing:0;
+}
+.wavebar.locked .roman{color:var(--muted-2)}
+.wavebar .name{
+  font-family:var(--serif);font-weight:400;color:var(--text);font-size:30px;line-height:1.1;
+}
+.wavebar .name .sub{
+  display:block;
+  margin-top:6px;
+  font-family:var(--sans);font-size:10px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted);font-weight:300;
+}
+.wavebar .descr{
+  color:var(--muted);font-size:14.5px;line-height:1.7;
+}
+.wavebar.locked .descr{color:var(--muted-2)}
+.wavesig{
+  position:relative;width:100%;height:64px;
+  display:flex;align-items:center;
+}
+.wavesig svg{width:100%;height:100%;overflow:visible}
+.wavebar .lock{
+  display:inline-block;margin-left:10px;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted-2);
+  vertical-align:middle;
+}
+.wavebar .unlocked{
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--gold);margin-left:10px;
+}
+@media (max-width:900px){
+  .wavebar{grid-template-columns:60px 1fr;gap:18px}
+  .wavebar .descr,.wavebar .wavesig{grid-column:span 2}
+  .wavebar .roman{font-size:40px}
+  .wavebar .name{font-size:22px}
+}
+
+/* ──────────────────────── breathe-with-it interactive ──────────────────────── */
+.breathe-btn{
+  position:absolute;top:14px;right:14px;
+  background:transparent;
+  border:1px solid var(--hairline);
+  color:var(--gold);
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.36em;text-transform:uppercase;
+  padding:8px 14px;
+  cursor:pointer;z-index:2;
+  transition:border-color .4s ease,color .4s ease,background .4s ease;
+}
+.breathe-btn:hover{border-color:var(--hairline-strong);color:var(--gold-light)}
+.breathe-btn.live{background:rgba(201,168,76,0.08);border-color:var(--gold);color:var(--gold-light)}
+.breathe-cue{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  font-family:var(--sans);font-size:11px;letter-spacing:.5em;text-transform:uppercase;
+  color:var(--gold-light);
+  pointer-events:none;
+  opacity:0;transition:opacity .8s ease;
+  z-index:3;
+  text-shadow:0 0 14px rgba(201,168,76,.5);
+}
+.breathe-cue.show{opacity:1}
+.breathe-timer{
+  position:absolute;bottom:6px;right:14px;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;color:var(--muted);text-transform:uppercase;
+  pointer-events:none;
+}
+
+/* ──────────────────────── quantum mirror live demo ──────────────────────── */
+.mirror-demo{
+  margin-top:80px;
+  padding:48px 40px 44px;
+  background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);
+  border:1px solid var(--hairline);
+  position:relative;overflow:hidden;
+}
+.mirror-demo::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 90% 0%,rgba(201,168,76,0.10),transparent 50%);
+  pointer-events:none;
+}
+.mirror-demo > *{position:relative;z-index:1}
+.mirror-demo .topline{
+  font-family:var(--sans);font-size:10.5px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:14px;
+}
+.mirror-demo h3{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--text);font-size:clamp(26px,3vw,36px);margin-bottom:8px}
+.mirror-demo .demo-label{
+  display:inline-block;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted-2);
+  margin-bottom:24px;
+  border:1px solid var(--hairline);
+  padding:4px 10px;
+}
+.mirror-input{
+  width:100%;
+  background:transparent;
+  border:none;border-bottom:1px solid var(--hairline);
+  color:var(--text);
+  font-family:var(--serif);font-size:22px;font-weight:300;
+  padding:14px 0 16px;
+  resize:none;outline:none;
+  font-style:italic;
+  line-height:1.4;
+  min-height:60px;
+  transition:border-color .4s ease;
+}
+.mirror-input:focus{border-color:var(--gold)}
+.mirror-input::placeholder{color:var(--muted-2);font-style:italic}
+.mirror-actions{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  margin-top:18px;flex-wrap:wrap;
+}
+.mirror-reflect{
+  background:transparent;
+  border:1px solid var(--gold);
+  color:var(--gold-light);
+  font-family:var(--sans);font-size:10.5px;letter-spacing:.4em;text-transform:uppercase;
+  padding:12px 22px;
+  cursor:pointer;
+  transition:background .4s ease,color .4s ease;
+}
+.mirror-reflect:hover{background:rgba(201,168,76,0.1)}
+.mirror-reflect:disabled{opacity:.5;cursor:wait}
+.mirror-hint{
+  font-family:var(--sans);font-size:10.5px;color:var(--muted-2);letter-spacing:.05em;
+}
+.mirror-out{
+  margin-top:34px;
+  padding-top:30px;
+  border-top:1px solid var(--hairline);
+  min-height:60px;
+  display:none;
+}
+.mirror-out.has{display:block;animation:fadeIn 1s ease forwards}
+.mirror-out .eyebrow-mini{
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;
+}
+.mirror-out .reflection{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:22px;line-height:1.55;color:var(--silver);
+  max-width:62ch;
+}
+.mirror-out .footnote{
+  margin-top:18px;
+  font-family:var(--sans);font-size:11px;color:var(--muted-2);font-style:italic;
+}
+.mirror-dots{
+  display:inline-block;
+}
+.mirror-dots span{
+  display:inline-block;width:6px;height:6px;
+  background:var(--gold);border-radius:50%;
+  margin:0 3px;
+  opacity:.3;
+  animation:mdots 1.4s ease-in-out infinite;
+}
+.mirror-dots span:nth-child(2){animation-delay:.2s}
+.mirror-dots span:nth-child(3){animation-delay:.4s}
+@keyframes mdots{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* ──────────────────────── horizon transitions ──────────────────────── */
+.horizon{
+  position:relative;height:1px;width:100%;
+  background:linear-gradient(90deg,transparent 0%,var(--hairline) 20%,var(--hairline-strong) 50%,var(--hairline) 80%,transparent 100%);
+  margin:0;
+  opacity:0;
+  transform:scaleX(.2);
+  transform-origin:center;
+  transition:opacity 2s ease,transform 2s cubic-bezier(.2,.7,.2,1);
+}
+.horizon.in{opacity:1;transform:scaleX(1)}
+
+/* ──────────────────────── reduced motion ──────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.001s !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.001s !important;
+    scroll-behavior:auto !important;
+  }
+  .reveal{opacity:1 !important;transform:none !important;filter:none !important}
+  .mask-reveal > span{transform:none !important}
+  .wordmark .w > span{transform:none !important}
+  .intro{display:none !important}
+  #starfield,.aura,.halo,.bloom canvas{display:none !important}
+  .rings .spin,.rings .spin-rev,.rings .ring{animation:none !important;opacity:.2}
+  .breath .bubble{animation:none !important}
+  .scrollcue{display:none !important}
+  body::before{
+    content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(40,30,70,0.55) 0%, transparent 60%),
+      var(--void-1);
+    z-index:-1;
+  }
+}
+
+/* ──────────────────────── motion intensity (Tweaks) ──────────────────────── */
+body[data-motion="whisper"] #starfield{opacity:.35}
+body[data-motion="whisper"] .aura{display:none}
+body[data-motion="whisper"] .wordmark .gateway::after{display:none}
+body[data-motion="whisper"] .rings .spin,
+body[data-motion="whisper"] .rings .spin-rev{animation-duration:600s !important}
+body[data-motion="still"] *,
+body[data-motion="still"] *::before,
+body[data-motion="still"] *::after{
+  animation-duration:0.001s !important;
+  animation-iteration-count:1 !important;
+}
+body[data-motion="still"] #starfield{display:none}
+body[data-motion="still"] .aura{display:none}
+body[data-motion="still"] .breath .bubble{animation:none !important}
+body[data-motion="still"] .intro{display:none !important}
+
+/* ──────────────────────── inside a session (device frame) ──────────────────────── */
+.interlude{
+  padding:160px var(--gutter) 60px;
+  position:relative;
+}
+.macwin{
+  margin:60px auto 0;
+  max-width:980px;
+  border-radius:14px;
+  background:linear-gradient(180deg,#16162a 0%,#0b0b1a 100%);
+  border:1px solid var(--hairline);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.04) inset,
+    0 50px 160px -30px rgba(0,0,0,0.85),
+    0 0 80px -20px rgba(201,168,76,0.18);
+  overflow:hidden;
+  position:relative;
+}
+.macwin .titlebar{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 18px;
+  background:linear-gradient(180deg,#1a1a30 0%,#0f0f22 100%);
+  border-bottom:1px solid var(--hairline);
+  position:relative;
+}
+.macwin .lights{display:flex;gap:7px}
+.macwin .lights span{width:11px;height:11px;border-radius:50%}
+.macwin .lights .r{background:#4a3a3a;border:1px solid rgba(255,80,80,.3)}
+.macwin .lights .y{background:#4a4530;border:1px solid rgba(255,180,80,.3)}
+.macwin .lights .g{background:#2a4030;border:1px solid rgba(80,200,120,.3)}
+.macwin .title{
+  position:absolute;left:0;right:0;text-align:center;pointer-events:none;
+  font-family:var(--sans);font-size:10.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted);
+}
+.macwin .title svg{width:8px;height:8px;display:inline-block;vertical-align:middle;margin-right:8px;color:var(--gold)}
+.macwin .stage{
+  position:relative;
+  min-height:540px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(40,30,70,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(80,55,25,0.15) 0%, transparent 65%),
+    linear-gradient(180deg, #060612 0%, #02020a 100%);
+  overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:70px 40px 90px;
+}
+.macwin .stage::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    radial-gradient(circle at 18% 32%, rgba(255,255,255,.45) 0.5px, transparent 1px),
+    radial-gradient(circle at 72% 18%, rgba(255,255,255,.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 42% 78%, rgba(240,216,138,.55) 0.6px, transparent 1.2px),
+    radial-gradient(circle at 88% 64%, rgba(255,255,255,.45) 0.5px, transparent 1px),
+    radial-gradient(circle at 12% 86%, rgba(255,255,255,.35) 0.5px, transparent 1px),
+    radial-gradient(circle at 60% 42%, rgba(255,255,255,.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 32% 12%, rgba(240,216,138,.45) 0.4px, transparent 1px),
+    radial-gradient(circle at 82% 88%, rgba(255,255,255,.3) 0.5px, transparent 1px);
+  pointer-events:none;
+}
+.macwin .session-eyebrow{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:18px;
+  font-family:var(--sans);font-size:10px;letter-spacing:.5em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;
+}
+.macwin .session-eyebrow .bar{display:inline-block;width:24px;height:1px;background:var(--gold);opacity:.4}
+.macwin .intent{
+  position:relative;z-index:2;
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:30px;line-height:1.25;color:var(--text);text-align:center;
+  max-width:560px;margin-bottom:34px;
+}
+.macwin .intent .you{color:var(--gold-light)}
+.macwin .orb{
+  position:relative;z-index:2;
+  width:240px;height:240px;
+  border-radius:50%;
+  margin:0 auto 26px;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at center,
+      rgba(255,240,200,0.85) 0%,
+      rgba(240,216,138,0.4) 18%,
+      rgba(201,168,76,0.2) 36%,
+      rgba(120,80,40,0.08) 55%,
+      transparent 75%);
+  animation:orbBreath 10s ease-in-out infinite;
+}
+.macwin .orb::before{
+  content:"";position:absolute;inset:-44px;border-radius:50%;
+  background:radial-gradient(circle at center,rgba(240,216,138,0.22),transparent 60%);
+  filter:blur(22px);
+  animation:orbBreath 10s ease-in-out infinite;
+}
+.macwin .orb::after{
+  content:"";position:absolute;inset:30%;border-radius:50%;
+  border:1px solid rgba(240,216,138,0.5);
+  animation:orbBreath 10s ease-in-out infinite;
+}
+@keyframes orbBreath{
+  0%,100%{transform:scale(.9)}
+  50%{transform:scale(1.1)}
+}
+.macwin .cuetext{
+  position:relative;z-index:2;
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:24px;color:var(--gold-light);
+  text-align:center;margin-bottom:28px;
+  letter-spacing:.05em;
+  text-shadow:0 0 16px rgba(240,216,138,.4);
+  transition:opacity .4s ease;
+}
+.macwin .meta{
+  position:relative;z-index:2;
+  display:flex;gap:48px;justify-content:center;flex-wrap:wrap;
+  margin-top:8px;
+}
+.macwin .meta div{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted);
+}
+.macwin .meta strong{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:20px;color:var(--gold-light);letter-spacing:0;text-transform:none;
+}
+.macwin .controls{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 26px;
+  background:linear-gradient(180deg,transparent,rgba(2,2,10,0.5));
+  border-top:1px solid var(--hairline);
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted);
+}
+.macwin .controls .left,.macwin .controls .right{display:flex;gap:20px;align-items:center}
+.macwin .controls .pill{
+  border:1px solid var(--hairline);padding:5px 11px;color:var(--gold);
+}
+.macwin .controls .play{
+  width:30px;height:30px;border:1px solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--gold-light);
+}
+.macwin .controls .play svg{width:9px;height:9px}
+.macwin .council-line{
+  position:absolute;top:60px;left:28px;z-index:2;
+  font-family:var(--serif);font-style:italic;font-weight:300;font-size:13px;color:var(--muted);
+  max-width:220px;line-height:1.55;
+}
+.macwin .council-line strong{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);font-weight:400;margin-bottom:6px;font-style:normal}
+.macwin .freq-line{
+  position:absolute;top:60px;right:28px;z-index:2;
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);
+  text-align:right;line-height:1.7;
+}
+.macwin .freq-line .hz{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--gold-light);letter-spacing:0;text-transform:none;display:block;margin-top:4px}
+@media (max-width:760px){
+  .macwin .stage{padding:60px 24px 90px;min-height:520px}
+  .macwin .intent{font-size:22px}
+  .macwin .orb{width:180px;height:180px}
+  .macwin .meta{gap:24px}
+  .macwin .council-line,.macwin .freq-line{display:none}
+}
+
+/* ──────────────────────── tweaks panel ──────────────────────── */
+.twk{
+  position:fixed;right:22px;bottom:22px;
+  width:288px;
+  background:linear-gradient(180deg,#14142a 0%,#0a0a18 100%);
+  border:1px solid var(--hairline);
+  border-radius:14px;
+  box-shadow:0 24px 80px -20px rgba(0,0,0,0.85),0 0 40px -10px rgba(201,168,76,0.18);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:11.5px;
+  z-index:2147483646;
+  display:none;
+  overflow:hidden;
+  backdrop-filter:blur(12px);
+}
+.twk.on{display:block;animation:twkIn .4s ease forwards}
+@keyframes twkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.twk-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 12px;
+  border-bottom:1px solid var(--hairline);
+  cursor:move;user-select:none;
+}
+.twk-hd b{
+  font-family:var(--sans);font-weight:500;font-size:10px;
+  letter-spacing:.42em;text-transform:uppercase;color:var(--gold);
+}
+.twk-x{
+  appearance:none;border:0;background:transparent;
+  color:var(--muted);width:24px;height:24px;cursor:pointer;
+  font-size:16px;line-height:1;border-radius:6px;
+}
+.twk-x:hover{color:var(--gold-light);background:rgba(201,168,76,.08)}
+.twk-body{padding:16px;display:flex;flex-direction:column;gap:18px;max-height:70vh;overflow-y:auto}
+.twk-sec{display:flex;flex-direction:column;gap:9px}
+.twk-sec > .lab{
+  font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--muted);
+}
+.twk-row{display:flex;gap:6px}
+.twk-opt{
+  flex:1;
+  appearance:none;background:transparent;
+  border:1px solid var(--hairline);
+  color:var(--text);
+  font-family:var(--sans);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  padding:9px 6px;cursor:pointer;
+  transition:all .3s ease;
+  border-radius:0;
+}
+.twk-opt:hover{border-color:var(--hairline-strong);color:var(--gold-light)}
+.twk-opt.on{
+  background:rgba(201,168,76,0.12);
+  border-color:var(--gold);
+  color:var(--gold-light);
+}
+.twk-swatches{display:flex;gap:8px;margin-bottom:10px}
+.twk-sw{
+  flex:1;height:44px;
+  border:1px solid var(--hairline);
+  cursor:pointer;
+  position:relative;
+  transition:transform .25s ease,border-color .3s ease,box-shadow .3s ease;
+}
+.twk-sw:hover{transform:translateY(-1px);border-color:var(--hairline-strong)}
+.twk-sw.on{border-color:var(--swhighlight,var(--gold));box-shadow:0 0 0 1px var(--swhighlight,var(--gold))}
+.twk-sw .lbl{
+  position:absolute;left:0;right:0;bottom:-16px;
+  text-align:center;
+  font-size:8.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);
+}
+.twk-sw.on .lbl{color:var(--gold-light)}
+.twk-btn{
+  appearance:none;background:transparent;
+  border:1px solid var(--hairline);
+  color:var(--gold);
+  font-family:var(--sans);font-size:10px;letter-spacing:.36em;text-transform:uppercase;
+  padding:11px 14px;cursor:pointer;
+  transition:all .3s ease;
+}
+.twk-btn:hover{border-color:var(--gold);color:var(--gold-light);background:rgba(201,168,76,.06)}
+.twk-foot{
+  padding:12px 16px;
+  border-top:1px solid var(--hairline);
+  font-size:9px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted-2);
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<!-- cinematic intro overlay -->
+<div class="intro" id="intro" aria-hidden="true">
+  <button class="skip" id="introSkip">Skip</button>
+  <div class="stage">
+    <svg class="iring" viewBox="-100 -100 200 200">
+      <circle cx="0" cy="0" r="85" style="--len:534; --d:.4s" stroke-width="0.4"></circle>
+      <circle cx="0" cy="0" r="68" style="--len:428; --d:.7s" stroke-width="0.4"></circle>
+      <circle cx="0" cy="0" r="52" style="--len:327; --d:1.0s" stroke-width="0.4"></circle>
+      <circle cx="0" cy="0" r="36" style="--len:226; --d:1.3s" stroke-width="0.4"></circle>
+      <circle cx="0" cy="0" r="20" style="--len:126; --d:1.6s" stroke-width="0.4"></circle>
+    </svg>
+    <div class="ihalo"></div>
+    <svg class="iglyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L22 12 L12 22 L2 12 Z M12 7 L17 12 L12 17 L7 12 Z" fill="currentColor" stroke="none"></path></svg>
+  </div>
+  <div class="iword">Opening the field</div>
+</div>
+
+<div class="field" aria-hidden="true"></div>
+<canvas id="starfield" aria-hidden="true"></canvas>
+<div class="aura" id="aura" aria-hidden="true"></div>
+
+<!-- ───────── chrome ───────── -->
+<header class="chrome">
+  <a class="mark" href="#top" aria-label="Gateway Protocol">
+    <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L22 12 L12 22 L2 12 Z M12 7 L17 12 L12 17 L7 12 Z" fill="currentColor" stroke="none"></path></svg>
+    <span>Gateway Protocol</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="#what">What it is</a>
+    <a href="#council">Council</a>
+    <a href="#protocol">Protocol</a>
+    <a href="#platform">Platform</a>
+    <a href="#session">Session</a>
+    <a href="#waves">Waves</a>
+    <a href="#sovereign">Sovereignty</a>
+    <a href="#begin">Begin</a>
+  </nav>
+</header>
+
+<div class="scrollcue" id="scrollcue">
+  <span>Scroll</span>
+  <span class="line"></span>
+</div>
+
+<!-- ───────── threshold ───────── -->
+<section class="threshold" id="top" aria-label="The Gateway Protocol">
+  <div class="rings" aria-hidden="true">
+    <svg viewBox="-600 -600 1200 1200">
+      <defs>
+        <radialGradient id="ringGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#c9a84c" stop-opacity="0"></stop>
+          <stop offset="50%" stop-color="#c9a84c" stop-opacity=".18"></stop>
+          <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"></stop>
+        </radialGradient>
+      </defs>
+      <g class="spin">
+        <circle class="ring" r="540" fill="none" stroke="rgba(201,168,76,0.10)" stroke-width="0.7"></circle>
+        <circle class="ring" r="440" fill="none" stroke="rgba(201,168,76,0.14)" stroke-width="0.7"></circle>
+        <circle class="ring" r="340" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="0.7"></circle>
+        <circle class="ring" r="240" fill="none" stroke="rgba(201,168,76,0.22)" stroke-width="0.7"></circle>
+        <circle class="ring" r="140" fill="none" stroke="rgba(201,168,76,0.28)" stroke-width="0.7"></circle>
+      </g>
+      <!-- flower of life subtle -->
+      <g class="spin-rev" opacity="0.32" stroke="rgba(201,168,76,0.18)" stroke-width="0.5" fill="none">
+        <circle r="80" cx="0" cy="0"></circle>
+        <circle r="80" cx="80" cy="0"></circle>
+        <circle r="80" cx="-80" cy="0"></circle>
+        <circle r="80" cx="40" cy="69.28"></circle>
+        <circle r="80" cx="-40" cy="69.28"></circle>
+        <circle r="80" cx="40" cy="-69.28"></circle>
+        <circle r="80" cx="-40" cy="-69.28"></circle>
+      </g>
+      <!-- 6-point geometry markers -->
+      <g class="spin" opacity="0.5">
+        <circle cx="0" cy="-540" r="2" fill="#c9a84c"></circle>
+        <circle cx="467" cy="-270" r="2" fill="#c9a84c"></circle>
+        <circle cx="467" cy="270" r="2" fill="#c9a84c"></circle>
+        <circle cx="0" cy="540" r="2" fill="#c9a84c"></circle>
+        <circle cx="-467" cy="270" r="2" fill="#c9a84c"></circle>
+        <circle cx="-467" cy="-270" r="2" fill="#c9a84c"></circle>
+      </g>
+    </svg>
+  </div>
+  <div class="halo" aria-hidden="true"></div>
+
+  <div class="core">
+    <div class="markline">
+      <span class="bar"></span>
+      <svg viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg>
+      <span>Gateway Protocol · MMXXVI</span>
+      <svg viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg>
+      <span class="bar r"></span>
+    </div>
+
+    <h1 class="wordmark" aria-label="The Gateway Protocol">
+      <span class="w"><span style="--d:.1s">The&nbsp;</span></span><span class="w"><span class="gateway" data-text="Gateway" style="--d:.25s">Gateway</span></span><span class="w"><span style="--d:.4s">&nbsp;Protocol</span></span>
+    </h1>
+
+    <p class="tagline">A sovereign space for consciousness practice.<br><em class="gold">Owned, not subscribed.</em></p>
+
+    <div class="circuit" aria-label="The four-stage practice loop">
+      <span class="step" data-stage="0">Prepare</span><span class="dot"></span>
+      <span class="step" data-stage="1">Practice</span><span class="dot"></span>
+      <span class="step" data-stage="2">Reflect</span><span class="dot"></span>
+      <span class="step" data-stage="3">Integrate</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── what it is ───────── -->
+<section id="what" aria-labelledby="what-h">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">I ·</span> What it is</p>
+    </div>
+    <h2 id="what-h" class="reveal" style="--d:120ms">
+      A complete system for inner work — <em class="gold">on your own machine.</em>
+    </h2>
+    <div class="reveal" style="--d:240ms">
+      <p class="lead">
+        Gateway Protocol gathers the Monroe Gateway Process tradition into a single, coherent practice loop:
+        guided sessions and breathwork, frequency layering, journaling reflected by an AI Council, and
+        an optional anonymous community — all <strong style="color:var(--gold-light);font-weight:400">local-first</strong>.
+        It works fully offline. Connecting to the network only adds the shared layer.
+      </p>
+    </div>
+
+    <div class="loop reveal" style="--d:360ms" aria-label="The four-stage practice loop">
+      <svg viewBox="-100 -100 200 200" aria-hidden="true">
+        <defs>
+          <linearGradient id="loopRing" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f0d88a"></stop>
+            <stop offset="50%" stop-color="#c9a84c"></stop>
+            <stop offset="100%" stop-color="#8a7332"></stop>
+          </linearGradient>
+        </defs>
+        <circle r="74" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="0.6"></circle>
+        <circle r="78" fill="none" stroke="url(#loopRing)" stroke-width="0.6" stroke-dasharray="2 6"></circle>
+        <circle id="loopDot" r="3.6" fill="#f0d88a" cx="0" cy="-78">
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="20s" repeatCount="indefinite"></animateTransform>
+        </circle>
+        <!-- 4 stage nodes -->
+        <g fill="none" stroke="rgba(201,168,76,0.5)" stroke-width="0.6">
+          <circle cx="0" cy="-78" r="4"></circle>
+          <circle cx="78" cy="0" r="4"></circle>
+          <circle cx="0" cy="78" r="4"></circle>
+          <circle cx="-78" cy="0" r="4"></circle>
+        </g>
+      </svg>
+      <div class="label" style="left:50%;top:0;transform:translate(-50%,-130%)">Prepare</div>
+      <div class="label" style="right:0;top:50%;transform:translate(130%,-50%)">Practice</div>
+      <div class="label" style="left:50%;bottom:0;transform:translate(-50%,130%)">Reflect</div>
+      <div class="label" style="left:0;top:50%;transform:translate(-130%,-50%)">Integrate</div>
+      <div class="center">
+        <span>One Loop</span>
+        <span class="word" id="loopWord">prepare</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── council ───────── -->
+<section id="council" aria-labelledby="council-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">II ·</span> The Council of Five</p></div>
+    <h2 id="council-h" class="reveal" style="--d:120ms">Five lineages, <em class="gold">one voice.</em></h2>
+    <div class="reveal" style="--d:240ms">
+      <p class="lead">
+        Reflection and guidance distilled from five explorers of consciousness, healing, and human potential —
+        surfaced through the <em class="gold">Quantum Mirror</em> as you journal. A composite voice, never an
+        impersonation; you choose which lineage you want to hear from on any given page.
+      </p>
+    </div>
+
+    <div class="council">
+      <article class="cmember c1 reveal" style="--d:60ms">
+        <div class="order">I · Architect of the Process</div>
+        <h4>Robert Monroe</h4>
+        <div class="domain">Gateway Process · Hemi-Sync</div>
+        <p class="blurb">The structural lineage of the work — focus levels, audio coherence, and the inner traveller's discipline.</p>
+      </article>
+      <article class="cmember c2 reveal" style="--d:140ms">
+        <div class="order">II · Biology of Belief</div>
+        <h4>Dr. Bruce Lipton</h4>
+        <div class="domain">Epigenetics · Cellular Memory</div>
+        <p class="blurb">Why the environment of consciousness shapes biology, and how belief modulates the field your cells live in.</p>
+      </article>
+      <article class="cmember c3 reveal" style="--d:220ms">
+        <div class="order">III · Neuroscience of Change</div>
+        <h4>Dr. Joe Dispenza</h4>
+        <div class="domain">Practice · Plasticity</div>
+        <p class="blurb">The repeatable architecture of becoming someone new: meditation, elevated emotion, and unlearning the self.</p>
+      </article>
+      <article class="cmember c4 reveal" style="--d:300ms">
+        <div class="order">IV · Frequency</div>
+        <h4>Nikola Tesla</h4>
+        <div class="domain">Resonance · Vibration · 3 · 6 · 9</div>
+        <p class="blurb">A poetic seat at the table: the universe as frequency, the body as antenna, practice as careful tuning.</p>
+      </article>
+      <article class="cmember c5 reveal" style="--d:380ms">
+        <div class="order">V · Depth</div>
+        <h4>Carl Jung</h4>
+        <div class="domain">Shadow · Symbol · Individuation</div>
+        <p class="blurb">The descent that completes the ascent. The Mirror's shadow dialogue draws from this lineage above all.</p>
+      </article>
+
+      <div class="qm-orb reveal" style="--d:460ms">
+        <div class="ornament" aria-hidden="true">
+          <svg viewBox="-60 -60 120 120" width="220" height="220">
+            <g fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="0.5">
+              <circle r="50"></circle><circle r="40"></circle><circle r="30"></circle><circle r="20"></circle>
+            </g>
+            <circle r="6" fill="rgba(240,216,138,0.4)"></circle>
+          </svg>
+        </div>
+        <p class="topline" style="font-family:var(--sans);font-size:10.5px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);margin-bottom:14px">VI · The Quantum Mirror</p>
+        <h3>The sixth seat is yours.</h3>
+        <p>The Council reflects; the Mirror integrates. Your journal entries are read back as patterns, not predictions — long-memory only across what you choose to keep.</p>
+      </div>
+    </div>
+
+    <!-- live mirror demonstration -->
+    <div class="mirror-demo reveal" style="--d:160ms">
+      <div class="topline"><svg class="glyph" viewBox="0 0 24 24" style="width:9px;height:9px;display:inline-block;vertical-align:middle;margin-right:8px"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> Quantum Mirror · live demonstration</div>
+      <h3>Reflect one sentence.</h3>
+      <span class="demo-label">A small taste · the full Mirror lives in the app</span>
+      <textarea class="mirror-input" id="mirrorInput" rows="2" placeholder="What is asking to be seen today…" aria-label="Write a sentence for the Mirror to reflect"></textarea>
+      <div class="mirror-actions">
+        <button class="mirror-reflect" id="mirrorBtn" type="button">Reflect &nbsp;→</button>
+        <span class="mirror-hint">A pattern, not a prediction. Nothing here is stored.</span>
+      </div>
+      <div class="mirror-out" id="mirrorOut" aria-live="polite">
+        <div class="eyebrow-mini"><svg class="glyph" viewBox="0 0 24 24" style="width:8px;height:8px;display:inline-block;vertical-align:middle;margin-right:8px"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> The Mirror returns</div>
+        <div class="reflection" id="mirrorReflection"></div>
+        <div class="footnote">Composite reflection · never an impersonation · not a diagnosis</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── practice protocol ───────── -->
+<section id="protocol" aria-labelledby="protocol-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">III ·</span> The Practice Protocol</p></div>
+    <h2 id="protocol-h" class="reveal" style="--d:120ms">Six movements, <em class="gold">every session.</em></h2>
+    <div class="reveal" style="--d:240ms">
+      <p class="lead">A spacious arc you can run in ten minutes or ninety. The Adaptive Engine remembers
+      what you've left where; the next session begins where attention last settled.</p>
+    </div>
+
+    <div class="movements" id="movements">
+      <div class="thread" aria-hidden="true"><div class="fill" id="threadFill"></div></div>
+
+      <article class="movement" data-mv="">
+        <div class="step">i</div>
+        <div>
+          <h3>Arrive</h3>
+          <p>One guided breath. Set a single intention in plain language — the system records nothing of it unless you ask it to.</p>
+          <span class="tag">5–60 seconds</span>
+        </div>
+      </article>
+
+      <article class="movement" data-mv="">
+        <div class="step">ii</div>
+        <div>
+          <h3>Check in</h3>
+          <p>A quick private mood check-in, with optional ten-second on-device voice or stillness read.
+          Everything is processed locally, consent-gated, and discarded the moment the read completes — only the
+          derived number you keep is saved.</p>
+          <span class="tag">On-device · consent-gated</span>
+        </div>
+      </article>
+
+      <article class="movement" data-mv="">
+        <div class="step">iii</div>
+        <div>
+          <h3>Receive your attuned practice</h3>
+          <p>The Council recommends a wave, a frequency, and a breath — with a plain-language reason. One tap to begin,
+          or choose an intent preset: Sleep · Reset · Deep Work · Gateway · Manifest · Pain Relief.</p>
+          <span class="tag">Attuned to you</span>
+        </div>
+      </article>
+
+      <article class="movement" data-mv="">
+        <div class="step">iv</div>
+        <div>
+          <h3>Practice</h3>
+          <p>A cinematic session. The field responds to your coherence as the breath settles —
+          the bloom widens, the room quiets, and the work begins.</p>
+          <span class="tag">Wave · Frequency · Breath</span>
+        </div>
+      </article>
+
+      <article class="movement" data-mv="">
+        <div class="step">v</div>
+        <div>
+          <h3>Reflect</h3>
+          <p>Journal in your own voice. Consult the Quantum Mirror or open a shadow dialogue.
+          You are speaking with patterns, not a personality.</p>
+          <span class="tag">Mirror · Shadow · Journal</span>
+        </div>
+      </article>
+
+      <article class="movement" data-mv="">
+        <div class="step">vi</div>
+        <div>
+          <h3>Integrate</h3>
+          <p>Review Signal Trends, Gateway progress, and what the practice cost or returned today. Close the loop.</p>
+          <span class="tag">Trends · Gateway I–VII</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── inside the platform ───────── -->
+<section id="platform" aria-labelledby="platform-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">IV ·</span> Inside the Platform</p></div>
+    <h2 id="platform-h" class="reveal" style="--d:120ms">A single instrument, <em class="gold">many strings.</em></h2>
+    <div class="reveal" style="--d:240ms">
+      <p class="lead">Every feature is reachable from any session. Nothing demands you leave the field to use it.</p>
+    </div>
+
+    <div class="platform">
+      <article class="feature f-waves reveal">
+        <div class="topline">Gateway Waves I–VII</div>
+        <h3>Progressive depth, unlocked by practice.</h3>
+        <p>Seven movements through the work — Discovery, Threshold, Freedom, Adventure, Exploration, Prophet, Resonance.
+        Each wave opens as the prior one settles; nothing is sold a la carte.</p>
+        <div class="visual">
+          <div class="waves">
+            <svg viewBox="0 0 600 160" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="wg" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#8a7332" stop-opacity="0.0"></stop>
+                  <stop offset="20%" stop-color="#c9a84c" stop-opacity="0.5"></stop>
+                  <stop offset="80%" stop-color="#f0d88a" stop-opacity="0.9"></stop>
+                  <stop offset="100%" stop-color="#c9a84c" stop-opacity="0.2"></stop>
+                </linearGradient>
+              </defs>
+              <g stroke="url(#wg)" fill="none" stroke-width="1.1">
+                <path d="M0,80 Q42,76 85,80 T170,80 T255,80 T340,80 T425,80 T510,80 T600,80"></path>
+                <path d="M0,80 Q42,68 85,80 T170,80 T255,80 T340,80 T425,80 T510,80 T600,80" opacity=".75"></path>
+                <path d="M0,80 Q42,55 85,80 T170,80 T255,80 T340,80 T425,80 T510,80 T600,80" opacity=".55"></path>
+                <path d="M0,80 Q42,38 85,80 T170,80 T255,80 T340,80 T425,80 T510,80 T600,80" opacity=".40"></path>
+              </g>
+              <g id="liveWave" stroke="#f0d88a" fill="none" stroke-width="1.4" filter="url(#glow)"></g>
+              <defs>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2" result="b"></feGaussianBlur>
+                  <feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+                </filter>
+              </defs>
+            </svg>
+            <div class="windicator">
+              <div class="wpip">I</div><div class="wpip">II</div><div class="wpip">III</div><div class="wpip cur">IV</div><div class="wpip">V</div><div class="wpip">VI</div><div class="wpip">VII</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature f-bloom reveal" style="--d:80ms">
+        <button class="breathe-btn" id="breatheBtn" type="button" aria-label="Begin a sixty-second guided breath">Breathe with it</button>
+        <div class="topline">Coherence Bloom</div>
+        <h3>The field responds to your breath.</h3>
+        <p>An in-session visualization that widens as the breath settles. <em>Estimated from breathing rhythm</em> —
+        a contemplative proxy, not a clinical reading.</p>
+        <div class="visual">
+          <div class="bloom"><canvas id="bloomCanvas"></canvas>
+            <div class="breathe-cue" id="breatheCue">Inhale</div>
+            <div class="breathe-timer" id="breatheTimer"></div>
+            <div class="readout"><span>Coherence</span><span>Estimated · proxy</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature f-breath reveal" style="--d:160ms">
+        <div class="topline">Breathwork Library</div>
+        <h3>Five rhythms, one breath.</h3>
+        <p>Coherence 5-5, Gateway 5-5-5, Box 4-4-4-4, 4-7-8, and the Tesla 3-6-9 cadence — pickable inside the session or queued by the Council.</p>
+        <div class="visual">
+          <div class="breaths">
+            <div class="breath b1"><div class="bubble"></div><span>5·5</span></div>
+            <div class="breath b2"><div class="bubble"></div><span>5·5·5</span></div>
+            <div class="breath b3"><div class="bubble"></div><span>Box</span></div>
+            <div class="breath b4"><div class="bubble"></div><span>4·7·8</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature f-369 reveal" style="--d:240ms">
+        <div class="topline">Tesla 369 Tracker</div>
+        <h3>Three, six, nine.</h3>
+        <p>Daily intervals that quietly track adherence to the 3-6-9 rhythm. Skip a day and the field forgives.</p>
+        <div class="visual">
+          <div class="t369">
+            <div class="num"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="2"></circle><circle cx="32" cy="32" r="28" fill="none" stroke="#c9a84c" stroke-width="2" stroke-dasharray="176" stroke-dashoffset="62" stroke-linecap="round"></circle></svg><div class="digit">3</div></div>
+            <div class="num"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="2"></circle><circle cx="32" cy="32" r="28" fill="none" stroke="#c9a84c" stroke-width="2" stroke-dasharray="176" stroke-dashoffset="92" stroke-linecap="round"></circle></svg><div class="digit">6</div></div>
+            <div class="num"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="2"></circle><circle cx="32" cy="32" r="28" fill="none" stroke="#f0d88a" stroke-width="2" stroke-dasharray="176" stroke-dashoffset="22" stroke-linecap="round"></circle></svg><div class="digit">9</div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature f-mirror reveal" style="--d:320ms">
+        <div class="topline">Quantum Mirror</div>
+        <h3>Pattern memory.</h3>
+        <p>What you've already known about yourself, surfaced when it's useful.</p>
+        <div class="visual"><div class="mirror-vis" aria-hidden="true"></div></div>
+      </article>
+
+      <article class="feature f-trends reveal" style="--d:400ms">
+        <div class="topline">Signal Trends</div>
+        <h3>Honest movement, over time.</h3>
+        <p>The numbers you chose to keep, drawn lightly. Trends, not verdicts — and never compared to anyone else.</p>
+        <div class="visual">
+          <div class="trends">
+            <svg viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="tg" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stop-color="rgba(201,168,76,0)"></stop>
+                  <stop offset="100%" stop-color="rgba(201,168,76,0.35)"></stop>
+                </linearGradient>
+              </defs>
+              <path d="M0,60 L40,52 L80,56 L120,46 L160,40 L200,44 L240,32 L280,30 L320,24 L360,28 L400,18 L440,22 L480,14 L520,10 L560,16 L600,8 L600,80 L0,80 Z" fill="url(#tg)"></path>
+              <path d="M0,60 L40,52 L80,56 L120,46 L160,40 L200,44 L240,32 L280,30 L320,24 L360,28 L400,18 L440,22 L480,14 L520,10 L560,16 L600,8" fill="none" stroke="#f0d88a" stroke-width="1.4"></path>
+              <circle cx="600" cy="8" r="3.5" fill="#f0d88a"></circle>
+            </svg>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature f-rooms reveal" style="--d:480ms">
+        <div class="topline">Community Practice Rooms · Collective Field</div>
+        <h3>Sit with others, anonymously.</h3>
+        <p>Opt-in rooms with a live collective field and a transmission feed of brief, signed reflections.
+        Identity stays separable from practice.</p>
+        <div class="visual">
+          <div class="rooms" aria-hidden="true">
+            <svg viewBox="0 0 600 120" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <radialGradient id="cfg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(240,216,138,.55)"></stop><stop offset="100%" stop-color="rgba(240,216,138,0)"></stop></radialGradient>
+              </defs>
+              <circle cx="300" cy="60" r="56" fill="url(#cfg)"><animate attributeName="r" values="48;62;48" dur="6s" repeatCount="indefinite"></animate></circle>
+              <g fill="#c9a84c">
+                <circle cx="120" cy="60" r="2"><animate attributeName="opacity" values=".3;1;.3" dur="3s" repeatCount="indefinite"></animate></circle>
+                <circle cx="180" cy="40" r="2"><animate attributeName="opacity" values=".3;1;.3" dur="4s" repeatCount="indefinite"></animate></circle>
+                <circle cx="220" cy="78" r="2"><animate attributeName="opacity" values=".3;1;.3" dur="3.5s" repeatCount="indefinite"></animate></circle>
+                <circle cx="380" cy="34" r="2"><animate attributeName="opacity" values=".3;1;.3" dur="4.2s" repeatCount="indefinite"></animate></circle>
+                <circle cx="420" cy="68" r="2"><animate attributeName="opacity" values=".3;1;.3" dur="3.8s" repeatCount="indefinite"></animate></circle>
+                <circle cx="480" cy="50" r="2"><animate attributeName="opacity" values=".3;1;.3" dur="3.1s" repeatCount="indefinite"></animate></circle>
+              </g>
+              <g stroke="rgba(201,168,76,0.18)" stroke-width="0.6" fill="none">
+                <line x1="120" y1="60" x2="300" y2="60"></line>
+                <line x1="180" y1="40" x2="300" y2="60"></line>
+                <line x1="220" y1="78" x2="300" y2="60"></line>
+                <line x1="380" y1="34" x2="300" y2="60"></line>
+                <line x1="420" y1="68" x2="300" y2="60"></line>
+                <line x1="480" y1="50" x2="300" y2="60"></line>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── inside a session (device frame interlude) ───────── -->
+<section id="session" class="interlude" aria-labelledby="session-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> Interlude · Inside a session</p></div>
+    <h2 id="session-h" class="reveal" style="--d:120ms">What you actually <em class="gold">see.</em></h2>
+    <div class="reveal" style="--d:240ms">
+      <p class="lead">One window. One breath. The room quiets and the bloom widens with you. Everything else — the Council, the journal, the Mirror — waits behind the field, one tap away.</p>
+    </div>
+
+    <div class="macwin reveal" style="--d:340ms" aria-label="Mockup of an in-session view">
+      <div class="titlebar">
+        <div class="lights"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="title"><svg viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg>Gateway Protocol &nbsp;·&nbsp; Wave III &nbsp;·&nbsp; Release</div>
+      </div>
+      <div class="stage">
+        <div class="council-line">
+          <strong>Council · Dispenza</strong>
+          The body has remembered today's pattern. The room is here for you to lay it down.
+        </div>
+        <div class="freq-line">
+          <span>Frequency</span>
+          <span class="hz">528 Hz</span>
+          <span>Coherence 5·5</span>
+        </div>
+
+        <div class="session-eyebrow"><span class="bar"></span>Practice · 14:23<span class="bar"></span></div>
+        <div class="intent">I am letting the day <span class="you">soften</span> in me.</div>
+        <div class="orb" aria-hidden="true"></div>
+        <div class="cuetext" id="sessionCue">Inhale</div>
+        <div class="meta">
+          <div><strong>0.42</strong><span>Coherence · proxy</span></div>
+          <div><strong>III</strong><span>Wave</span></div>
+          <div><strong>18:00</strong><span>Remaining</span></div>
+        </div>
+
+        <div class="controls">
+          <div class="left">
+            <span class="pill">Wave III · Release</span>
+            <span>5·5 · 528 Hz</span>
+          </div>
+          <div class="right">
+            <span>Journal</span>
+            <span>Mirror</span>
+            <span class="play" aria-hidden="true"><svg viewBox="0 0 10 10"><rect x="2" y="1" width="2" height="8" fill="currentColor"></rect><rect x="6" y="1" width="2" height="8" fill="currentColor"></rect></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="dim reveal" style="--d:420ms;margin-top:30px;font-size:13px;max-width:78ch;text-align:center;margin-left:auto;margin-right:auto">macOS · Windows · Linux · web. Coherence is estimated from breathing rhythm — a contemplative proxy, not a clinical reading.</p>
+  </div>
+</section>
+
+<!-- ───────── gateway waves I–VII ───────── -->
+<section id="waves" aria-labelledby="waves-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">V ·</span> The Gateway Waves</p></div>
+    <h2 id="waves-h" class="reveal" style="--d:120ms">Seven waves, <em class="gold">unlocked by practice.</em></h2>
+    <div class="reveal" style="--d:240ms">
+      <p class="lead">A progressive arc through the work. Each wave opens when the prior one settles — not when a calendar permits. Nothing here is sold a la carte; the whole arc belongs to the license.</p>
+    </div>
+
+    <div class="wavelist" role="list">
+      <article class="wavebar reveal" role="listitem" style="--d:40ms" data-stage="1">
+        <div class="roman">I</div>
+        <div class="name">Threshold<span class="sub">Orientation</span></div>
+        <div class="descr">The first widening. Settle the body, soften the gaze, find the door is already open. The Council introduces itself; nothing is asked of you but presence.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q30,28 60,32 T120,32 T180,32 T240,32" fill="none" stroke="#f0d88a" stroke-width="1.2"></path>
+          </svg>
+          <span class="unlocked" style="position:absolute;right:0;top:8px">Unlocked</span>
+        </div>
+      </article>
+
+      <article class="wavebar reveal" role="listitem" style="--d:80ms" data-stage="2">
+        <div class="roman">II</div>
+        <div class="name">Stillness<span class="sub">Relaxed attention</span></div>
+        <div class="descr">A deepening that asks for less. The breath finds its own length. Coherence widens for the first time on its own.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q20,26 40,32 T80,32 T120,32 T160,32 T200,32 T240,32" fill="none" stroke="#f0d88a" stroke-width="1.2"></path>
+          </svg>
+          <span class="unlocked" style="position:absolute;right:0;top:8px">Unlocked</span>
+        </div>
+      </article>
+
+      <article class="wavebar reveal" role="listitem" style="--d:120ms" data-stage="3">
+        <div class="roman">III</div>
+        <div class="name">Release<span class="sub">Letting the pattern go</span></div>
+        <div class="descr">Old shapes loosen. The Mirror notices what you have stopped carrying; the Council, in Lipton's lineage, points at the field around the cell.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q15,18 30,32 T60,32 T90,32 T120,32 T150,32 T180,32 T210,32 T240,32" fill="none" stroke="#f0d88a" stroke-width="1.2"></path>
+          </svg>
+          <span class="unlocked" style="position:absolute;right:0;top:8px">Current</span>
+        </div>
+      </article>
+
+      <article class="wavebar locked reveal" role="listitem" style="--d:160ms" data-stage="4">
+        <div class="roman">IV</div>
+        <div class="name">Adventure<span class="sub">Extended exploration</span></div>
+        <div class="descr">Longer sessions; the field stays open. You will return to rooms you have only glimpsed. The Mirror keeps the doors lit behind you.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q12,8 24,32 T48,32 T72,32 T96,32 T120,32 T144,32 T168,32 T192,32 T216,32 T240,32" fill="none" stroke="rgba(201,168,76,0.45)" stroke-width="1"></path>
+          </svg>
+          <span class="lock" style="position:absolute;right:0;top:8px">Opens with III</span>
+        </div>
+      </article>
+
+      <article class="wavebar locked reveal" role="listitem" style="--d:200ms" data-stage="5">
+        <div class="roman">V</div>
+        <div class="name">Aperture<span class="sub">Open inquiry</span></div>
+        <div class="descr">A sustained, unscripted opening. The Council steps further back; your own questions become the curriculum. Jung's lineage runs through this wave like a vein.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q10,4 20,32 T40,32 T60,32 T80,32 T100,32 T120,32 T140,32 T160,32 T180,32 T200,32 T220,32 T240,32" fill="none" stroke="rgba(201,168,76,0.35)" stroke-width="1"></path>
+          </svg>
+          <span class="lock" style="position:absolute;right:0;top:8px">Opens with IV</span>
+        </div>
+      </article>
+
+      <article class="wavebar locked reveal" role="listitem" style="--d:240ms" data-stage="6">
+        <div class="roman">VI</div>
+        <div class="name">Prophet<span class="sub">The long view</span></div>
+        <div class="descr">Time softens. Place softens. The work becomes about seeing the practice itself, and the one practicing.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q8,2 16,32 T32,32 T48,32 T64,32 T80,32 T96,32 T112,32 T128,32 T144,32 T160,32 T176,32 T192,32 T208,32 T224,32 T240,32" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1"></path>
+          </svg>
+          <span class="lock" style="position:absolute;right:0;top:8px">Opens with V</span>
+        </div>
+      </article>
+
+      <article class="wavebar locked reveal" role="listitem" style="--d:280ms" data-stage="7">
+        <div class="roman">VII</div>
+        <div class="name">Resonance<span class="sub">Integration · carrying it back</span></div>
+        <div class="descr">The wave that closes the arc by opening it outward. The work becomes a way of being — you bring it into the room when you leave the room.</div>
+        <div class="wavesig">
+          <svg viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,32 Q60,32 120,32 T240,32" fill="none" stroke="rgba(201,168,76,0.4)" stroke-width="0.8" stroke-dasharray="3 5"></path>
+          </svg>
+          <span class="lock" style="position:absolute;right:0;top:8px">Opens with VI</span>
+        </div>
+      </article>
+    </div>
+
+    <p class="dim reveal" style="--d:320ms;margin-top:30px;font-size:13px;max-width:78ch">Progression is by practice, not by paywall. Unlock pacing keeps the work in sequence; if you need to revisit, every prior wave is one tap away.</p>
+  </div>
+</section>
+
+<!-- ───────── sovereign ───────── -->
+<section id="sovereign" aria-labelledby="sov-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">VI ·</span> Why it matters</p></div>
+    <h2 id="sov-h" class="reveal" style="--d:120ms">Sovereign by design. <em class="gold">Honest by principle.</em></h2>
+
+    <div class="two-col">
+      <article class="panel reveal" style="--d:120ms">
+        <div class="topline">Yours, privately</div>
+        <h3>Your data never leaves your device.</h3>
+        <p>Sensitive check-in signals — mood, and optional on-device voice and camera-stillness reads —
+        are processed <strong>100% on your machine, consent-gated, and never recorded, stored, or transmitted.</strong>
+        Only the derived numbers you choose to keep are saved. Full data export and import, always.</p>
+      </article>
+      <article class="panel reveal" style="--d:200ms">
+        <div class="topline">Whole, not scattered</div>
+        <h3>One coherent practice, not ten apps.</h3>
+        <p>Waves, frequencies, breathwork, journaling, AI reflection, community — in a single arc that meets you
+        where you actually are today. macOS (Intel + Apple Silicon), Windows, Linux, web.</p>
+      </article>
+      <article class="panel reveal" style="--d:280ms">
+        <div class="topline">Adaptive, transparently</div>
+        <h3>The Council shows its work.</h3>
+        <p>Every recommendation arrives with a plain-language reason drawn from <em class="gold">your own</em>
+        check-ins and history — never a black-box nudge.</p>
+      </article>
+      <article class="panel reveal" style="--d:360ms">
+        <div class="topline">Owned, not subscribed</div>
+        <h3>The work belongs to you.</h3>
+        <p>A one-time license. Your journal, your trends, your protocols. If the network goes away, the practice doesn't.</p>
+      </article>
+    </div>
+
+    <div class="reveal" style="--d:160ms;margin-top:90px">
+      <p class="eyebrow"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> Honesty matrix</p>
+      <h3 style="font-family:var(--serif);font-weight:400;font-size:clamp(24px,3vw,36px);max-width:780px">What we can measure, and what we can only point toward.</h3>
+    </div>
+    <div class="matrix reveal" style="--d:240ms" role="table" aria-label="Evidence versus interpretation">
+      <div class="row head"><div class="label">Element</div><div>Measured signal</div><div>Interpretive framing</div></div>
+      <div class="row"><div class="label">Coherence</div><div class="measured">Estimated from breathing rhythm — a proxy, on-device.</div><div class="interpretive">Not a clinical HRV reading. Not a diagnosis.</div></div>
+      <div class="row"><div class="label">Frequencies</div><div class="measured">Audio at specified Solfeggio frequencies, layered over guided sessions.</div><div class="interpretive">Contemplative / traditional associations, not established clinical fact.</div></div>
+      <div class="row"><div class="label">Council Voice</div><div class="measured">A composite reflection synthesized from your journal patterns.</div><div class="interpretive">A mirror, not a person. Never an impersonation.</div></div>
+      <div class="row"><div class="label">Collective Field</div><div class="measured">Anonymous, opt-in count of practitioners currently in a room.</div><div class="interpretive">A sense of company, not a measurement of shared consciousness.</div></div>
+    </div>
+    <p class="dim reveal" style="--d:320ms;margin-top:24px;font-size:13px;max-width:78ch">
+      Gateway Protocol supports practice. It does not diagnose, treat, or cure. If you are working with a medical condition,
+      please work with a clinician alongside this practice — not instead of one.
+    </p>
+  </div>
+</section>
+
+<!-- ───────── begin ───────── -->
+<section id="begin" class="begin" aria-labelledby="begin-h">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow" style="justify-content:center"><svg class="glyph" viewBox="0 0 24 24"><path d="M12 2 L22 12 L12 22 L2 12 Z" fill="currentColor"></path></svg> <span class="num">VII ·</span> Begin</p></div>
+    <h2 id="begin-h" class="reveal" style="--d:120ms;text-align:center">Your <em class="gold">first three movements.</em></h2>
+    <div class="reveal" style="--d:200ms">
+      <p class="lead" style="margin:0 auto;text-align:center">Open the app · set one intention · let the Council recommend your first session.<br><em class="gold">The field is already open.</em></p>
+    </div>
+
+    <div class="threesteps reveal" style="--d:300ms">
+      <div class="step3"><div class="n">i.</div><h4>Arrive</h4><p>One guided breath. No account required to begin.</p></div>
+      <div class="step3"><div class="n">ii.</div><h4>Set one intention</h4><p>Plain language. The Council listens, you stay in charge.</p></div>
+      <div class="step3"><div class="n">iii.</div><h4>Practice</h4><p>Receive your attuned session and step into the field.</p></div>
+    </div>
+
+    <div class="reveal" style="--d:380ms">
+      <a class="btn" href="#top" id="enter">Enter the Gateway <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── footer ───────── -->
+<footer>
+  <svg class="glyph-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L22 12 L12 22 L2 12 Z M12 7 L17 12 L12 17 L7 12 Z" fill="currentColor" stroke="none"></path></svg>
+  <div class="trail">Gateway Protocol · Consciousness · Healing · Abundance · Liberation · Owned, not subscribed.</div>
+  <p class="discl">This platform supports practice; it does not diagnose, treat, or cure. Not medical advice.
+  Coherence is estimated from breathing rhythm — a contemplative proxy, not a clinical HRV reading. Solfeggio
+  and frequency associations are contemplative / traditional framings, not established clinical fact.</p>
+  <div class="trail" style="margin-top:30px">© MMXXVI · Made for the long quiet</div>
+</footer>
+
+<script>
+/* ───────── starfield ───────── */
+(function(){
+  const c = document.getElementById('starfield');
+  const ctx = c.getContext('2d');
+  let stars = [], shoots = [], DPR = Math.min(window.devicePixelRatio||1, 2), W=0, H=0, t=0;
+  function size(){
+    W = window.innerWidth; H = window.innerHeight;
+    c.width = W*DPR; c.height = H*DPR;
+    c.style.width = W+'px'; c.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    seed();
+  }
+  function seed(){
+    stars = [];
+    const N = Math.floor((W*H)/9000);
+    for(let i=0;i<N;i++){
+      stars.push({
+        x:Math.random()*W,
+        y:Math.random()*H,
+        z:Math.random()*0.7+0.3, // depth
+        r:Math.random()*1.1+0.2,
+        tw:Math.random()*Math.PI*2,
+        tws:Math.random()*0.018+0.004,
+        hue:Math.random()<0.08 ? 1 : 0  // 1=gold, 0=white
+      });
+    }
+  }
+  function shoot(){
+    if(Math.random()<0.004 && shoots.length<2){
+      shoots.push({
+        x:Math.random()*W*.6+W*.2,
+        y:Math.random()*H*.4,
+        vx:(-2-Math.random()*2),
+        vy:(1+Math.random()*0.6),
+        life:0,
+        max:60+Math.random()*40
+      });
+    }
+  }
+  let mx = W/2, my = H/2;
+  window.addEventListener('mousemove',(e)=>{ mx=e.clientX; my=e.clientY; }, {passive:true});
+  function loop(){
+    t+=1;
+    ctx.clearRect(0,0,W,H);
+    // soft parallax shift toward cursor
+    const ox = (mx - W/2) * 0.01;
+    const oy = (my - H/2) * 0.01;
+    for(const s of stars){
+      s.tw += s.tws;
+      const a = 0.35 + Math.sin(s.tw)*0.35;
+      const px = (s.x + ox*s.z*8) % W;
+      const py = (s.y + oy*s.z*8) % H;
+      ctx.beginPath();
+      ctx.arc(px<0?px+W:px, py<0?py+H:py, s.r*s.z, 0, Math.PI*2);
+      if(s.hue===1){
+        ctx.fillStyle = `rgba(240,216,138,${a*0.9})`;
+      } else {
+        ctx.fillStyle = `rgba(230,228,220,${a*0.7})`;
+      }
+      ctx.fill();
+      // very slow drift downward
+      s.y += 0.015*s.z;
+      if(s.y>H) s.y=0;
+    }
+    // shooting stars
+    shoot();
+    for(let i=shoots.length-1;i>=0;i--){
+      const sh=shoots[i];
+      sh.life++;
+      sh.x+=sh.vx; sh.y+=sh.vy;
+      const a = Math.min(1, sh.life/8) * Math.max(0,1-sh.life/sh.max);
+      const grd = ctx.createLinearGradient(sh.x, sh.y, sh.x-sh.vx*20, sh.y-sh.vy*20);
+      grd.addColorStop(0,`rgba(240,216,138,${a})`);
+      grd.addColorStop(1,'rgba(240,216,138,0)');
+      ctx.strokeStyle=grd; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(sh.x,sh.y); ctx.lineTo(sh.x-sh.vx*20, sh.y-sh.vy*20); ctx.stroke();
+      if(sh.life>sh.max) shoots.splice(i,1);
+    }
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener('resize', size);
+  size(); loop();
+})();
+
+/* ───────── cursor aura ───────── */
+(function(){
+  const aura = document.getElementById('aura');
+  let tx = window.innerWidth/2, ty = window.innerHeight/2, x=tx, y=ty;
+  let visible = false;
+  window.addEventListener('mousemove',(e)=>{
+    tx = e.clientX; ty = e.clientY;
+    if(!visible){ visible=true; aura.style.opacity='1'; }
+  }, {passive:true});
+  window.addEventListener('mouseleave',()=>{ visible=false; aura.style.opacity='0'; });
+  function tick(){
+    x += (tx-x)*0.12; y += (ty-y)*0.12;
+    aura.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%)`;
+    requestAnimationFrame(tick);
+  }
+  aura.style.opacity='0';
+  tick();
+})();
+
+/* ───────── scroll cue ───────── */
+(function(){
+  const cue = document.getElementById('scrollcue');
+  setTimeout(()=>cue.classList.add('on'), 2200);
+  window.addEventListener('scroll',()=>{
+    if(window.scrollY>120){ cue.classList.remove('on'); }
+  },{passive:true});
+})();
+
+/* ───────── reveal observer ───────── */
+(function(){
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  },{threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+/* ───────── practice loop word cycling ───────── */
+(function(){
+  const words = ['prepare','practice','reflect','integrate'];
+  const el = document.getElementById('loopWord');
+  const steps = document.querySelectorAll('.circuit .step');
+  let i = 0;
+  function cycle(){
+    if(el){
+      el.style.opacity = 0;
+      setTimeout(()=>{ el.textContent = words[i]; el.style.opacity = 1; }, 250);
+    }
+    steps.forEach((s,idx)=>s.classList.toggle('active', idx===i));
+    i = (i+1) % words.length;
+  }
+  setInterval(cycle, 3200);
+  cycle();
+})();
+
+/* ───────── thread fill on movements ───────── */
+(function(){
+  const fill = document.getElementById('threadFill');
+  const wrap = document.getElementById('movements');
+  if(!fill || !wrap) return;
+  const mvs = wrap.querySelectorAll('.movement');
+  function tick(){
+    const r = wrap.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const start = r.top;
+    const end = r.bottom;
+    const total = r.height;
+    let progress = 0;
+    if(start < vh*0.5){
+      progress = Math.min(1, Math.max(0, (vh*0.5 - start) / total));
+    }
+    fill.style.height = (progress*100)+'%';
+    mvs.forEach((m)=>{
+      const mr = m.getBoundingClientRect();
+      const cy = mr.top + mr.height/2;
+      if(cy < vh*0.62){ m.classList.add('in'); }
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ───────── live wave (Gateway Waves visualization) ───────── */
+(function(){
+  const g = document.getElementById('liveWave');
+  if(!g) return;
+  let phase = 0;
+  function step(){
+    phase += 0.012;
+    const pts = [];
+    for(let x=0;x<=600;x+=6){
+      const f = (Math.sin(x*0.02 + phase) * Math.sin(x*0.006 + phase*0.7)) * 16;
+      const y = 80 + f;
+      pts.push(x+','+y.toFixed(2));
+    }
+    g.innerHTML = '<polyline points="'+pts.join(' ')+'" fill="none" stroke="#f0d88a" stroke-width="1.4" />';
+    requestAnimationFrame(step);
+  }
+  step();
+})();
+
+/* ───────── coherence bloom ───────── */
+(function(){
+  const c = document.getElementById('bloomCanvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  let DPR = Math.min(window.devicePixelRatio||1, 2), W=0, H=0, t=0;
+  function size(){
+    const r = c.getBoundingClientRect();
+    W = r.width; H = r.height;
+    c.width = W*DPR; c.height = H*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  function loop(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H/2;
+    // breath cycle: 5s in, 5s out
+    const cycle = (Math.sin(t * (Math.PI/5)) + 1) / 2; // 0..1
+    const baseR = Math.min(W,H) * 0.18;
+    const maxR = Math.min(W,H) * 0.46;
+    const r = baseR + (maxR-baseR) * cycle;
+    // outer bloom
+    for(let i=4;i>=1;i--){
+      const rr = r * (1 + i*0.22);
+      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,rr);
+      const a = 0.18 / i;
+      g.addColorStop(0, `rgba(240,216,138,${a})`);
+      g.addColorStop(0.4, `rgba(201,168,76,${a*0.5})`);
+      g.addColorStop(1, 'rgba(201,168,76,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx,cy,rr,0,Math.PI*2); ctx.fill();
+    }
+    // core
+    const cg = ctx.createRadialGradient(cx,cy,0,cx,cy,r*0.6);
+    cg.addColorStop(0,'rgba(255,240,200,0.9)');
+    cg.addColorStop(0.6,'rgba(240,216,138,0.25)');
+    cg.addColorStop(1,'rgba(201,168,76,0)');
+    ctx.fillStyle = cg;
+    ctx.beginPath(); ctx.arc(cx,cy,r*0.6,0,Math.PI*2); ctx.fill();
+    // hairline rings
+    ctx.strokeStyle = 'rgba(201,168,76,0.4)';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(201,168,76,0.18)';
+    ctx.beginPath(); ctx.arc(cx,cy,r*1.32,0,Math.PI*2); ctx.stroke();
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener('resize', size);
+  size(); loop();
+})();
+
+/* ───────── cinematic intro overlay ───────── */
+(function(){
+  const intro = document.getElementById('intro');
+  const skip = document.getElementById('introSkip');
+  if(!intro) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){ intro.classList.add('removed'); return; }
+  const dismiss = ()=>{
+    intro.classList.add('gone');
+    setTimeout(()=>intro.classList.add('removed'), 1800);
+  };
+  skip.addEventListener('click', dismiss);
+  setTimeout(dismiss, 4800);
+})();
+
+/* ───────── breathe with it ───────── */
+(function(){
+  const btn = document.getElementById('breatheBtn');
+  const cue = document.getElementById('breatheCue');
+  const timer = document.getElementById('breatheTimer');
+  if(!btn) return;
+  let running = false, raf = null, t0 = 0;
+  const TOTAL = 60; // seconds, 6 cycles of 10s (5 in / 5 out)
+  function stop(){
+    running = false;
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    btn.textContent = 'Breathe with it';
+    btn.classList.remove('live');
+    cue.classList.remove('show');
+    timer.textContent = '';
+  }
+  function tick(){
+    const now = performance.now();
+    const elapsed = (now - t0) / 1000;
+    if(elapsed >= TOTAL){ stop(); cue.textContent = 'Settled'; cue.classList.add('show'); setTimeout(()=>cue.classList.remove('show'), 1800); return; }
+    const phase = elapsed % 10; // 5s in, 5s out
+    const inhale = phase < 5;
+    cue.textContent = inhale ? 'Inhale' : 'Exhale';
+    cue.classList.add('show');
+    const remain = Math.max(0, Math.ceil(TOTAL - elapsed));
+    timer.textContent = remain + 's';
+    raf = requestAnimationFrame(tick);
+  }
+  btn.addEventListener('click', ()=>{
+    if(running){ stop(); return; }
+    running = true;
+    btn.textContent = 'Stop';
+    btn.classList.add('live');
+    t0 = performance.now();
+    tick();
+  });
+})();
+
+/* ───────── live quantum mirror demo ───────── */
+(function(){
+  const input = document.getElementById('mirrorInput');
+  const btn = document.getElementById('mirrorBtn');
+  const out = document.getElementById('mirrorOut');
+  const reflection = document.getElementById('mirrorReflection');
+  if(!btn) return;
+  let busy = false;
+  async function reflect(){
+    const text = (input.value || '').trim();
+    if(!text || busy) return;
+    busy = true;
+    btn.disabled = true;
+    const origLabel = btn.innerHTML;
+    btn.innerHTML = 'Reflecting <span class="mirror-dots"><span></span><span></span><span></span></span>';
+    out.classList.remove('has');
+    reflection.textContent = '';
+    try{
+      const prompt = `You are the Quantum Mirror inside the Gateway Protocol — a sovereign consciousness practice platform.\nA practitioner has written one sentence to you. Reflect it back as a *pattern*, not a prediction or advice.\n\nVoice rules — non-negotiable:\n• Calm, sovereign, second-person ("you").\n• 2 sentences MAX. Spacious. No bullet points, no headings, no emoji.\n• Start by naming the *pattern* or *shape* you notice (use phrases like "what I notice is…", "there is a quality of…", "the shape of this is…").\n• Then offer one quiet observation, NOT a recommendation. Never tell them what to do.\n• Never diagnose. Never use clinical or medical language. Never make promises.\n• Drop into the Cormorant-Garamond register: contemplative, fine-stationery, Monroe Institute meets quiet luxury.\n• No exclamation marks. No hype. No "I hear you" therapy-speak.\n\nThe sentence:\n"""${text}"""\n\nReflect.`;
+      const resp = await window.claude.complete(prompt);
+      reflection.textContent = (resp || '').trim() || 'The Mirror is quiet today. Try once more in a moment.';
+    }catch(err){
+      reflection.textContent = 'The Mirror is quiet today. (The live demo could not reach the field.)';
+    }
+    out.classList.add('has');
+    btn.disabled = false;
+    btn.innerHTML = origLabel;
+    busy = false;
+  }
+  btn.addEventListener('click', reflect);
+  input.addEventListener('keydown',(e)=>{
+    if((e.metaKey||e.ctrlKey) && e.key==='Enter'){ e.preventDefault(); reflect(); }
+  });
+})();
+
+/* ───────── session cue swap ───────── */
+(function(){
+  const el = document.getElementById('sessionCue');
+  if(!el) return;
+  let on = true;
+  setInterval(()=>{
+    el.style.opacity = 0;
+    setTimeout(()=>{ el.textContent = on ? 'Exhale' : 'Inhale'; el.style.opacity = 1; on = !on; }, 400);
+  }, 5000);
+})();
+
+/* ───────── tweaks panel (host protocol + applier) ───────── */
+(function(){
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "palette": "gold",
+    "motion": "cinematic",
+    "tagline": "sovereign"
+  }/*EDITMODE-END*/;
+
+  const PALETTES = {
+    gold:   { gold:'#c9a84c', goldLight:'#f0d88a', goldDeep:'#8a7332', hairline:'rgba(201,168,76,0.20)', hairlineStrong:'rgba(201,168,76,0.42)' },
+    silver: { gold:'#aeb6cf', goldLight:'#d8e1f5', goldDeep:'#5e667c', hairline:'rgba(174,182,207,0.20)', hairlineStrong:'rgba(174,182,207,0.42)' },
+    copper: { gold:'#c97a3c', goldLight:'#f0a878', goldDeep:'#7a4a26', hairline:'rgba(201,122,60,0.20)', hairlineStrong:'rgba(201,122,60,0.42)' }
+  };
+
+  const TAGLINES = {
+    sovereign: { line1: 'A sovereign space for consciousness practice.', line2: 'Owned, not subscribed.' },
+    quiet:     { line1: 'Inner work, kept inside.',                       line2: 'A platform for the long quiet.' },
+    yours:     { line1: 'Yours to enter.',                                line2: 'Yours to keep.' }
+  };
+
+  const state = Object.assign({}, TWEAK_DEFAULTS);
+  const panel = document.getElementById('twk');
+  const closeBtn = document.getElementById('twkClose');
+  const replayBtn = document.getElementById('replayIntro');
+
+  function applyPalette(name){
+    const p = PALETTES[name] || PALETTES.gold;
+    const r = document.documentElement.style;
+    r.setProperty('--gold', p.gold);
+    r.setProperty('--gold-light', p.goldLight);
+    r.setProperty('--gold-deep', p.goldDeep);
+    r.setProperty('--hairline', p.hairline);
+    r.setProperty('--hairline-strong', p.hairlineStrong);
+  }
+  function applyMotion(m){
+    document.body.setAttribute('data-motion', m);
+  }
+  function applyTagline(t){
+    const tl = TAGLINES[t] || TAGLINES.sovereign;
+    const el = document.querySelector('.threshold .tagline');
+    if(el){ el.innerHTML = tl.line1 + '<br/><em class="gold">'+tl.line2+'</em>'; }
+  }
+  function syncUI(){
+    panel.querySelectorAll('.twk-sw').forEach(b=>b.classList.toggle('on', b.dataset.palette === state.palette));
+    panel.querySelectorAll('[data-motion]').forEach(b=>b.classList.toggle('on', b.dataset.motion === state.motion));
+    panel.querySelectorAll('[data-tagline]').forEach(b=>b.classList.toggle('on', b.dataset.tagline === state.tagline));
+  }
+  function applyAll(){
+    applyPalette(state.palette);
+    applyMotion(state.motion);
+    applyTagline(state.tagline);
+    syncUI();
+  }
+  function setKey(key, value){
+    state[key] = value;
+    applyAll();
+    try{ window.parent.postMessage({type:'__edit_mode_set_keys', edits:{[key]:value}}, '*'); }catch(_){}
+  }
+
+  // wire buttons
+  panel.querySelectorAll('[data-palette]').forEach(b=>b.addEventListener('click',()=>setKey('palette', b.dataset.palette)));
+  panel.querySelectorAll('[data-motion]').forEach(b=>b.addEventListener('click',()=>setKey('motion', b.dataset.motion)));
+  panel.querySelectorAll('[data-tagline]').forEach(b=>b.addEventListener('click',()=>setKey('tagline', b.dataset.tagline)));
+  replayBtn.addEventListener('click',()=>{
+    const intro = document.getElementById('intro');
+    if(!intro) return;
+    intro.classList.remove('removed','gone');
+    // force reflow then re-run
+    void intro.offsetWidth;
+    // restart child animations by toggling display
+    intro.style.animation = 'none';
+    setTimeout(()=>{
+      intro.querySelectorAll('.iring circle,.ihalo,.iglyph,.iword').forEach(el=>{
+        el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+      });
+      setTimeout(()=>{
+        intro.classList.add('gone');
+        setTimeout(()=>intro.classList.add('removed'),1800);
+      },4800);
+    },20);
+  });
+
+  // host protocol
+  window.addEventListener('message',(e)=>{
+    const d = e.data || {};
+    if(d.type === '__activate_edit_mode'){ panel.classList.add('on'); }
+    if(d.type === '__deactivate_edit_mode'){ panel.classList.remove('on'); }
+  });
+  closeBtn.addEventListener('click',()=>{
+    panel.classList.remove('on');
+    try{ window.parent.postMessage({type:'__edit_mode_dismissed'}, '*'); }catch(_){}
+  });
+  try{ window.parent.postMessage({type:'__edit_mode_available'}, '*'); }catch(_){}
+
+  // drag header
+  (function(){
+    const hd = document.getElementById('twkHd');
+    let dragging=false, dx=0, dy=0;
+    hd.addEventListener('mousedown',(e)=>{
+      if(e.target.closest('.twk-x')) return;
+      dragging=true;
+      const r = panel.getBoundingClientRect();
+      dx = e.clientX - r.left;
+      dy = e.clientY - r.top;
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove',(e)=>{
+      if(!dragging) return;
+      panel.style.left = (e.clientX - dx)+'px';
+      panel.style.top  = (e.clientY - dy)+'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    });
+    window.addEventListener('mouseup',()=>dragging=false);
+  })();
+
+  applyAll();
+})();
+
+/* ───────── smooth nav focus ───────── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',(e)=>{
+    const id = a.getAttribute('href');
+    if(id.length>1){
+      const el = document.querySelector(id);
+      if(el){ e.preventDefault(); const top = el.getBoundingClientRect().top + window.scrollY; window.scrollTo({top, behavior:'smooth'}); }
+    }
+  });
+});
+</script>
+<!-- tweaks panel -->
+<div class="twk" id="twk" role="dialog" aria-label="Tweaks">
+  <div class="twk-hd" id="twkHd">
+    <b>◈ &nbsp; Tweaks</b>
+    <button class="twk-x" id="twkClose" aria-label="Close tweaks">×</button>
+  </div>
+  <div class="twk-body">
+    <div class="twk-sec">
+      <span class="lab">Palette</span>
+      <div class="twk-swatches">
+        <button class="twk-sw" data-palette="gold" style="background:linear-gradient(135deg,#c9a84c 0%,#f0d88a 100%);--swhighlight:#f0d88a" aria-label="Gold"><span class="lbl">Gold</span></button>
+        <button class="twk-sw" data-palette="silver" style="background:linear-gradient(135deg,#8a93b0 0%,#d8e1f5 100%);--swhighlight:#d8e1f5" aria-label="Silver"><span class="lbl">Silver</span></button>
+        <button class="twk-sw" data-palette="copper" style="background:linear-gradient(135deg,#c97a3c 0%,#f0a878 100%);--swhighlight:#f0a878" aria-label="Copper"><span class="lbl">Copper</span></button>
+      </div>
+    </div>
+    <div class="twk-sec">
+      <span class="lab">Motion</span>
+      <div class="twk-row">
+        <button class="twk-opt" data-motion="cinematic">Cinematic</button>
+        <button class="twk-opt" data-motion="whisper">Whisper</button>
+        <button class="twk-opt" data-motion="still">Still</button>
+      </div>
+    </div>
+    <div class="twk-sec">
+      <span class="lab">Tagline</span>
+      <div class="twk-row" style="flex-direction:column">
+        <button class="twk-opt" data-tagline="sovereign">Sovereign · Owned</button>
+        <button class="twk-opt" data-tagline="quiet">Inner work · Long quiet</button>
+        <button class="twk-opt" data-tagline="yours">Yours to enter</button>
+      </div>
+    </div>
+    <div class="twk-sec">
+      <span class="lab">Actions</span>
+      <button class="twk-btn" id="replayIntro">Replay intro</button>
+    </div>
+  </div>
+  <div class="twk-foot">◈ · Tradition, attuned</div>
+</div>
+
+
+
+</body></html>
