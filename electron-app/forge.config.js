@@ -54,7 +54,7 @@ module.exports = {
           productName: 'Gateway Protocol',
           genericName: 'Consciousness Practice Platform',
           categories: ['Education', 'Utility'],
-          maintainer: 'Arturo Morales',
+          maintainer: 'AM',
           homepage: 'https://github.com/amc198009/gateway-protocol',
         },
       },

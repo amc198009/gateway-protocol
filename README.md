@@ -169,7 +169,7 @@ See [PROGRESS.md](PROGRESS.md) for the per-feature breakdown.
 
 ## License
 
-[GNU AGPL-3.0-only](./LICENSE) · Copyright © 2026 Arturo Morales.
+[GNU AGPL-3.0-only](./LICENSE) · Copyright © 2026 AM.
 
 This means you can run it, copy it, modify it, and redistribute it — including running a fork as a public service — provided you also offer the same freedoms to anyone who interacts with your fork. In practical terms: if you stand up a Practice Rooms / Transmission Feed server based on this code and let anyone hit it over the network, you must publish your source. Closed-source SaaS forks are not allowed; community-served forks are welcome. See [LICENSE](./LICENSE) for the full text and [the GNU AGPL FAQ](https://www.gnu.org/licenses/gpl-faq.html) for plain-English notes.
 
