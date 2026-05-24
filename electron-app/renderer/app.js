@@ -3552,6 +3552,57 @@ function renderJournalHistory(){
   }).join('');
 }
 
+// ═══════════════ INSIGHT — signal trends + practice timeline (V6·T4) ═══════════════
+// Turns the accumulating local check-in data into reflective sparklines — a
+// mirror, not a score. Pure read of DB; no network, nothing leaves the device.
+const INSIGHT = {
+  render(){
+    const el=document.getElementById('gp-insight'); if(!el) return;
+    const d=DB.load();
+    const series=[];
+    const moods=d.moods||[];
+    if(moods.length>=2){
+      series.push({label:'Calm',   values:moods.slice(-21).map(m=>m.calm||3),   color:'#c9a84c', max:5});
+      series.push({label:'Energy', values:moods.slice(-21).map(m=>m.energy||3), color:'#f0d88a', max:5});
+    }
+    const vc=d.voiceCheckins||[];
+    if(vc.length>=2) series.push({label:'Voice energy', values:vc.slice(-21).map(v=>Math.round((v.energy||0)*100)), color:'#8fb3d9', max:30});
+    const cc=d.cameraCheckins||[];
+    if(cc.length>=2) series.push({label:'Stillness', values:cc.slice(-21).map(c=>Math.round((c.stillness||0)*100)), color:'#bcc2d6', max:100});
+    if(!series.length){
+      el.innerHTML='<div class="gp-insight-empty">Save a few mood, voice, or stillness check-ins on the Today screen and your trends will appear here.</div>';
+      return;
+    }
+    el.innerHTML = series.map((s,i)=>
+      `<div class="gp-insight-row"><span class="gp-insight-label">${escapeHTML(s.label)}</span><canvas class="gp-insight-spark" id="gp-spark-${i}" width="480" height="44" aria-label="${escapeHTML(s.label)} trend"></canvas></div>`
+    ).join('') +
+      `<div class="gp-insight-row"><span class="gp-insight-label">Practice · 14d</span><canvas class="gp-insight-spark" id="gp-insight-timeline" width="480" height="44" aria-label="Practice activity, last 14 days"></canvas></div>`;
+    series.forEach((s,i)=>this._spark(document.getElementById('gp-spark-'+i), s.values, s.color, s.max));
+    this._timeline(d);
+  },
+  _spark(canvas, values, color, max){
+    if(!canvas) return; const ctx=canvas.getContext('2d'); if(!ctx) return;
+    const w=canvas.width, h=canvas.height, pad=5; ctx.clearRect(0,0,w,h);
+    if(values.length<2) return;
+    const mx=max||Math.max(...values,1), step=(w-pad*2)/(values.length-1);
+    ctx.beginPath();
+    values.forEach((v,i)=>{ const x=pad+i*step, y=h-pad-((v/mx)*(h-pad*2)); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+    const lv=values[values.length-1], lx=pad+(values.length-1)*step, ly=h-pad-((lv/mx)*(h-pad*2));
+    ctx.beginPath(); ctx.arc(lx,ly,3,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+  },
+  _timeline(d){
+    const c=document.getElementById('gp-insight-timeline'); if(!c) return;
+    const ctx=c.getContext('2d'); if(!ctx) return;
+    const w=c.width, h=c.height; ctx.clearRect(0,0,w,h);
+    const days=[...Array(14)].map((_,i)=>{ const dt=new Date(); dt.setDate(dt.getDate()-(13-i)); return dt.toISOString().slice(0,10); });
+    const sessions=d.sessionLog||[], journal=d.journal||[];
+    const counts=days.map(day=> sessions.filter(s=>s.date===day).length + journal.filter(j=>String(j.date||'').slice(0,10)===day).length);
+    const mx=Math.max(...counts,1), bw=(w-2)/14;
+    counts.forEach((n,i)=>{ const bh=(n/mx)*(h-6); ctx.fillStyle=n?'#c9a84c':'rgba(201,168,76,.15)'; ctx.fillRect(i*bw+1, h-Math.max(bh,2), bw-2, Math.max(bh,2)); });
+  }
+};
+
 // ═══════════════════════════ PROGRESS ═══════════════════════════
 function buildProgress(){updateStats();}
 
@@ -3717,6 +3768,7 @@ function updateStats(){
   renderSessionGraph();
   TT.render();
   checkTierUnlock();
+  if(typeof INSIGHT!=='undefined') INSIGHT.render(); // V6·T4 signal trends
 }
 
 function toggleDay(i){

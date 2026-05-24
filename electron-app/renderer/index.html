@@ -152,6 +152,11 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 /* V6·T2 coherence bloom — brief golden field bloom on sustained coherence */
 body.gp-coherence-bloom::after{content:"";position:fixed;inset:0;z-index:8000;pointer-events:none;background:radial-gradient(circle at 50% 55%, rgba(240,216,138,.35), rgba(201,168,76,.12) 35%, transparent 70%);animation:gp-bloom 2.6s ease-out forwards}
 @keyframes gp-bloom{0%{opacity:0;transform:scale(.6)}25%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
+/* V6·T4 insight trends */
+.gp-insight-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.gp-insight-label{flex:0 0 96px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.gp-insight-spark{flex:1;min-width:0;height:44px;display:block}
+.gp-insight-empty{font-size:14px;color:var(--muted);font-style:italic;line-height:1.7}
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
@@ -1437,6 +1442,12 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     <!-- Streak -->
     <div style="font-size:14px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">21-Day Activation</div>
     <div class="streak-grid" id="streak-grid"></div>
+
+    <!-- V6·T4 — Insight: signal trends + practice timeline -->
+    <div class="divider"></div>
+    <div class="section-title" style="margin-top:1rem">Signal Trends</div>
+    <div class="section-sub">A reflective mirror of how you've been arriving — not a score. From your own check-ins, on this device only.</div>
+    <div id="gp-insight"></div>
 
     <!-- Wave completion -->
     <div class="divider"></div>
