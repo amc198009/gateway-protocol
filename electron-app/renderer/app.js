@@ -2177,19 +2177,33 @@ const CAMERA_AFFECT = {
 
   // Pure analysis — unit-testable. `frames.motion` is per-frame mean absolute
   // pixel difference (0..1); `frames.brightness` is per-frame mean luma (0..1).
+  // FUTURE (V6·T3 full): a MediaPipe FaceLandmarker provider can populate
+  // frames.landmarks (head pose, blink, gaze) and feed richer affect here.
+  // Bundling it needs vendored WASM/model assets + 'wasm-unsafe-eval' in the
+  // CSP (a deliberate security trade-off) + real-device validation — tracked
+  // in V6_ROADMAP.md · T3. Until then we derive honest, model-free signals.
   _analyze(frames){
     const motion=frames.motion||[], bright=frames.brightness||[];
-    const mMean = motion.length ? motion.reduce((a,b)=>a+b,0)/motion.length : 0;
-    const bMean = bright.length ? bright.reduce((a,b)=>a+b,0)/bright.length : 0;
+    const mean=(a)=> a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+    const mMean = mean(motion);
+    const bMean = mean(bright);
+    // Presence is more robust as "lit in a majority of frames" than a single mean.
+    const presenceRatio = bright.length ? bright.filter(b=>b>0.06).length/bright.length : 0;
+    const present = presenceRatio > 0.5;
+    // Fidget = burstiness of motion (std-dev), distinct from overall amount.
+    const variance = motion.length ? motion.reduce((a,b)=>a+(b-mMean)*(b-mMean),0)/motion.length : 0;
+    const fidget = gpClamp01(Math.sqrt(variance)*12);
     const stillness = gpClamp01(1 - mMean*8);              // small diffs => very still
-    const present = bMean > 0.06;                          // something lit in frame
-    const moveL = mMean<0.012 ? 'very still' : mMean>0.05 ? 'lots of movement' : 'some movement';
+    const moveL  = mMean<0.012 ? 'very still' : mMean>0.05 ? 'lots of movement' : 'some movement';
+    const fidgetL = fidget>0.5 ? 'restless' : fidget<0.2 ? 'steady' : 'somewhat settled';
     let guess;
     if(!present) guess='camera sees little — low light or out of frame';
-    else if(stillness>0.8) guess='settled and grounded';
-    else if(stillness<0.4) guess='restless or activated';
+    else if(stillness>0.8 && fidget<0.3) guess='settled and grounded';
+    else if(fidget>0.5 || stillness<0.4) guess='restless or activated';
     else guess='gently present';
-    return { stillness:+stillness.toFixed(3), motion:+mMean.toFixed(4), brightness:+bMean.toFixed(3), present, labels:[moveL, present?'present':'low presence'], guess };
+    return { stillness:+stillness.toFixed(3), motion:+mMean.toFixed(4), brightness:+bMean.toFixed(3),
+             fidget:+fidget.toFixed(3), presenceRatio:+presenceRatio.toFixed(3), present,
+             labels:[moveL, fidgetL, present?'present':'low presence'], guess };
   },
 
   async start(){
