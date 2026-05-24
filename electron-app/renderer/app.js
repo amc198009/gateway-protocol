@@ -2593,16 +2593,27 @@ function toggleSolf(i,hz){
   document.querySelectorAll('.ab').forEach(b=>b.classList.add('playing'));
   reactGeometry(hz,true);
   if(!audioCtx)audioCtx=AUDIO_UNLOCK.track(new(window.AudioContext||window.webkitAudioContext)());
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  oscillator=audioCtx.createOscillator();
-  gainNode=audioCtx.createGain();
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  oscillator.frequency.setValueAtTime(hz,audioCtx.currentTime);
-  oscillator.type='sine';
-  gainNode.gain.setValueAtTime(0,audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.15,audioCtx.currentTime+2);
-  oscillator.start();
+  // Start the tone only once the context is actually running. Autoplay policy
+  // can leave it 'suspended' even right after a click, and resume() is async —
+  // starting before it resumes drops the sound. The activeSolf guard prevents
+  // an orphaned oscillator if the user re-clicks before resume resolves.
+  const startTone=()=>{
+    if(activeSolf!==i) return;
+    oscillator=audioCtx.createOscillator();
+    gainNode=audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type='sine';
+    oscillator.frequency.setValueAtTime(hz,audioCtx.currentTime);
+    // Near-instant attack (~60ms) — audible immediately but ramped just enough
+    // to avoid a click. (Was a 2s fade-in, which felt like nothing played.)
+    const t=audioCtx.currentTime;
+    gainNode.gain.setValueAtTime(0.0001,t);
+    gainNode.gain.exponentialRampToValueAtTime(0.15,t+0.06);
+    oscillator.start();
+  };
+  if(audioCtx.state==='suspended'){ audioCtx.resume().then(startTone,startTone); }
+  else { startTone(); }
 }
 
 function stopSolf(){
