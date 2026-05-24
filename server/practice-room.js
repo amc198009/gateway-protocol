@@ -59,6 +59,7 @@ const STATIC_ROUTES = {
   '/app.js':               { file: joinPath(APP_DIR, 'app.js'),                 type: 'application/javascript',     cache: 'no-cache' },
   '/app-affect.js':        { file: joinPath(APP_DIR, 'app-affect.js'),          type: 'application/javascript',     cache: 'no-cache' },
   '/app-data.js':          { file: joinPath(APP_DIR, 'app-data.js'),            type: 'application/javascript',     cache: 'no-cache' },
+  '/app-visuals.js':       { file: joinPath(APP_DIR, 'app-visuals.js'),         type: 'application/javascript',     cache: 'no-cache' },
   '/vendor/three.min.js':  { file: joinPath(APP_DIR, 'vendor', 'three.min.js'), type: 'application/javascript',     cache: 'public, max-age=86400' },
   '/audio-worklet.js':     { file: joinPath(APP_DIR, 'audio-worklet.js'),       type: 'application/javascript',     cache: 'public, max-age=86400' },
   '/manifest.webmanifest': { file: joinPath(PWA_DIR, 'manifest.webmanifest'),   type: 'application/manifest+json',  cache: 'public, max-age=3600' },

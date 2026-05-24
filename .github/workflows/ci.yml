@@ -34,6 +34,7 @@ jobs:
           node --check electron-app/renderer/app.js
           node --check electron-app/renderer/app-affect.js
           node --check electron-app/renderer/app-data.js
+          node --check electron-app/renderer/app-visuals.js
           node --check proxy.js
           node --check server/practice-room.js
 
