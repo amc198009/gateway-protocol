@@ -111,6 +111,17 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 .gp-setup-skip{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);background:transparent;border:.5px solid var(--border);padding:13px 22px;border-radius:3px;cursor:pointer;margin-right:10px}
 .gp-setup-skip:hover{color:var(--silver);border-color:var(--silver)}
 .gp-setup-actions{display:flex;align-items:center}
+/* Command palette */
+.gp-nav-cmdk{font-family:var(--font-mono,monospace);letter-spacing:1px;opacity:.8}
+.gp-palette-overlay{position:fixed;inset:0;z-index:9500;display:none;justify-content:center;align-items:flex-start;padding:12vh 20px 20px;background:rgba(2,2,10,.78);backdrop-filter:blur(6px)}
+.gp-palette-overlay.show{display:flex}
+.gp-palette-box{width:100%;max-width:560px;background:var(--card);border:.5px solid var(--border2);border-radius:10px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.5)}
+.gp-palette-input{width:100%;background:transparent;border:none;border-bottom:.5px solid var(--border);color:var(--text);font-size:18px;padding:18px 20px;outline:none;font-family:'Cormorant Garamond',serif}
+.gp-palette-list{max-height:46vh;overflow:auto;padding:6px}
+.gp-palette-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 14px;border-radius:6px;cursor:pointer;color:var(--silver);font-size:15px}
+.gp-palette-item.sel,.gp-palette-item:hover{background:var(--glow);color:var(--gold2)}
+.gp-palette-hint{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.gp-palette-empty{padding:16px;color:var(--muted);font-style:italic;text-align:center}
 /* Voice check-in (on-device affect signals) */
 .gp-voice-affect{margin-top:16px;padding-top:16px;border-top:.5px solid var(--border)}
 .gp-voice-affect-btn{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:transparent;border:.5px solid var(--border);padding:11px 16px;border-radius:3px;cursor:pointer;transition:all .2s}
@@ -1037,7 +1048,16 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     <button class="nav-btn" data-act="show" data-arg="synchronicity">Synchronicity</button>
     <button class="nav-btn" data-act="show" data-arg="network">Network</button>
     <button class="nav-btn" data-act="show" data-arg="settings">Settings</button>
+    <button class="nav-btn gp-nav-cmdk" data-act="palette-open" aria-label="Open command palette (Cmd or Ctrl K)" title="Command palette · ⌘K">⌘K</button>
   </nav>
+
+<!-- COMMAND PALETTE (⌘K / Ctrl+K) -->
+<div id="gp-palette" class="gp-palette-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="gp-palette-box">
+    <input id="gp-palette-input" type="text" class="gp-palette-input" placeholder="Type a command or screen…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="gp-palette-list" aria-autocomplete="list">
+    <div id="gp-palette-list" class="gp-palette-list" role="listbox" aria-label="Commands"></div>
+  </div>
+</div>
 
   <!-- ════ SCREEN: TODAY (dashboard / home) ════ -->
   <div id="screen-today" class="screen active">

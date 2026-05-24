@@ -120,6 +120,7 @@ const GP_ACTIONS = {
   'camera-affect-consent': () => { CAMERA_AFFECT.grantConsent(); CAMERA_AFFECT.start(); },
   'camera-affect-confirm': () => CAMERA_AFFECT.confirm(),
   'camera-affect-discard': () => CAMERA_AFFECT.discard(),
+  'palette-open': () => PALETTE.open(),
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -207,7 +208,8 @@ const GP_EVENT_ACTIONS = {
     'tt-mark-slot','institute-issue','mood-save','apply-preset',
     'setup-goal','setup-next','setup-finish',
     'voice-affect-start','voice-affect-consent','voice-affect-confirm','voice-affect-discard',
-    'camera-affect-start','camera-affect-consent','camera-affect-confirm','camera-affect-discard'
+    'camera-affect-start','camera-affect-consent','camera-affect-confirm','camera-affect-discard',
+    'palette-open'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
@@ -1810,6 +1812,7 @@ function init(){
   buildProgress();
   buildCouncil();
   renderToday(); // default home — render once at boot (it's the active screen)
+  if(typeof PALETTE!=='undefined') PALETTE.init(); // ⌘K command palette
   observeFadeIns();
   // V2 #2: wire up the adaptive session engine. init() reads cache + binds
   // buttons; request() fires an async Council call if cache stale or absent.
@@ -2321,6 +2324,67 @@ const GP_STATE = {
     const because = 'Because your ' + s.sources.map(x=>`${x.kind} read “${x.label}”`).join(' and ') + '.';
     return { presetKey, title, because, state:s };
   }
+};
+
+// ═══════════════ COMMAND PALETTE (⌘K / Ctrl+K) — V6·T5 ═══════════════
+// Fast keyboard navigation + actions. Accessible combobox/listbox with
+// arrow-key selection, Enter to run, Esc to close, focus restore.
+const PALETTE = {
+  _open:false, _items:[], _filtered:[], _sel:0, _prevFocus:null, _wired:false,
+  _build(){
+    const items=[];
+    [['today','Today'],['sessions','Sessions'],['journal','Journal'],['council','Council'],['progress','Progress'],['waves','Waves I–VII'],['solfeggio','Solfeggio'],['breath','Breathwork'],['protocols','Protocols'],['affirmations','Affirmations'],['synchronicity','Synchronicity'],['network','Network'],['settings','Settings']]
+      .forEach(([id,label])=>items.push({label:'Go to '+label, hint:'Navigate', run:()=>showScreen(id)}));
+    if(typeof PRESETS!=='undefined') Object.keys(PRESETS).forEach(k=>items.push({label:PRESETS[k].label+' session', hint:'Preset', run:()=>applyPreset(k)}));
+    items.push({label:'Voice check-in', hint:'On-device', run:()=>{ showScreen('today'); setTimeout(()=>{ try{ VOICE_AFFECT.start(); }catch(e){} },60); }});
+    items.push({label:'Stillness check-in', hint:'On-device', run:()=>{ showScreen('today'); setTimeout(()=>{ try{ CAMERA_AFFECT.start(); }catch(e){} },60); }});
+    items.push({label:'Shadow dialogue', hint:'Council', run:()=>{ try{ SHADOW.open(); }catch(e){} }});
+    return items;
+  },
+  init(){
+    if(this._wired) return; this._wired=true;
+    document.addEventListener('keydown',(e)=>{
+      if((e.metaKey||e.ctrlKey) && (e.key==='k'||e.key==='K')){ e.preventDefault(); this.toggle(); return; }
+      if(!this._open) return;
+      if(e.key==='Escape'){ e.preventDefault(); this.close(); }
+      else if(e.key==='ArrowDown'){ e.preventDefault(); this._move(1); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); this._move(-1); }
+      else if(e.key==='Enter'){ e.preventDefault(); this._exec(); }
+    });
+    const inp=document.getElementById('gp-palette-input');
+    if(inp) inp.addEventListener('input',(e)=>this._filter(e.target.value));
+    const list=document.getElementById('gp-palette-list');
+    if(list) list.addEventListener('click',(e)=>{ const it=e.target.closest('.gp-palette-item'); if(it){ this._sel=parseInt(it.dataset.i,10)||0; this._exec(); } });
+    const ov=document.getElementById('gp-palette');
+    if(ov) ov.addEventListener('click',(e)=>{ if(e.target===ov) this.close(); }); // click backdrop to dismiss
+  },
+  open(){
+    if(this._open) return; this._open=true;
+    this._items=this._build(); this._prevFocus=document.activeElement;
+    const ov=document.getElementById('gp-palette'); if(!ov){ this._open=false; return; }
+    ov.classList.add('show'); ov.setAttribute('aria-hidden','false');
+    const inp=document.getElementById('gp-palette-input'); if(inp){ inp.value=''; }
+    this._filter('');
+    setTimeout(()=>{ if(inp) inp.focus(); },0);
+  },
+  close(){
+    if(!this._open) return; this._open=false;
+    const ov=document.getElementById('gp-palette'); if(ov){ ov.classList.remove('show'); ov.setAttribute('aria-hidden','true'); }
+    if(this._prevFocus && this._prevFocus.focus){ try{ this._prevFocus.focus(); }catch(e){} }
+  },
+  toggle(){ this._open?this.close():this.open(); },
+  _filter(q){
+    q=(q||'').toLowerCase().trim();
+    this._filtered = q ? this._items.filter(it=>it.label.toLowerCase().includes(q)) : this._items.slice();
+    this._sel=0; this._render();
+  },
+  _render(){
+    const list=document.getElementById('gp-palette-list'); if(!list) return;
+    if(!this._filtered.length){ list.innerHTML='<div class="gp-palette-empty">No matches</div>'; return; }
+    list.innerHTML=this._filtered.map((it,i)=>`<div class="gp-palette-item${i===this._sel?' sel':''}" role="option" id="gp-pal-opt-${i}" data-i="${i}" aria-selected="${i===this._sel?'true':'false'}"><span>${escapeHTML(it.label)}</span><span class="gp-palette-hint">${escapeHTML(it.hint||'')}</span></div>`).join('');
+  },
+  _move(d){ if(!this._filtered.length) return; this._sel=(this._sel+d+this._filtered.length)%this._filtered.length; this._render(); const el=document.getElementById('gp-pal-opt-'+this._sel); if(el&&el.scrollIntoView) el.scrollIntoView({block:'nearest'}); },
+  _exec(){ const it=this._filtered[this._sel]; if(!it) return; this.close(); try{ it.run(); }catch(e){} }
 };
 function _navTo(id, navBtn){
   const reduced=document.body.classList.contains('gp-reduced')||
