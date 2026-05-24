@@ -25,9 +25,12 @@ primary_region = "iad"
 
 [env]
   NODE_ENV = "production"
-  # ALLOW_ORIGIN can be locked down once you know the exact Electron-app origin.
-  # The renderer's origin is typically "file://" — leave as * for now and tighten later.
-  ALLOW_ORIGIN = "*"
+  # Comma-separated CORS allowlist of browser origins that may read responses.
+  # The hosted web app is same-origin (no CORS needed) and the desktop build
+  # runs from file:// (Origin: null), which corsOrigin() allows explicitly. Add
+  # extra web origins here as needed; "*" restores the old wildcard. No cookies
+  # are used, so this is defense-in-depth.
+  ALLOW_ORIGIN = "https://gateway-protocol.fly.dev"
   FEED_MAX = "500"
 
 [http_service]

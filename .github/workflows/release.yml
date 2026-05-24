@@ -4,8 +4,9 @@ name: Release
 # artifacts to the GitHub Release for the pushed tag.
 #
 #   Tag a release:   git tag v3.1.0 && git push origin v3.1.0
-#   → this workflow builds on three runners and uploads:
-#       macOS   .dmg + .zip   (x64 — runs on Apple Silicon via Rosetta)
+#   → this workflow builds on four runners and uploads:
+#       macOS   .dmg + .zip   (native x64 AND native arm64; files are
+#                              arch-suffixed so both attach to one Release)
 #       Windows Setup.exe + .nupkg
 #       Linux   .deb + .rpm + .zip
 #
@@ -32,12 +33,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13        # Intel runner → native x64 .dmg
-            platform: macos
+          # Both macOS arches build on Apple Silicon runners (macos-14): the
+          # app has no native node modules, so `make --arch=x64` cross-builds a
+          # valid Intel .app/.dmg, and arm64 runners are far more available than
+          # the scarce Intel (macos-13) pool that previously stalled releases.
+          - os: macos-14        # Apple Silicon runner → cross-built x64 .dmg
+            platform: macos-x64
+            arch: x64
+          - os: macos-14        # Apple Silicon runner → native arm64 .dmg
+            platform: macos-arm64
+            arch: arm64
           - os: windows-latest
             platform: windows
+            arch: x64
           - os: ubuntu-latest
             platform: linux
+            arch: x64
     steps:
       - uses: actions/checkout@v4
 
@@ -57,9 +68,37 @@ jobs:
         working-directory: electron-app
         run: npm ci --no-audit --no-fund
 
-      - name: Build (electron-forge make · x64)
+      # appdmg mounts the staging image at /Volumes/Gateway Protocol then
+      # detaches it by that exact path. If a stale same-named volume is already
+      # mounted, macOS mounts the new one at "…Protocol 1" and the detach fails
+      # ("No such file or directory"), breaking `make`. Force-detach leftovers
+      # so the volume mounts at the expected path.
+      - name: Detach stale Gateway Protocol volumes (macOS)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          for v in "/Volumes/Gateway Protocol"*; do
+            [ -d "$v" ] && hdiutil detach "$v" -force || true
+          done
+          exit 0
+
+      - name: Build (electron-forge make · ${{ matrix.arch }})
         working-directory: electron-app
-        run: npm run make -- --arch=x64
+        run: npm run make -- --arch=${{ matrix.arch }}
+
+      # maker-dmg names the disk image after the app, not the arch, so the
+      # x64 and arm64 macOS jobs would both emit "Gateway Protocol.dmg" and
+      # collide as Release assets. Suffix the macOS .dmg/.zip with the arch.
+      - name: Disambiguate macOS artifacts by arch
+        if: startsWith(matrix.platform, 'macos')
+        shell: bash
+        working-directory: electron-app/out/make
+        run: |
+          find . -type f \( -name '*.dmg' -o -name '*.zip' \) -print0 | while IFS= read -r -d '' f; do
+            dir=$(dirname "$f"); base=$(basename "$f"); ext="${base##*.}"; stem="${base%.*}"
+            case "$stem" in *-${{ matrix.arch }}) continue;; esac
+            mv "$f" "$dir/${stem}-${{ matrix.arch }}.${ext}"
+            echo "renamed -> ${stem}-${{ matrix.arch }}.${ext}"
+          done
 
       - name: List built artifacts
         shell: bash

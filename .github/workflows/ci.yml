@@ -26,12 +26,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: electron-app/package-lock.json
 
-      - name: Syntax-check main, preload, audio-worklet, proxy
+      - name: Syntax-check main, preload, audio-worklet, app, proxy, server
         run: |
           node --check electron-app/main.js
           node --check electron-app/preload.js
           node --check electron-app/renderer/audio-worklet.js
+          node --check electron-app/renderer/app.js
           node --check proxy.js
+          node --check server/practice-room.js
 
       - name: Syntax-check renderer inline scripts
         run: |
@@ -70,6 +72,14 @@ jobs:
         working-directory: electron-app
         run: node -e "require('./forge.config.js'); console.log('forge.config.js loads')"
 
-      - name: npm audit (production deps only)
+      - name: npm audit — electron-app (production deps only)
         working-directory: electron-app
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: npm install (server)
+        working-directory: server
+        run: npm ci --no-audit --no-fund
+
+      - name: npm audit — server (production deps only)
+        working-directory: server
         run: npm audit --omit=dev --audit-level=high

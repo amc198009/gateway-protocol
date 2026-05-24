@@ -45,6 +45,7 @@ const APP_DIR = joinPath(__dirname, 'app');
 const PWA_DIR = joinPath(__dirname, 'pwa');
 const STATIC_ROUTES = {
   '/app':                  { file: joinPath(APP_DIR, 'index.html'),             type: 'text/html; charset=utf-8',  cache: 'no-cache' },
+  '/app.js':               { file: joinPath(APP_DIR, 'app.js'),                 type: 'application/javascript',     cache: 'no-cache' },
   '/vendor/three.min.js':  { file: joinPath(APP_DIR, 'vendor', 'three.min.js'), type: 'application/javascript',     cache: 'public, max-age=86400' },
   '/audio-worklet.js':     { file: joinPath(APP_DIR, 'audio-worklet.js'),       type: 'application/javascript',     cache: 'public, max-age=86400' },
   '/manifest.webmanifest': { file: joinPath(PWA_DIR, 'manifest.webmanifest'),   type: 'application/manifest+json',  cache: 'public, max-age=3600' },
@@ -90,7 +91,35 @@ function readVersion() {
 
 const PORT = process.env.PORT || 7070;
 const HOST = process.env.HOST || '0.0.0.0';
-const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*';
+// Production gating: Fly sets FLY_APP_NAME on every deployed machine; an
+// explicit NODE_ENV=production also counts. Used to fail fast on unsafe config.
+const IS_PRODUCTION = process.env.NODE_ENV === 'production' || !!process.env.FLY_APP_NAME;
+
+// ── CORS allowlist ────────────────────────────────────────────────────
+// ALLOW_ORIGIN is a comma-separated allowlist of browser origins permitted to
+// read cross-origin responses. The hosted web app is same-origin so it never
+// needs CORS; the desktop build runs from file:// (Origin: null) and is allowed
+// explicitly below. '*' (the legacy value) keeps the wildcard as an escape
+// hatch. The API uses no cookies, so this is defense-in-depth: it stops an
+// arbitrary website's JS from reading responses, while first-party clients work.
+const CANONICAL_ORIGIN = 'https://gateway-protocol.fly.dev';
+const ORIGIN_LIST = (process.env.ALLOW_ORIGIN || CANONICAL_ORIGIN).split(',').map(s => s.trim()).filter(Boolean);
+const ALLOW_ANY_ORIGIN = ORIGIN_LIST.includes('*');
+const ALLOWED_ORIGINS = new Set(ORIGIN_LIST);
+const ALLOW_ORIGIN = ALLOW_ANY_ORIGIN ? '*' : ORIGIN_LIST[0] || CANONICAL_ORIGIN; // startup banner / fallback
+// Resolve the Access-Control-Allow-Origin value for one request.
+function corsOrigin(req) {
+  if (ALLOW_ANY_ORIGIN) return '*';
+  const origin = req.headers.origin;
+  // Desktop (file://) and non-browser clients send Origin: null or none —
+  // first-party and credential-less, so allow them (echoes 'null', which the
+  // desktop's null-origin fetch accepts).
+  if (!origin || origin === 'null') return 'null';
+  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  // Not allowlisted: return a value that won't match the caller's Origin, so
+  // the browser blocks it from reading the response.
+  return ORIGIN_LIST[0] || CANONICAL_ORIGIN;
+}
 // Phase-A monetization: a single hosted "Founder's Supporter" link
 // (Gumroad / Lemon Squeezy / Stripe Payment Link). Pay-what-you-want,
 // honor-system — the app stays free. The landing-page CTA only renders
@@ -115,7 +144,17 @@ const CLIENT_HEADER = 'x-gateway-client';
 // fill the ring buffer or game the reactions counter. Production should
 // use a real rate-limit middleware backed by Redis.
 const RL_WINDOW_MS = 60 * 1000;
-const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20, byok: 30 };
+const RL_LIMITS = { feed_post: 10, feed_react: 30, api: 20, byok: 30, ws_upgrade: 30 };
+
+// ── WebSocket resource caps (Practice Rooms) ──────────────────────────
+// Without these, unauthenticated room sockets are a trivial DoS: huge frames,
+// unbounded rooms/clients, and zombie connections that never get cleaned up.
+const WS_MAX_PAYLOAD = 8 * 1024;        // 8 KB — room messages are tiny JSON
+const MAX_ROOMS = 500;                  // global cap on concurrent rooms
+const MAX_CLIENTS_PER_ROOM = 50;        // participants per room
+const MAX_WS_PER_IP = 10;               // concurrent sockets from one IP
+const WS_HEARTBEAT_MS = 30 * 1000;      // ping interval; drop unanswered peers
+const wsPerIp = new Map();              // ip → live socket count
 const rlBuckets = new Map(); // key: `${kind}:${ip}` → { count, resetAt }
 function rateLimited(kind, ip) {
   const key = kind + ':' + (ip || 'unknown');
@@ -163,6 +202,42 @@ const feed = []; // ring buffer, oldest at index 0
 // Styled landing page rendered when a browser hits `GET /`. Matches the
 // desktop app's dark + gold aesthetic. Auto-refreshes the live stats
 // every 15s via a tiny inline script that re-fetches `/` with JSON Accept.
+// Landing-page inline script (stats auto-refresh). Kept inline but pinned by
+// a CSP hash so the page can carry a real script-src 'self' policy. The hash
+// is computed once from the exact bytes below, so it can never drift.
+const LANDING_SCRIPT = `
+// Auto-refresh stats every 15s. Uses Accept: application/json so the
+// server returns the raw stats payload, not this whole HTML page.
+async function refresh(){
+  try{
+    const r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
+    const s = await r.json();
+    document.querySelector('[data-stat="rooms"]').textContent = s.rooms;
+    document.querySelector('[data-stat="feed"]').textContent  = s.feedSize;
+    const u = s.uptime|0;
+    const d = (u/86400|0), h = ((u%86400)/3600|0), m = ((u%3600)/60|0), sec = u%60;
+    document.querySelector('[data-stat="uptime"]').textContent =
+      d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s');
+  }catch(e){}
+}
+setInterval(refresh, 15000);
+`;
+const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LANDING_SCRIPT).digest('base64') + "'";
+// CSP for the landing response: external Google Fonts stylesheet + inline
+// <style> (style-src), font files (font-src), same-origin stats fetch
+// (connect-src), and only the hash-pinned inline script (script-src).
+const LANDING_CSP = [
+  "default-src 'self'",
+  `script-src 'self' ${LANDING_SCRIPT_HASH}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src https://fonts.gstatic.com",
+  "connect-src 'self'",
+  "img-src 'self' data:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+
 function renderLanding(stats) {
   const fmtUptime = s => {
     const d = Math.floor(s/86400), h = Math.floor((s%86400)/3600);
@@ -282,23 +357,7 @@ function renderLanding(stats) {
 
 </div>
 
-<script>
-// Auto-refresh stats every 15s. Uses Accept: application/json so the
-// server returns the raw stats payload, not this whole HTML page.
-async function refresh(){
-  try{
-    const r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
-    const s = await r.json();
-    document.querySelector('[data-stat="rooms"]').textContent = s.rooms;
-    document.querySelector('[data-stat="feed"]').textContent  = s.feedSize;
-    const u = s.uptime|0;
-    const d = (u/86400|0), h = ((u%86400)/3600|0), m = ((u%3600)/60|0), sec = u%60;
-    document.querySelector('[data-stat="uptime"]').textContent =
-      d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s');
-  }catch(e){}
-}
-setInterval(refresh, 15000);
-</script>
+<script>${LANDING_SCRIPT}</script>
 </body>
 </html>`;
 }
@@ -306,7 +365,8 @@ setInterval(refresh, 15000);
 function jsonResponse(res, status, body, extraHeaders) {
   res.writeHead(status, Object.assign({
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+    'Access-Control-Allow-Origin': res._corsOrigin || ALLOW_ORIGIN,
+    'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization',
   }, extraHeaders || {}));
@@ -409,7 +469,8 @@ function handleDownload(req, res, urlPath) {
     'Content-Disposition': `attachment; filename="${name}"`,
     'Accept-Ranges': 'bytes',
     'Cache-Control': 'public, max-age=3600',
-    'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+    'Access-Control-Allow-Origin': res._corsOrigin || ALLOW_ORIGIN,
+    'Vary': 'Origin',
   };
 
   // Range support — a dropped 99MB download resumes instead of restarting.
@@ -471,7 +532,9 @@ const OPENAI_EMBED_MODELS = new Set(['text-embedding-3-small', 'text-embedding-3
 // optionally-gated, metered surface:
 //
 //   • Access token  — if API_ACCESS_TOKEN is set, every /api POST must send
-//     Authorization: Bearer <token>. Empty = open beta (still rate-limited).
+//     Authorization: Bearer <token>. Empty = open beta (still rate-limited),
+//     allowed in dev only; in production the server refuses to start without
+//     a token (see the startup safety check before server.listen).
 //   • Global budget  — a hard daily credit ceiling across ALL callers. The
 //     real spend circuit-breaker: even total abuse can't exceed it.
 //   • Per-client budget — a daily ceiling per identity (token / X-Gateway-Id
@@ -541,18 +604,51 @@ function readBody(req, max) {
   });
 }
 
-// Forward a POST upstream with server-injected auth; pipe the response back
-// (works for JSON and binary/audio alike — content-type is copied through).
+// Upstream relay guards: a hung provider must not pin a client connection
+// forever, and a runaway response must not be streamed without bound. TTS
+// audio is the largest legitimate payload (a few MB), so the cap is generous.
+const UPSTREAM_TIMEOUT_MS = 60 * 1000;
+const UPSTREAM_MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+
+// Forward a POST upstream with server-injected auth; stream the response back
+// (works for JSON and binary/audio alike — content-type is copied through),
+// bounded by a timeout and a max response size.
 function httpsRelay({ hostname, path: upPath, headers, body }, clientRes) {
-  const up = https.request({ hostname, path: upPath, method: 'POST', headers }, r => {
-    clientRes.writeHead(r.statusCode, {
-      'Content-Type': r.headers['content-type'] || 'application/json',
-      'Access-Control-Allow-Origin': ALLOW_ORIGIN,
-      'Cache-Control': 'no-store',
-    });
-    r.pipe(clientRes);
-  });
-  up.on('error', e => { try { jsonResponse(clientRes, 502, { error: 'upstream: ' + e.message }); } catch (_) {} });
+  let done = false; // response fully handled (success, cap, or error)
+  const fail = (status, msg) => {
+    if (done) return; done = true;
+    // Only send a JSON error if we haven't started streaming the body yet.
+    if (!clientRes.headersSent) { try { jsonResponse(clientRes, status, { error: msg }); } catch (_) {} }
+    else { try { clientRes.destroy(); } catch (_) {} }
+  };
+
+  const up = https.request(
+    { hostname, path: upPath, method: 'POST', headers, timeout: UPSTREAM_TIMEOUT_MS },
+    r => {
+      clientRes.writeHead(r.statusCode, {
+        'Content-Type': r.headers['content-type'] || 'application/json',
+        'Access-Control-Allow-Origin': clientRes._corsOrigin || ALLOW_ORIGIN,
+        'Vary': 'Origin',
+        'Cache-Control': 'no-store',
+      });
+      let bytes = 0;
+      r.on('data', chunk => {
+        if (done) return;
+        bytes += chunk.length;
+        if (bytes > UPSTREAM_MAX_BYTES) {
+          done = true;
+          try { r.destroy(); } catch (_) {}
+          try { clientRes.destroy(); } catch (_) {} // truncate — abuse/oversize
+          return;
+        }
+        clientRes.write(chunk);
+      });
+      r.on('end', () => { if (!done) { done = true; clientRes.end(); } });
+      r.on('error', () => fail(502, 'upstream stream error'));
+    }
+  );
+  up.on('timeout', () => { try { up.destroy(); } catch (_) {} fail(504, 'upstream timeout'); });
+  up.on('error', e => fail(502, 'upstream: ' + e.message));
   up.write(body); up.end();
 }
 
@@ -669,13 +765,18 @@ async function handleByok(req, res, kind) {
 
 // ── HTTP server (also hosts the WS upgrade) ───────────────────────────
 const server = http.createServer((req, res) => {
+  // Resolve the per-request CORS origin once and stash it, so every responder
+  // (jsonResponse, httpsRelay, downloads) reflects the right value.
+  res._corsOrigin = corsOrigin(req);
   // CORS preflight — must echo the same Allow-Headers as actual responses
   // or the X-Gateway-Client header won't survive the preflight.
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+      'Access-Control-Allow-Origin': res._corsOrigin,
+      'Vary': 'Origin',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, X-Gateway-Client, X-Gateway-Id, Authorization, X-BYOK-Key',
+      'Access-Control-Max-Age': '600',
     });
     return res.end();
   }
@@ -700,6 +801,9 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache',
+        'Content-Security-Policy': LANDING_CSP,
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'no-referrer',
       });
       return res.end(renderLanding(stats));
     }
@@ -794,26 +898,71 @@ const server = http.createServer((req, res) => {
 });
 
 // ── WebSocket server (Practice Rooms) ─────────────────────────────────
-const wss = new WebSocketServer({ noServer: true });
+const wss = new WebSocketServer({ noServer: true, maxPayload: WS_MAX_PAYLOAD });
+
+// Reply with a minimal HTTP error and tear down the socket before any WS
+// handshake — used to reject floods/over-capacity upgrades cheaply.
+function abortUpgrade(socket, status) {
+  const line = status === 429 ? '429 Too Many Requests' : '503 Service Unavailable';
+  try { socket.write(`HTTP/1.1 ${line}\r\nConnection: close\r\n\r\n`); } catch {}
+  try { socket.destroy(); } catch {}
+}
 
 server.on('upgrade', (req, socket, head) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const match = url.pathname.match(/^\/room\/([A-Z0-9]{4,12})$/i);
   if (!match) { socket.destroy(); return; }
+  const ip = clientIp(req);
+  // Cheap rejects before allocating a socket: reconnect storms, per-IP floods,
+  // and global/per-room capacity. New rooms are created lazily in joinRoom, so
+  // the room-cap check here is for the create-vs-join distinction.
+  if (rateLimited('ws_upgrade', ip)) { abortUpgrade(socket, 429); return; }
+  if ((wsPerIp.get(ip) || 0) >= MAX_WS_PER_IP) { abortUpgrade(socket, 429); return; }
   const code = match[1].toUpperCase();
+  const existing = rooms.get(code);
+  if (!existing && rooms.size >= MAX_ROOMS) { abortUpgrade(socket, 503); return; }
+  if (existing && existing.clients.size >= MAX_CLIENTS_PER_ROOM) { abortUpgrade(socket, 503); return; }
   wss.handleUpgrade(req, socket, head, ws => {
     ws._id = crypto.randomBytes(4).toString('hex');
     ws._code = code;
+    ws._ip = ip;
+    ws._isAlive = true;
+    wsPerIp.set(ip, (wsPerIp.get(ip) || 0) + 1);
+    ws.on('pong', () => { ws._isAlive = true; });
+    // Decrement the per-IP counter exactly once when this socket closes,
+    // independent of room membership bookkeeping.
+    ws.on('close', () => {
+      const n = (wsPerIp.get(ip) || 1) - 1;
+      if (n <= 0) wsPerIp.delete(ip); else wsPerIp.set(ip, n);
+    });
     joinRoom(ws, code);
   });
 });
 
+// Heartbeat: ping every client each interval and terminate any that didn't
+// answer the previous round. terminate() fires 'close', so room + per-IP
+// cleanup happen through the normal path.
+const wsHeartbeat = setInterval(() => {
+  for (const room of rooms.values()) {
+    for (const ws of room.clients) {
+      if (ws._isAlive === false) { try { ws.terminate(); } catch {} continue; }
+      ws._isAlive = false;
+      try { ws.ping(); } catch {}
+    }
+  }
+}, WS_HEARTBEAT_MS);
+if (wsHeartbeat.unref) wsHeartbeat.unref();
+wss.on('close', () => clearInterval(wsHeartbeat));
+
 function joinRoom(ws, code) {
   let room = rooms.get(code);
   if (!room) {
+    if (rooms.size >= MAX_ROOMS) { send(ws, { type: 'error', error: 'Server at capacity — try again shortly.' }); try { ws.close(); } catch {} return; }
     room = { code, wave: 0, clients: new Set(), hostId: ws._id, state: defaultState(), createdAt: Date.now(), lastActivityAt: Date.now() };
     rooms.set(code, room);
     console.log(`[Room ${code}] created (host=${ws._id})`);
+  } else if (room.clients.size >= MAX_CLIENTS_PER_ROOM) {
+    send(ws, { type: 'error', error: 'This room is full.' }); try { ws.close(); } catch {} return;
   }
   room.clients.add(ws);
   room.lastActivityAt = Date.now();
@@ -903,6 +1052,19 @@ function broadcast(room, msg) {
 }
 function send(ws, msg) {
   try { ws.send(JSON.stringify(msg)); } catch {}
+}
+
+// ── Startup safety check ──────────────────────────────────────────────
+// ENABLE_API_PROXY=1 with no API_ACCESS_TOKEN means anyone who can reach the
+// server can spend our provider credits (bounded only by the rate limit and
+// daily budget — not by authentication). That's fine for local dev, but in
+// production we fail fast so the misconfiguration can never ship silently.
+if (API_PROXY_ON && !API_ACCESS_TOKEN) {
+  if (IS_PRODUCTION) {
+    console.error('FATAL: ENABLE_API_PROXY=1 requires API_ACCESS_TOKEN in production — refusing to start the unauthenticated managed relay.');
+    process.exit(1);
+  }
+  console.warn('⚠  API proxy enabled WITHOUT API_ACCESS_TOKEN (open beta). Dev only — set API_ACCESS_TOKEN before deploying.');
 }
 
 // ── Startup ──────────────────────────────────────────────────────────

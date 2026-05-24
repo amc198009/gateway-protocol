@@ -68,9 +68,10 @@ contextBridge.exposeInMainWorld('gp', {
   // V8 — Desktop auto-update notifier (polls the configured server's /version)
   checkUpdate: () => ipcRenderer.invoke('gp:check-update'),
 
-  // Encrypted API key storage (electron-store backed)
+  // API key storage (OS-encrypted vault in the main process). Write-only from
+  // the renderer's view: you can set a key or test whether one exists, but the
+  // plaintext can never be read back across IPC.
   keys: {
-    get: (name)        => ipcRenderer.invoke('gp:key-get', name),
     set: (name, value) => ipcRenderer.invoke('gp:key-set', name, value),
     has: (name)        => ipcRenderer.invoke('gp:key-has', name),
   },

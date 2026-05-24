@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
-  "releasedAt": "2026-05-20T23:36:15Z",
-  "notes": "V7 — Practice Rooms, Transmission Feed, Semantic Memory, Certifications, Custom Protocols. Plus security hardening (CSP, vault-only key storage, CSRF + rate limits on the server)."
+  "version": "3.2.0",
+  "releasedAt": "2026-05-24T00:00:00Z",
+  "notes": "V3.2 — A+ experience update. New Today dashboard and core-loop navigation, a guided first-run setup, and a pre-practice mood check-in with one-tap intent presets. Plus an honest, fully on-device affect layer: optional consent-gated voice and camera-stillness check-ins (no audio or images are ever stored or sent) that render a derived biofield visualization and personalize the Council's guidance. Major accessibility pass (keyboard navigation, focus rings, live regions, screen-reader labels) and a more resilient launch."
 }
