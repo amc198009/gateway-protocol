@@ -1,5 +1,5 @@
 {
-  "version": "3.1.0",
-  "releasedAt": "2026-05-23T05:38:56Z",
-  "notes": "V3.1 — Security hardening release. OS-keychain API-key vault (Electron safeStorage, no plaintext to the renderer), strict imported-protocol validation, external-URL allowlisting, WebSocket DoS limits (payload cap, per-IP rate limit, room/client caps, heartbeat), CORS allowlist + upstream timeout/size caps, and a stricter Content-Security-Policy with no inline scripts. Upgraded to Electron 42, plus native Apple Silicon (arm64) builds."
+  "version": "3.2.0",
+  "releasedAt": "2026-05-24T00:00:00Z",
+  "notes": "V3.2 — A+ experience update. New Today dashboard and core-loop navigation, a guided first-run setup, and a pre-practice mood check-in with one-tap intent presets. Plus an honest, fully on-device affect layer: optional consent-gated voice and camera-stillness check-ins (no audio or images are ever stored or sent) that render a derived biofield visualization and personalize the Council's guidance. Major accessibility pass (keyboard navigation, focus rings, live regions, screen-reader labels) and a more resilient launch."
 }
