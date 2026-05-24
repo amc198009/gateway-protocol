@@ -57,6 +57,7 @@ const PWA_DIR = joinPath(__dirname, 'pwa');
 const STATIC_ROUTES = {
   '/app':                  { file: joinPath(APP_DIR, 'index.html'),             type: 'text/html; charset=utf-8',  cache: 'no-cache' },
   '/app.js':               { file: joinPath(APP_DIR, 'app.js'),                 type: 'application/javascript',     cache: 'no-cache' },
+  '/app-affect.js':        { file: joinPath(APP_DIR, 'app-affect.js'),          type: 'application/javascript',     cache: 'no-cache' },
   '/vendor/three.min.js':  { file: joinPath(APP_DIR, 'vendor', 'three.min.js'), type: 'application/javascript',     cache: 'public, max-age=86400' },
   '/audio-worklet.js':     { file: joinPath(APP_DIR, 'audio-worklet.js'),       type: 'application/javascript',     cache: 'public, max-age=86400' },
   '/manifest.webmanifest': { file: joinPath(PWA_DIR, 'manifest.webmanifest'),   type: 'application/manifest+json',  cache: 'public, max-age=3600' },
