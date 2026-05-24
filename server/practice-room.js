@@ -53,6 +53,7 @@ const STATIC_ROUTES = {
   '/icons/icon-192.png':   { file: joinPath(PWA_DIR, 'icons', 'icon-192.png'),  type: 'image/png',                  cache: 'public, max-age=604800' },
   '/icons/icon-512.png':   { file: joinPath(PWA_DIR, 'icons', 'icon-512.png'),  type: 'image/png',                  cache: 'public, max-age=604800' },
   '/icons/icon-180.png':   { file: joinPath(PWA_DIR, 'icons', 'icon-180.png'),  type: 'image/png',                  cache: 'public, max-age=604800' },
+  '/qr-app.svg':           { file: joinPath(PWA_DIR, 'qr-app.svg'),             type: 'image/svg+xml',              cache: 'public, max-age=604800' },
 };
 function serveStatic(res, entry, path) {
   fs.readFile(entry.file, (err, data) => {
@@ -208,9 +209,9 @@ const feed = []; // ring buffer, oldest at index 0
 const LANDING_SCRIPT = `
 var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Live stats auto-refresh every 15s. Accept: application/json so the server
-// returns the raw stats payload, not this whole HTML page.
 function setStat(k,v){ var el=document.querySelector('[data-stat="'+k+'"]'); if(el) el.textContent=v; }
+
+// ── Live stats auto-refresh (Accept: application/json → raw stats payload) ──
 async function refresh(){
   try{
     var r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
@@ -224,7 +225,30 @@ async function refresh(){
 }
 setInterval(refresh, 15000);
 
-// Count-up animation for numeric stats on first paint.
+// ── Live Transmission Feed ticker. DOM built via textContent (never innerHTML
+//    with feed content) so user-supplied transmissions can't inject markup. ──
+function chip(it){
+  var s=document.createElement('span'); s.className='tick';
+  var label=[it.wave?('Wave '+it.wave):'', it.frequency?(it.frequency+'Hz'):'', it.code?it.code:''].filter(Boolean).join(' · ');
+  var b=document.createElement('b'); b.textContent=label||'Transmission';
+  var i=document.createElement('i'); i.textContent=(it.transmission||'').slice(0,140);
+  s.appendChild(b); s.appendChild(i);
+  if(it.reactions){ var e=document.createElement('em'); e.textContent='✦ '+it.reactions; s.appendChild(e); }
+  return s;
+}
+function buildTicker(items){
+  var track=document.getElementById('ticker-track'); if(!track) return;
+  if(!items || !items.length) return; // keep server-rendered placeholder
+  track.innerHTML='';
+  for(var pass=0; pass<2; pass++) for(var i=0;i<items.length;i++) track.appendChild(chip(items[i]));
+  track.classList.toggle('run', !reduce && items.length>1);
+}
+async function loadTicker(){
+  try{ var r=await fetch('/feed?limit=12',{cache:'no-store'}); var d=await r.json(); buildTicker(d.items||[]); }catch(e){}
+}
+loadTicker(); setInterval(loadTicker, 20000);
+
+// ── Count-up animation for numeric stats on first paint ──
 function countUp(el){
   var target = parseInt(el.getAttribute('data-count')||'0',10);
   if(reduce || !target){ el.textContent = target; return; }
@@ -238,7 +262,7 @@ function countUp(el){
 }
 document.querySelectorAll('[data-count]').forEach(countUp);
 
-// Scroll-reveal sections as they enter the viewport.
+// ── Scroll-reveal sections ──
 var reveals = document.querySelectorAll('.reveal');
 if('IntersectionObserver' in window && !reduce){
   var io = new IntersectionObserver(function(entries){
@@ -249,26 +273,53 @@ if('IntersectionObserver' in window && !reduce){
   reveals.forEach(function(el){ el.classList.add('in'); });
 }
 
-// Lightweight drifting golden motes behind the hero.
+// ── Interactive golden field: drifting motes that swirl toward the pointer
+//    and parallax on scroll ──
 (function(){
-  if(reduce) return;
   var c = document.getElementById('motes'); if(!c || !c.getContext) return;
-  var ctx = c.getContext('2d'), motes = [], N = 46, w = 1, h = 1, dpr = Math.min(window.devicePixelRatio||1, 2);
+  var ctx=c.getContext('2d'), motes=[], N=reduce?0:54, w=1, h=1, dpr=Math.min(window.devicePixelRatio||1,2);
+  var mx=-9999, my=-9999, sy=0;
   function rand(a,b){ return a+Math.random()*(b-a); }
   function resize(){ w=c.clientWidth||1; h=c.clientHeight||1; c.width=w*dpr; c.height=h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
-  function seed(){ motes=[]; for(var i=0;i<N;i++) motes.push({x:rand(0,w),y:rand(0,h),r:rand(.4,1.7),s:rand(.04,.24),o:rand(.1,.6),tw:rand(0,6.28)}); }
+  function seed(){ motes=[]; for(var i=0;i<N;i++) motes.push({x:rand(0,w),y:rand(0,h),r:rand(.4,1.8),s:rand(.04,.26),o:rand(.1,.6),tw:rand(0,6.28),vx:0,vy:0}); }
   function tick(){
     ctx.clearRect(0,0,w,h);
     for(var i=0;i<motes.length;i++){
-      var m=motes[i]; m.y-=m.s; m.tw+=0.02; if(m.y<-4){ m.y=h+4; m.x=rand(0,w); }
+      var m=motes[i], dx=mx-m.x, dy=my-m.y, d2=dx*dx+dy*dy;
+      if(d2<16000){ var inv=1/Math.sqrt(d2+1), f=(1-d2/16000)*0.5; m.vx+=dx*inv*f; m.vy+=dy*inv*f; }
+      m.vx*=0.9; m.vy*=0.9;
+      m.x+=m.vx; m.y+=m.vy-m.s; m.tw+=0.02;
+      if(m.y<-4){ m.y=h+4; m.x=rand(0,w); } if(m.x<-6) m.x=w+6; if(m.x>w+6) m.x=-6;
       var o=m.o*(0.55+0.45*Math.sin(m.tw));
-      ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,6.2832);
+      ctx.beginPath(); ctx.arc(m.x, m.y-sy*0.03, m.r, 0, 6.2832);
       ctx.fillStyle='rgba(240,216,138,'+o.toFixed(3)+')'; ctx.fill();
     }
     requestAnimationFrame(tick);
   }
-  resize(); seed(); tick();
+  resize(); seed(); if(N) tick();
   var t; window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(function(){ resize(); seed(); }, 200); });
+  if(!reduce){
+    window.addEventListener('pointermove', function(e){ var b=c.getBoundingClientRect(); mx=e.clientX-b.left; my=e.clientY-b.top; }, {passive:true});
+    window.addEventListener('pointerleave', function(){ mx=-9999; my=-9999; });
+    window.addEventListener('scroll', function(){ sy=window.scrollY||0; }, {passive:true});
+  }
+})();
+
+// ── Scrollytelling: the eye opens as you scroll through the Process section ──
+(function(){
+  if(reduce) return;
+  var sec=document.getElementById('process'), eye=document.getElementById('process-eye');
+  if(!sec || !eye) return;
+  var ticking=false;
+  function update(){
+    ticking=false;
+    var r=sec.getBoundingClientRect(), vh=window.innerHeight||1, total=r.height-vh;
+    var p = total>0 ? Math.min(Math.max((-r.top)/total,0),1) : (r.top<vh?1:0);
+    eye.style.setProperty('--p', p.toFixed(3));
+  }
+  window.addEventListener('scroll', function(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } }, {passive:true});
+  window.addEventListener('resize', update);
+  update();
 })();
 `;
 const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LANDING_SCRIPT).digest('base64') + "'";
@@ -295,6 +346,16 @@ function renderLanding(stats) {
     if (h) return `${h}h ${m}m`;
     return `${m}m ${s%60}s`;
   };
+  // Feed content is user-supplied — escape before injecting into HTML.
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const recent = feed.slice(-10).reverse();
+  const tickerInner = recent.length
+    ? recent.map(it => {
+        const label = [it.wave ? 'Wave ' + esc(it.wave) : '', it.frequency ? esc(it.frequency) + 'Hz' : '', it.code ? esc(it.code) : ''].filter(Boolean).join(' · ');
+        const body = esc(String(it.transmission || '').slice(0, 140));
+        return `<span class="tick"><b>${label || 'Transmission'}</b><i>${body}</i>${it.reactions ? `<em>✦ ${it.reactions}</em>` : ''}</span>`;
+      }).join('')
+    : '<span class="tick tick-empty"><i>The feed is quiet right now — be the first transmission.</i></span>';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -442,6 +503,72 @@ function renderLanding(stats) {
     .reveal{opacity:1!important;transform:none!important}
   }
   @media(max-width:560px){.section{padding:66px 18px}.hero{min-height:auto;padding:64px 18px 44px}}
+
+  /* ── live transmission ticker ── */
+  .ticker{position:relative;z-index:1;border-top:.5px solid var(--border);border-bottom:.5px solid var(--border);background:rgba(13,13,18,.55);overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+  .ticker-track{display:flex;align-items:center;width:max-content}
+  .ticker-track.run{animation:marquee 64s linear infinite}
+  .ticker:hover .ticker-track.run{animation-play-state:paused}
+  @keyframes marquee{to{transform:translateX(-50%)}}
+  .tick{display:inline-flex;align-items:baseline;gap:12px;padding:15px 28px;white-space:nowrap;border-right:.5px solid rgba(201,168,76,.08)}
+  .tick b{font-weight:500;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+  .tick i{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--silver);max-width:48ch;overflow:hidden;text-overflow:ellipsis}
+  .tick em{font-style:normal;font-size:11px;color:var(--gold2);opacity:.85}
+  .tick-empty i{color:var(--muted)}
+  @media(prefers-reduced-motion:reduce){.ticker{overflow-x:auto}.ticker-track.run{animation:none}}
+
+  /* ── product preview (device mock) ── */
+  .preview{padding-top:48px}
+  .device{max-width:880px;margin:0 auto;border:1px solid rgba(201,168,76,.22);border-radius:16px;background:linear-gradient(180deg,#15151c,#0d0d12);box-shadow:0 40px 90px rgba(0,0,0,.55);overflow:hidden}
+  .device-bar{display:flex;gap:7px;padding:13px 16px;border-bottom:.5px solid var(--border);background:rgba(0,0,0,.25)}
+  .device-bar span{width:11px;height:11px;border-radius:50%;background:rgba(201,168,76,.25)}
+  .device-screen{position:relative;aspect-ratio:16/9;background:radial-gradient(ellipse at 50% 28%,rgba(201,168,76,.09),#08080b 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;overflow:hidden}
+  .device-screen::before{content:'';position:absolute;top:-40%;width:55%;height:180%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.05),transparent);transform:skewX(-16deg);animation:sheen 8s ease-in-out infinite}
+  @keyframes sheen{0%,100%{left:-50%}50%{left:120%}}
+  .mock-eye{width:62px;height:62px;filter:drop-shadow(0 0 16px rgba(201,168,76,.5));animation:breathe 6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.06);opacity:1}}
+  .mock-timer{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,7vw,58px);color:var(--gold2);letter-spacing:6px;line-height:1}
+  .mock-sub{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:-8px}
+  .mock-waves{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:92%}
+  .mw{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border:.5px solid var(--border);border-radius:20px;padding:5px 12px}
+  .mw.on{color:var(--gold2);border-color:var(--border2);background:rgba(201,168,76,.06);animation:pulseTag 3s ease-in-out infinite}
+  @keyframes pulseTag{0%,100%{opacity:.7}50%{opacity:1}}
+  .preview .cap{text-align:center;color:var(--muted);font-size:12px;margin-top:18px;font-style:italic}
+
+  /* ── scrollytelling: The Process ── */
+  .process{position:relative}
+  .process-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1100px;margin:0 auto;padding:0 24px;align-items:start}
+  .process-stage{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center}
+  .peye-stage{position:relative;width:min(56vw,300px);height:min(56vw,300px);border-radius:50%;overflow:hidden;--p:0;filter:drop-shadow(0 0 30px rgba(201,168,76,.35))}
+  .peye-stage .eye{width:100%;height:100%}
+  .lid{position:absolute;left:-2%;width:104%;height:52%;background:#08080b;z-index:2;transition:transform .12s linear}
+  .lid-t{top:0;transform:translateY(calc(var(--p) * -103%))}
+  .lid-b{bottom:0;transform:translateY(calc(var(--p) * 103%))}
+  .process-steps{display:flex;flex-direction:column;gap:46vh;padding:34vh 0}
+  .pstep .lvl{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,7vw,56px);color:var(--gold2);line-height:1}
+  .pstep h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:23px;color:var(--gold);margin:6px 0 10px;letter-spacing:1px}
+  .pstep p{font-size:14px;color:var(--silver);line-height:1.8;max-width:430px}
+  @media(max-width:760px){
+    .process-grid{grid-template-columns:1fr;gap:0}
+    .process-stage{position:static;height:auto;padding:24px 0 8px}
+    .peye-stage{width:190px;height:190px}
+    .process-steps{gap:52px;padding:26px 0}
+    .pstep p{max-width:none}
+  }
+  @media(prefers-reduced-motion:reduce){.peye-stage{--p:1}}
+
+  /* ── conversion band ── */
+  .convert{padding-top:48px}
+  .conv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:18px;max-width:1000px;margin:0 auto}
+  .conv-card{background:linear-gradient(180deg,var(--card2),var(--card));border:.5px solid var(--border);border-radius:var(--radius);padding:32px 28px;display:flex;flex-direction:column;align-items:flex-start;gap:14px;transition:transform .3s var(--ease),border-color .3s}
+  .conv-card:hover{transform:translateY(-5px);border-color:var(--border2)}
+  .conv-card h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:23px;color:var(--gold2)}
+  .conv-card p{font-size:13.5px;color:var(--silver);line-height:1.75}
+  .conv-card .cta{margin-top:6px}
+  .conv-card.phone{align-items:center;text-align:center}
+  .qr{width:142px;height:142px;border-radius:10px;border:.5px solid var(--border);background:#f0d88a;padding:6px;display:block}
+  .conv-card.founder{background:linear-gradient(135deg,rgba(201,168,76,.13),rgba(106,91,208,.08));border-color:var(--border2)}
+  .conv-card .tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
 </style>
 </head>
 <body>
@@ -455,6 +582,7 @@ function renderLanding(stats) {
     </a>
     <nav class="nav-links">
       <a href="#features">Features</a>
+      <a href="#process">Process</a>
       <a href="#network">Network</a>
       <a class="nav-cta" href="/download">Download</a>
     </nav>
@@ -490,6 +618,35 @@ function renderLanding(stats) {
     </div>
   </section>
 
+  <div class="ticker" aria-label="Live transmission feed">
+    <div class="ticker-track" id="ticker-track">${tickerInner}</div>
+  </div>
+
+  <section class="section preview">
+    <div class="section-head reveal">
+      <span class="eyebrow">A glimpse</span>
+      <h2>Inside the field</h2>
+      <p>A living particle field, layered frequencies, and a Council of Five — wrapped in a calm, cinematic interface.</p>
+    </div>
+    <div class="device reveal">
+      <div class="device-bar"><span></span><span></span><span></span></div>
+      <div class="device-screen">
+        <div class="mock-eye" aria-hidden="true">
+          <svg class="eye" viewBox="0 0 100 100"><circle class="rO" cx="50" cy="50" r="47"/><circle class="rI" cx="50" cy="50" r="39"/><polygon class="tri" points="50,28 73,68 27,68"/><circle class="pO" cx="50" cy="55" r="9"/><circle class="pp" cx="50" cy="55" r="4.2"/></svg>
+        </div>
+        <div class="mock-timer">21:00</div>
+        <div class="mock-sub">Focus 21 · Free Flow</div>
+        <div class="mock-waves">
+          <span class="mw">Discovery</span>
+          <span class="mw on">Threshold</span>
+          <span class="mw">Freeing the Self</span>
+          <span class="mw">Adventure</span>
+        </div>
+      </div>
+    </div>
+    <p class="cap reveal">Representative view — the desktop app renders the field in real time.</p>
+  </section>
+
   <section id="features" class="section">
     <div class="section-head reveal">
       <span class="eyebrow">What this is</span>
@@ -512,6 +669,55 @@ function renderLanding(stats) {
         <h3>Sovereign by design</h3>
         <p>The desktop app works <em>without</em> this server — pointing at it just adds the optional network layer. Your keys, your data, your machine. Owned, not subscribed.</p>
       </article>
+    </div>
+  </section>
+
+  <section id="process" class="process">
+    <div class="process-grid">
+      <div class="process-stage">
+        <div class="peye-stage" id="process-eye">
+          <svg class="eye" viewBox="0 0 100 100" aria-hidden="true"><circle class="rO" cx="50" cy="50" r="47"/><circle class="rI" cx="50" cy="50" r="39"/><polygon class="tri" points="50,28 73,68 27,68"/><circle class="pO" cx="50" cy="55" r="9"/><circle class="pp" cx="50" cy="55" r="4.2"/></svg>
+          <div class="lid lid-t"></div>
+          <div class="lid lid-b"></div>
+        </div>
+      </div>
+      <div class="process-steps">
+        <div class="section-head reveal" style="text-align:left;margin-bottom:0">
+          <span class="eyebrow">The Gateway Process</span>
+          <h2>Expanding states of awareness</h2>
+        </div>
+        <div class="pstep reveal"><div class="lvl">Focus 10</div><h3>Mind awake, body asleep</h3><p>The foundation. Deep physical relaxation while consciousness stays clear and alert — the doorway to everything that follows.</p></div>
+        <div class="pstep reveal"><div class="lvl">Focus 12</div><h3>Expanded awareness</h3><p>Perception reaches beyond the physical senses. The field opens, and attention moves freely past the body's usual edges.</p></div>
+        <div class="pstep reveal"><div class="lvl">Focus 15</div><h3>The state of no time</h3><p>Pure being, beyond the pull of past and future. Stillness deep enough that the clock dissolves.</p></div>
+        <div class="pstep reveal"><div class="lvl">Focus 21</div><h3>The bridge</h3><p>The far edge of the map — the threshold to other energy systems and realities. Where the Council meets you.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="get" class="section convert">
+    <div class="section-head reveal">
+      <span class="eyebrow">Begin</span>
+      <h2>Two ways in</h2>
+      <p>Sovereign on desktop, installable on your phone — owned, not subscribed.</p>
+    </div>
+    <div class="conv-grid">
+      <div class="conv-card reveal">
+        <h3>On your Mac</h3>
+        <p>The full sovereign desktop app. Encrypted local keys, the complete Council of Five, offline-capable.</p>
+        <a class="cta primary" href="/download">Download for macOS ↓</a>
+      </div>
+      <div class="conv-card phone reveal">
+        <h3>On your phone</h3>
+        <p>Install the web app — bring your own key. Scan to open on iPhone, then Share → Add to Home Screen.</p>
+        <img class="qr" src="/qr-app.svg" alt="QR code linking to the Gateway Protocol web app" width="142" height="142">
+        <a class="cta ghost" href="/app">Open the web app →</a>
+      </div>
+      ${SUPPORT_URL ? `<div class="conv-card founder reveal">
+        <span class="tag">◈ Founder's Edition</span>
+        <h3>Pay what you want</h3>
+        <p>Support sovereign software and become a founding patron. Pay what feels right — no paywall, only gratitude.</p>
+        <a class="cta primary" href="${SUPPORT_URL}" target="_blank" rel="noopener">Become a Founder ↗</a>
+      </div>` : ''}
     </div>
   </section>
 
