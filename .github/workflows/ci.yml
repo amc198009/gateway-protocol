@@ -33,6 +33,7 @@ jobs:
           node --check electron-app/renderer/audio-worklet.js
           node --check electron-app/renderer/app.js
           node --check electron-app/renderer/app-affect.js
+          node --check electron-app/renderer/app-data.js
           node --check proxy.js
           node --check server/practice-room.js
 
