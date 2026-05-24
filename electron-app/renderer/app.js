@@ -623,6 +623,8 @@ const HRV={
   _cycles:0,              // completed breath cycles since start
   _score:0,               // 0..100 coherence score
   _running:false,
+  _bloomed:false,         // V6·T2: one coherence-bloom per session
+  BLOOM_AT:85,            // coherence threshold for the bloom moment
 
   _ensure(){
     if(this._canvas) return true;
@@ -645,6 +647,21 @@ const HRV={
     this._score=Math.round(95*(1-Math.exp(-this._cycles/4)));
     if(!this._running){ this._running=true; this._loop(); }
     document.getElementById('gp-hrv-score').textContent=this._score||'—';
+    // V6·T2 — felt "coherence bloom" the first time sustained breathing pushes
+    // coherence past the threshold this session.
+    if(this._score>=this.BLOOM_AT && !this._bloomed){ this._bloomed=true; this._bloom(); }
+  },
+
+  _bloom(){
+    try{
+      const reduced=document.body.classList.contains('gp-reduced')||
+        (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      if(!reduced){
+        document.body.classList.add('gp-coherence-bloom');
+        setTimeout(()=>document.body.classList.remove('gp-coherence-bloom'),2600);
+      }
+      if(typeof toast==='function') toast('✦ Coherence — the field is with you');
+    }catch(e){}
   },
 
   stop(){
@@ -653,6 +670,7 @@ const HRV={
     this._raf=null;
     this._history.length=0;
     this._cycles=0;this._score=0;
+    this._bloomed=false;
     this._phase=null;
     const score=document.getElementById('gp-hrv-score');
     if(score) score.textContent='—';
