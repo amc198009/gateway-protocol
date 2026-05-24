@@ -149,6 +149,9 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 @media (prefers-reduced-motion: reduce){.gp-async-spin{animation:none}}
 .gp-async-retry{margin-top:10px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:transparent;border:.5px solid var(--border);padding:9px 16px;border-radius:3px;cursor:pointer;transition:all .2s}
 .gp-async-retry:hover{border-color:var(--gold);background:var(--glow)}
+/* V6·T2 coherence bloom — brief golden field bloom on sustained coherence */
+body.gp-coherence-bloom::after{content:"";position:fixed;inset:0;z-index:8000;pointer-events:none;background:radial-gradient(circle at 50% 55%, rgba(240,216,138,.35), rgba(201,168,76,.12) 35%, transparent 70%);animation:gp-bloom 2.6s ease-out forwards}
+@keyframes gp-bloom{0%{opacity:0;transform:scale(.6)}25%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
