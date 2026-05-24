@@ -61,9 +61,17 @@ Today the affect check-ins happen *before* practice. Move them *into* it.
 **Effort:** medium–large. **Depends on:** T1 state model. **Risk:** medium —
 must be subtle, not twitchy; strict reduced-motion + opt-out.
 
-### T3 · Facial affect, done right (the deferred ML) 🟡
+### T3 · Facial affect, done right (the deferred ML) — ⛔ NO-GO (2026-05-24)
+> **Decision:** **won't do.** We keep the **model-free** camera approach (stillness
+> / fidget / presence, shipped v3.2.0–v3.3.2) and make **no CSP change** — the
+> renderer stays `script-src 'self'`. Bundling MediaPipe would require adding
+> `'wasm-unsafe-eval'` (a global, permanent relaxation of an audit hardening) for
+> moderate, ethically-fraught value. Full rationale + trade-off: `MEDIAPIPE_CSP_MEMO.md`.
+> Revisit only if facial affect becomes a priority. The original plan is kept below
+> for that scenario.
+
 v3.2.0 deliberately shipped frame-differencing stillness instead of facial-affect
-ML. V6 does the ML properly:
+ML. The (now-shelved) "do it properly" plan was:
 - **Vendor MediaPipe FaceLandmarker** as bundled WASM + model assets under the
   existing `script-src 'self'` CSP (no CDN); add `/face-landmarker.*` to the
   server static-route allowlist for the hosted build.
