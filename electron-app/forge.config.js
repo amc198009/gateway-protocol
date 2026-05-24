@@ -26,7 +26,7 @@ module.exports = {
   packagerConfig: {
     name: 'Gateway Protocol',
     executableName: 'gateway-protocol',
-    appBundleId: 'com.arturomorales.gateway-protocol',
+    appBundleId: 'com.gatewayprotocol.app',
     appCategoryType: 'public.app-category.healthcare-fitness',
     asar: true,
     // icon: './assets/icon', // add icon.icns / icon.ico later
