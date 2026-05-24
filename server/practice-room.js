@@ -206,21 +206,70 @@ const feed = []; // ring buffer, oldest at index 0
 // a CSP hash so the page can carry a real script-src 'self' policy. The hash
 // is computed once from the exact bytes below, so it can never drift.
 const LANDING_SCRIPT = `
-// Auto-refresh stats every 15s. Uses Accept: application/json so the
-// server returns the raw stats payload, not this whole HTML page.
+var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Live stats auto-refresh every 15s. Accept: application/json so the server
+// returns the raw stats payload, not this whole HTML page.
+function setStat(k,v){ var el=document.querySelector('[data-stat="'+k+'"]'); if(el) el.textContent=v; }
 async function refresh(){
   try{
-    const r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
-    const s = await r.json();
-    document.querySelector('[data-stat="rooms"]').textContent = s.rooms;
-    document.querySelector('[data-stat="feed"]').textContent  = s.feedSize;
-    const u = s.uptime|0;
-    const d = (u/86400|0), h = ((u%86400)/3600|0), m = ((u%3600)/60|0), sec = u%60;
-    document.querySelector('[data-stat="uptime"]').textContent =
-      d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s');
+    var r = await fetch('/', { headers:{'Accept':'application/json'}, cache:'no-store' });
+    var s = await r.json();
+    setStat('rooms', s.rooms);
+    setStat('feed',  s.feedSize);
+    var u = s.uptime|0;
+    var d=(u/86400|0), h=((u%86400)/3600|0), m=((u%3600)/60|0), sec=u%60;
+    setStat('uptime', d ? d+'d '+h+'h' : (h ? h+'h '+m+'m' : m+'m '+sec+'s'));
   }catch(e){}
 }
 setInterval(refresh, 15000);
+
+// Count-up animation for numeric stats on first paint.
+function countUp(el){
+  var target = parseInt(el.getAttribute('data-count')||'0',10);
+  if(reduce || !target){ el.textContent = target; return; }
+  var start = performance.now(), dur = 1100;
+  function step(now){
+    var p = Math.min((now-start)/dur, 1), eased = 1-Math.pow(1-p,3);
+    el.textContent = Math.round(eased*target);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('[data-count]').forEach(countUp);
+
+// Scroll-reveal sections as they enter the viewport.
+var reveals = document.querySelectorAll('.reveal');
+if('IntersectionObserver' in window && !reduce){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.14 });
+  reveals.forEach(function(el){ io.observe(el); });
+} else {
+  reveals.forEach(function(el){ el.classList.add('in'); });
+}
+
+// Lightweight drifting golden motes behind the hero.
+(function(){
+  if(reduce) return;
+  var c = document.getElementById('motes'); if(!c || !c.getContext) return;
+  var ctx = c.getContext('2d'), motes = [], N = 46, w = 1, h = 1, dpr = Math.min(window.devicePixelRatio||1, 2);
+  function rand(a,b){ return a+Math.random()*(b-a); }
+  function resize(){ w=c.clientWidth||1; h=c.clientHeight||1; c.width=w*dpr; c.height=h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  function seed(){ motes=[]; for(var i=0;i<N;i++) motes.push({x:rand(0,w),y:rand(0,h),r:rand(.4,1.7),s:rand(.04,.24),o:rand(.1,.6),tw:rand(0,6.28)}); }
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<motes.length;i++){
+      var m=motes[i]; m.y-=m.s; m.tw+=0.02; if(m.y<-4){ m.y=h+4; m.x=rand(0,w); }
+      var o=m.o*(0.55+0.45*Math.sin(m.tw));
+      ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,6.2832);
+      ctx.fillStyle='rgba(240,216,138,'+o.toFixed(3)+')'; ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  resize(); seed(); tick();
+  var t; window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(function(){ resize(); seed(); }, 200); });
+})();
 `;
 const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LANDING_SCRIPT).digest('base64') + "'";
 // CSP for the landing response: external Google Fonts stylesheet + inline
@@ -250,112 +299,259 @@ function renderLanding(stats) {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Gateway Protocol · Network</title>
+<title>Gateway Protocol — Consciousness, Healing & the Gateway Process</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="The reference network server for Gateway Protocol — Community Practice Rooms and the Transmission Feed.">
+<meta name="description" content="Gateway Protocol — a sovereign desktop practice platform for the Monroe Gateway Process, with opt-in Community Practice Rooms and the Transmission Feed. Owned, not subscribed.">
+<meta name="theme-color" content="#08080b">
+<meta property="og:title" content="Gateway Protocol">
+<meta property="og:description" content="A sovereign consciousness practice platform. Owned, not subscribed.">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0a0a0d;--card:#13131a;--border:rgba(201,168,76,.15);--gold:#c9a84c;--gold2:#f0d88a;--text:#e8e2d4;--muted:#7a7264;--silver:#c5bdab}
+  :root{
+    --bg:#08080b;--card:#13131a;--card2:#17171f;
+    --border:rgba(201,168,76,.16);--border2:rgba(201,168,76,.34);
+    --gold:#c9a84c;--gold2:#f0d88a;--gold3:#fff7e0;
+    --text:#e8e2d4;--muted:#8a8170;--silver:#c5bdab;
+    --radius:16px;--ease:cubic-bezier(.22,.61,.36,1);
+  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:Montserrat,system-ui,sans-serif;font-weight:300;line-height:1.6;min-height:100vh;overflow-x:hidden}
-  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(201,168,76,.06),transparent 60%),radial-gradient(ellipse at bottom,rgba(201,168,76,.03),transparent 70%);pointer-events:none;z-index:0}
-  .wrap{max-width:780px;margin:0 auto;padding:80px 24px;position:relative;z-index:1}
-  .hero{text-align:center;margin-bottom:60px}
-  .badge{display:inline-flex;align-items:center;gap:8px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--border);padding:6px 14px;border-radius:20px;margin-bottom:24px}
-  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
-  h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(36px,7vw,64px);letter-spacing:6px;color:var(--gold2);margin-bottom:12px;line-height:1.1}
-  .tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--silver);letter-spacing:1px;max-width:520px;margin:0 auto}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border);border:.5px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:48px}
-  .stat{background:var(--card);padding:24px 16px;text-align:center}
-  .stat-val{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:36px;color:var(--gold2);letter-spacing:2px;line-height:1}
-  .stat-lbl{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:6px}
-  .card{background:var(--card);border:.5px solid var(--border);border-radius:6px;padding:32px 28px;margin-bottom:24px}
-  .card h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
-  .card p{font-size:14px;color:var(--silver);line-height:1.8;margin-bottom:14px}
-  .card p:last-child{margin-bottom:0}
-  .card em{color:var(--gold2);font-style:italic}
-  code{font-family:'SF Mono',Menlo,monospace;font-size:12px;background:rgba(0,0,0,.4);padding:2px 8px;border-radius:3px;color:var(--gold);border:.5px solid var(--border)}
-  .endpoints{display:flex;flex-direction:column;gap:10px;font-family:'SF Mono',Menlo,monospace;font-size:12px}
-  .endpoint{display:flex;gap:14px;align-items:baseline;color:var(--silver);padding:6px 0}
-  .method{font-weight:400;color:var(--gold);min-width:48px}
-  .ep-desc{color:var(--muted);font-size:11px;margin-left:auto;font-family:Montserrat,sans-serif;letter-spacing:.5px}
-  .ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:40px}
-  .cta{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--gold);padding:14px 22px;border-radius:2px;text-decoration:none;transition:all .25s}
-  .cta:hover{background:rgba(201,168,76,.08);color:var(--gold2);border-color:var(--gold2)}
-  .cta.primary{background:rgba(201,168,76,.06)}
-  .install-note{margin-top:18px;text-align:center;font-size:12px;line-height:1.7;color:var(--muted);max-width:580px;margin-left:auto;margin-right:auto}
-  .install-note strong{color:var(--silver);font-weight:400}
-  .install-note em{color:var(--gold);font-style:italic}
-  .install-steps{text-align:left;max-width:520px;margin:14px auto 0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
-  .install-steps li{font-size:12px;line-height:1.6;color:var(--silver)}
-  .install-steps code{font-size:11px;word-break:break-all}
-  footer{margin-top:60px;padding-top:30px;border-top:.5px solid var(--border);text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-  footer a{color:var(--muted);text-decoration:none;border-bottom:.5px solid transparent;transition:.2s}
-  footer a:hover{color:var(--gold);border-color:var(--gold)}
-  @media (max-width:560px){.wrap{padding:48px 18px}.stats{grid-template-columns:repeat(3,1fr)}}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Montserrat,system-ui,sans-serif;font-weight:300;line-height:1.65;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+  /* ── animated aurora background ── */
+  .aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .aurora i{position:absolute;display:block;border-radius:50%;filter:blur(95px);mix-blend-mode:screen}
+  .aurora .o1{width:48vw;height:48vw;left:-10vw;top:-8vw;background:radial-gradient(circle,#c9a84c,transparent 65%);opacity:.16;animation:float1 26s var(--ease) infinite alternate}
+  .aurora .o2{width:42vw;height:42vw;right:-12vw;top:14vh;background:radial-gradient(circle,#6a5bd0,transparent 65%);opacity:.10;animation:float2 32s var(--ease) infinite alternate}
+  .aurora .o3{width:52vw;height:52vw;left:18vw;bottom:-24vh;background:radial-gradient(circle,#c9a84c,transparent 60%);opacity:.08;animation:float3 30s var(--ease) infinite alternate}
+  @keyframes float1{to{transform:translate(9vw,7vh) scale(1.16)}}
+  @keyframes float2{to{transform:translate(-7vw,-9vh) scale(1.22)}}
+  @keyframes float3{to{transform:translate(-11vw,5vh) scale(1.1)}}
+  body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% -10%,rgba(201,168,76,.08),transparent 55%)}
+
+  /* ── sticky nav ── */
+  .nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(8,8,11,.62);border-bottom:.5px solid rgba(201,168,76,.1)}
+  .nav-inner{max-width:1100px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:inline-flex;align-items:center;gap:11px;color:var(--gold2);text-decoration:none;font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:2px}
+  .brand svg{width:28px;height:28px;display:block}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a{color:var(--silver);text-decoration:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:color .2s}
+  .nav-links a:hover{color:var(--gold2)}
+  .nav-cta{border:.5px solid var(--border2);padding:9px 17px;border-radius:2px;color:var(--gold)!important;transition:background .2s,color .2s}
+  .nav-cta:hover{background:rgba(201,168,76,.1)}
+  @media(max-width:600px){.nav-links a:not(.nav-cta){display:none}}
+
+  main{position:relative;z-index:1}
+  .section{max-width:1100px;margin:0 auto;padding:92px 24px}
+  .eyebrow{display:inline-block;font-size:10px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  .section-head{text-align:center;margin-bottom:56px}
+  .section-head h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4.6vw,42px);color:var(--gold2);letter-spacing:1px;line-height:1.15}
+  .section-head p{font-size:15px;color:var(--muted);max-width:560px;margin:14px auto 0}
+
+  /* ── hero ── */
+  .hero{position:relative;min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px 64px;overflow:hidden}
+  #motes{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .hero-inner{position:relative;z-index:1;max-width:780px;display:flex;flex-direction:column;align-items:center}
+  .emblem{width:116px;height:116px;margin-bottom:30px;filter:drop-shadow(0 0 28px rgba(201,168,76,.42));animation:rise .9s var(--ease) both}
+  .eye{width:100%;height:100%;overflow:visible}
+  .eye .rO{fill:none;stroke:var(--gold);stroke-width:1;opacity:.45;stroke-dasharray:5 9;transform-origin:50px 50px;animation:spin 44s linear infinite}
+  .eye .rI{fill:none;stroke:var(--gold);stroke-width:1.4;opacity:.85}
+  .eye .tri{fill:none;stroke:var(--gold2);stroke-width:2;stroke-linejoin:round}
+  .eye .pO{fill:none;stroke:var(--gold2);stroke-width:2}
+  .eye .pp{fill:var(--gold2);animation:glow 3.2s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes glow{0%,100%{opacity:.65}50%{opacity:1}}
+
+  .badge{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);border:.5px solid var(--border);padding:7px 16px;border-radius:30px;margin-bottom:26px;background:rgba(201,168,76,.04);animation:rise .9s var(--ease) .05s both}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(44px,9vw,86px);letter-spacing:5px;line-height:1.05;margin-bottom:20px;background:linear-gradient(100deg,#c9a84c,#f0d88a 30%,#fff7e0 50%,#f0d88a 70%,#c9a84c);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:rise 1s var(--ease) .1s both,shimmer 7s linear infinite}
+  @keyframes shimmer{to{background-position:220% center}}
+  .tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(17px,2.4vw,23px);color:var(--silver);letter-spacing:.5px;max-width:580px;margin-bottom:38px;animation:rise 1s var(--ease) .18s both}
+  .tagline em{color:var(--gold2);font-style:italic}
+
+  /* ── CTAs ── */
+  .ctas{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:rise 1s var(--ease) .26s both}
+  .cta{position:relative;display:inline-flex;align-items:center;gap:9px;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;padding:15px 28px;border-radius:3px;transition:transform .25s var(--ease),box-shadow .25s,background .25s,color .25s,border-color .25s;overflow:hidden}
+  .cta.primary{background:linear-gradient(135deg,#f0d88a,#c9a84c);color:#1a1505;font-weight:500;box-shadow:0 8px 30px rgba(201,168,76,.24)}
+  .cta.primary:hover{transform:translateY(-3px);box-shadow:0 14px 42px rgba(201,168,76,.4)}
+  .cta.primary::before{content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);transition:left .6s var(--ease)}
+  .cta.primary:hover::before{left:140%}
+  .cta.ghost{border:.5px solid var(--border2);color:var(--gold)}
+  .cta.ghost:hover{background:rgba(201,168,76,.08);color:var(--gold2);transform:translateY(-3px);border-color:var(--gold2)}
+
+  /* ── stats ── */
+  .stats{display:flex;gap:0;margin-top:56px;flex-wrap:wrap;justify-content:center;animation:rise 1s var(--ease) .34s both}
+  .stat{min-width:120px;padding:0 38px}
+  .stat+.stat{border-left:.5px solid var(--border)}
+  .stat-val{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:46px;color:var(--gold2);letter-spacing:1px;line-height:1}
+  .stat-lbl{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:9px}
+  @media(max-width:560px){.stat{padding:0 22px}.stat+.stat{border-left:none}}
+
+  /* ── feature grid ── */
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+  .feature{position:relative;background:linear-gradient(180deg,var(--card2),var(--card));border:.5px solid var(--border);border-radius:var(--radius);padding:34px 30px;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
+  .feature:hover{transform:translateY(-6px);border-color:var(--border2);box-shadow:0 20px 54px rgba(0,0,0,.45)}
+  .feature .ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(201,168,76,.08);border:.5px solid var(--border);margin-bottom:22px}
+  .feature .ico svg{width:24px;height:24px;stroke:var(--gold2);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .feature h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:22px;color:var(--gold2);letter-spacing:.5px;margin-bottom:11px}
+  .feature p{font-size:13.5px;color:var(--silver);line-height:1.78}
+  .feature p em{color:var(--gold2);font-style:italic}
+  .lead{text-align:center;max-width:640px;margin:0 auto 46px;font-size:16px;color:var(--silver);line-height:1.8}
+  .lead em{color:var(--gold2);font-style:italic}
+  .note{text-align:center;max-width:620px;margin:44px auto 0;font-size:14px;color:var(--muted)}
+  .note em{color:var(--gold2);font-style:italic}
+
+  /* ── endpoints ── */
+  .card{background:var(--card);border:.5px solid var(--border);border-radius:var(--radius);padding:14px 30px;max-width:780px;margin:0 auto}
+  .endpoints{display:flex;flex-direction:column;font-family:'SF Mono',Menlo,monospace;font-size:12.5px}
+  .endpoint{display:flex;gap:14px;align-items:baseline;color:var(--silver);padding:13px 6px;border-bottom:.5px solid rgba(201,168,76,.07);transition:background .2s}
+  .endpoint:last-child{border-bottom:none}
+  .endpoint:hover{background:rgba(201,168,76,.04)}
+  .method{font-weight:500;color:var(--gold);min-width:46px}
+  code{font-family:'SF Mono',Menlo,monospace;background:rgba(0,0,0,.4);padding:2px 8px;border-radius:3px;color:var(--gold2);border:.5px solid var(--border)}
+  .ep-desc{color:var(--muted);font-size:11px;margin-left:auto;font-family:Montserrat,sans-serif;letter-spacing:.5px;text-align:right}
+
+  /* ── install ── */
+  .install{max-width:720px}
+  .install .card{padding:34px 34px}
+  .install h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+  .install p{font-size:13.5px;color:var(--silver);line-height:1.8;margin-bottom:8px}
+  .install em{color:var(--gold2);font-style:italic}
+  .install strong{color:var(--silver);font-weight:400}
+  .install ol{margin:14px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:11px}
+  .install li{font-size:13px;color:var(--silver);line-height:1.6}
+  .install li code{font-size:11.5px;word-break:break-all}
+
+  /* ── footer ── */
+  footer{position:relative;z-index:1;margin-top:24px;padding:44px 24px;border-top:.5px solid var(--border);text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  footer a{color:var(--muted);text-decoration:none;transition:.2s}
+  footer a:hover{color:var(--gold)}
+
+  /* ── motion primitives ── */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+  .feature.reveal{transition-delay:calc(var(--i,0) * .09s)}
+  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1!important;transform:none!important}
+  }
+  @media(max-width:560px){.section{padding:66px 18px}.hero{min-height:auto;padding:64px 18px 44px}}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="aurora" aria-hidden="true"><i class="o1"></i><i class="o2"></i><i class="o3"></i></div>
 
-  <div class="hero">
-    <div class="badge"><span class="dot"></span>Network · Online</div>
-    <h1>Gateway Protocol</h1>
-    <div class="tagline">The reference network for Community Practice Rooms and the Transmission Feed. <em>Owned, not subscribed.</em></div>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 100 100" fill="none" stroke="#f0d88a" stroke-width="4" aria-hidden="true"><circle cx="50" cy="50" r="42"/><polygon points="50,30 70,66 30,66" stroke-linejoin="round"/><circle cx="50" cy="54" r="5" fill="#f0d88a" stroke="none"/></svg>
+      Gateway Protocol
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#network">Network</a>
+      <a class="nav-cta" href="/download">Download</a>
+    </nav>
   </div>
+</header>
 
-  <div class="stats" id="stats">
-    <div class="stat"><div class="stat-val" data-stat="rooms">${stats.rooms}</div><div class="stat-lbl">Active Rooms</div></div>
-    <div class="stat"><div class="stat-val" data-stat="feed">${stats.feedSize}</div><div class="stat-lbl">Feed Items</div></div>
-    <div class="stat"><div class="stat-val" data-stat="uptime">${fmtUptime(stats.uptime)}</div><div class="stat-lbl">Server Uptime</div></div>
-  </div>
+<main>
 
-  <div class="card">
-    <h2>What this is</h2>
-    <p>This URL isn't a website — it's the <em>backend</em> for the Gateway Protocol desktop app. Practitioners running the app can opt in to two community features that route through here:</p>
-    <p><em>Community Practice Rooms.</em> Multiple practitioners doing the same Gateway Wave at the same time. The first joiner hosts; everyone else mirrors the host's timer and phase. Anonymous presence count only — no chat, no video, no identifiers.</p>
-    <p><em>Transmission Feed.</em> Opt-in anonymous Council transmissions, filterable by wave / frequency / activation code. A living map of the work the community is doing this week.</p>
-    <p>The desktop app itself is fully sovereign. It works <em>without</em> this server — pointing at it just adds the network layer.</p>
-  </div>
-
-  <div class="card">
-    <h2>Endpoints</h2>
-    <div class="endpoints">
-      <div class="endpoint"><span class="method">GET</span><span><code>/</code></span><span class="ep-desc">this page</span></div>
-      <div class="endpoint"><span class="method">GET</span><span><code>/download</code></span><span class="ep-desc">desktop app .dmg</span></div>
-      <div class="endpoint"><span class="method">GET</span><span><code>/version</code></span><span class="ep-desc">latest desktop version (drives in-app update banner)</span></div>
-      <div class="endpoint"><span class="method">GET</span><span><code>/feed?wave=&code=&limit=</code></span><span class="ep-desc">list transmissions</span></div>
-      <div class="endpoint"><span class="method">POST</span><span><code>/feed</code></span><span class="ep-desc">publish a transmission</span></div>
-      <div class="endpoint"><span class="method">POST</span><span><code>/feed/:id/react</code></span><span class="ep-desc">+1 reaction</span></div>
-      <div class="endpoint"><span class="method">WSS</span><span><code>/room/:code</code></span><span class="ep-desc">join a practice room</span></div>
+  <section class="hero">
+    <canvas id="motes" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <div class="emblem" aria-hidden="true">
+        <svg class="eye" viewBox="0 0 100 100">
+          <circle class="rO" cx="50" cy="50" r="47"/>
+          <circle class="rI" cx="50" cy="50" r="39"/>
+          <polygon class="tri" points="50,28 73,68 27,68"/>
+          <circle class="pO" cx="50" cy="55" r="9"/>
+          <circle class="pp" cx="50" cy="55" r="4.2"/>
+        </svg>
+      </div>
+      <div class="badge"><span class="dot"></span>Network · Online</div>
+      <h1>Gateway Protocol</h1>
+      <p class="tagline">A sovereign practice field for the Gateway Process — Community Practice Rooms and the Transmission Feed. <em>Owned, not subscribed.</em></p>
+      <div class="ctas">
+        <a class="cta primary" href="/download">Download for macOS ↓</a>
+        ${SUPPORT_URL ? `<a class="cta ghost" href="${SUPPORT_URL}" target="_blank" rel="noopener">◈ Become a Founder ↗</a>` : `<a class="cta ghost" href="#features">Explore the network</a>`}
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-val" data-stat="rooms" data-count="${stats.rooms}">0</div><div class="stat-lbl">Active Rooms</div></div>
+        <div class="stat"><div class="stat-val" data-stat="feed" data-count="${stats.feedSize}">0</div><div class="stat-lbl">Feed Items</div></div>
+        <div class="stat"><div class="stat-val" data-stat="uptime">${fmtUptime(stats.uptime)}</div><div class="stat-lbl">Uptime</div></div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="ctas">
-    <a class="cta primary" href="/download">Download for macOS ↓</a>
-    ${SUPPORT_URL ? `<a class="cta" href="${SUPPORT_URL}" target="_blank" rel="noopener">◈ Become a Founder ↗</a>` : ''}
-  </div>
-  <div class="install-note">
-    <strong>macOS Intel x64.</strong> Apple Silicon runs via Rosetta; native arm64 is on the roadmap.
-    The app is unsigned (no Apple Developer certificate yet), so the first launch shows
-    <em>“Gateway Protocol cannot be opened because the developer cannot be verified.”</em>
-    That's expected. To open it once:
-    <ol class="install-steps">
-      <li>Drag <strong>Gateway Protocol</strong> to your Applications folder.</li>
-      <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll down, and click <strong>Open Anyway</strong> next to the Gateway Protocol notice.</li>
-      <li>Or, in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/Gateway Protocol.app"</code></li>
-    </ol>
-    It launches normally after that — the prompt only appears once.
-  </div>
+  <section id="features" class="section">
+    <div class="section-head reveal">
+      <span class="eyebrow">What this is</span>
+      <h2>More than a server</h2>
+    </div>
+    <p class="lead reveal">This URL isn't a website — it's the <em>backend</em> for the Gateway Protocol desktop app, powering two opt-in community features. The app itself stays fully sovereign.</p>
+    <div class="feature-grid">
+      <article class="feature reveal" style="--i:0">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="10.5"/></svg></div>
+        <h3>Community Practice Rooms</h3>
+        <p>Multiple practitioners run the same Gateway Wave at once. The first joiner hosts; everyone else mirrors the host's timer and phase. <em>Anonymous presence count only</em> — no chat, no video, no identifiers.</p>
+      </article>
+      <article class="feature reveal" style="--i:1">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M5.5 5.5a9 9 0 000 13M18.5 5.5a9 9 0 010 13M8.5 8.5a5 5 0 000 7M15.5 8.5a5 5 0 010 7"/></svg></div>
+        <h3>Transmission Feed</h3>
+        <p>Opt-in anonymous Council transmissions, filterable by wave, frequency, or activation code. <em>A living map</em> of the work the community is doing this week.</p>
+      </article>
+      <article class="feature reveal" style="--i:2">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="4.5"/><path d="M11.7 11.7l8 8M16.5 16.5l2-2M18.8 18.8l1.4-1.4"/></svg></div>
+        <h3>Sovereign by design</h3>
+        <p>The desktop app works <em>without</em> this server — pointing at it just adds the optional network layer. Your keys, your data, your machine. Owned, not subscribed.</p>
+      </article>
+    </div>
+  </section>
 
-  <footer>
-    Gateway Protocol · Reference Server · build ${COMMIT_SHORT}
-  </footer>
+  <section id="network" class="section">
+    <div class="section-head reveal">
+      <span class="eyebrow">For developers</span>
+      <h2>Endpoints</h2>
+      <p>A small, anonymous, in-memory REST + WebSocket surface.</p>
+    </div>
+    <div class="card reveal">
+      <div class="endpoints">
+        <div class="endpoint"><span class="method">GET</span><span><code>/</code></span><span class="ep-desc">this page</span></div>
+        <div class="endpoint"><span class="method">GET</span><span><code>/download</code></span><span class="ep-desc">desktop app .dmg</span></div>
+        <div class="endpoint"><span class="method">GET</span><span><code>/version</code></span><span class="ep-desc">latest desktop version (drives in-app update banner)</span></div>
+        <div class="endpoint"><span class="method">GET</span><span><code>/feed?wave=&code=&limit=</code></span><span class="ep-desc">list transmissions</span></div>
+        <div class="endpoint"><span class="method">POST</span><span><code>/feed</code></span><span class="ep-desc">publish a transmission</span></div>
+        <div class="endpoint"><span class="method">POST</span><span><code>/feed/:id/react</code></span><span class="ep-desc">+1 reaction</span></div>
+        <div class="endpoint"><span class="method">WSS</span><span><code>/room/:code</code></span><span class="ep-desc">join a practice room</span></div>
+      </div>
+    </div>
+  </section>
 
-</div>
+  <section class="section install reveal">
+    <div class="card">
+      <h3>Installing on macOS</h3>
+      <p><strong>macOS Intel x64.</strong> Apple Silicon runs via Rosetta; native arm64 is on the roadmap. The app is unsigned (no Apple Developer certificate yet), so the first launch shows <em>“Gateway Protocol cannot be opened because the developer cannot be verified.”</em> That's expected — to open it:</p>
+      <ol>
+        <li>Drag <strong>Gateway Protocol</strong> into your Applications folder.</li>
+        <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll down, and click <strong>Open Anyway</strong> next to the Gateway Protocol notice.</li>
+        <li>Or, in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/Gateway Protocol.app"</code></li>
+      </ol>
+      <p>It launches normally after that — the prompt only appears once.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Gateway Protocol · Reference Server · build ${COMMIT_SHORT} · <a href="/download">Download</a>
+</footer>
 
 <script>${LANDING_SCRIPT}</script>
 </body>
