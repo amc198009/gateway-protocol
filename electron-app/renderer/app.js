@@ -1903,6 +1903,8 @@ function _swapScreen(id, navBtn){
   if(id==='today' && typeof renderToday==='function') renderToday();
   // Stop the biofield animation loop when navigating away (saves CPU).
   else if(typeof BIOFIELD!=='undefined') BIOFIELD.unmount();
+  // V6·T9 — live collective-field poll only while the Network screen is open.
+  if(typeof COLLECTIVE!=='undefined'){ if(id==='network') COLLECTIVE.start(); else COLLECTIVE.stop(); }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -4868,6 +4870,31 @@ const DELETE_AFFECT={
     try{ if(typeof renderToday==='function') renderToday(); if(typeof updateStats==='function') updateStats(); }catch(e){}
     toast('Check-in data deleted ✓');
   }
+};
+
+// V6·T9 — Collective Field: an anonymized, aggregate read of the configured
+// server (active rooms + feed size from the existing health endpoint). No new
+// server endpoint, no identifiers — just "you're not practicing alone."
+const COLLECTIVE = {
+  _timer:null,
+  async refresh(){
+    const el=document.getElementById('gp-collective'); if(!el) return;
+    const url=(typeof NETWORK!=='undefined' && NETWORK._cfg && NETWORK._cfg.serverUrl) ? NETWORK._cfg.serverUrl : '';
+    if(!url){ el.innerHTML='<div class="gp-net-empty">Configure a server URL in Settings to see the live field.</div>'; return; }
+    try{
+      const res=await fetch(url.replace(/\/+$/,'')+'/', {cache:'no-store', headers:{'Accept':'application/json'}});
+      const d=await res.json();
+      const rooms=d.rooms|0, feed=d.feedSize|0;
+      const line = rooms>0
+        ? `<strong>${rooms}</strong> practice room${rooms===1?'':'s'} active right now — you are not practicing alone.`
+        : `No rooms active this moment — open one and others can join you.`;
+      el.innerHTML=`<div class="gp-collective-live">${line}</div><div class="gp-collective-sub">${feed} transmission${feed===1?'':'s'} in the shared feed · anonymous, aggregate counts only.</div>`;
+    }catch(e){
+      el.innerHTML='<div class="gp-net-empty">Couldn’t reach the field right now.</div>';
+    }
+  },
+  start(){ this.refresh(); clearInterval(this._timer); this._timer=setInterval(()=>this.refresh(), 60000); },
+  stop(){ if(this._timer){ clearInterval(this._timer); this._timer=null; } }
 };
 
 // ═══════════════════════════ V7 · NETWORK (Practice Rooms + Feed) ═══════════════════════════
