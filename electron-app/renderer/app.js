@@ -124,6 +124,13 @@ const GP_ACTIONS = {
   'import-data': () => IMPORT.trigger(),
   'import-data-file': (el) => IMPORT.handle(el),
   'delete-affect': () => DELETE_AFFECT.run(),
+  'tip-toggle': (el) => {
+    const t = document.getElementById(el.getAttribute('aria-controls'));
+    if(!t) return;
+    const opening = t.hasAttribute('hidden');
+    if(opening){ t.removeAttribute('hidden'); el.setAttribute('aria-expanded','true'); }
+    else { t.setAttribute('hidden',''); el.setAttribute('aria-expanded','false'); }
+  },
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -212,7 +219,7 @@ const GP_EVENT_ACTIONS = {
     'setup-goal','setup-next','setup-finish',
     'voice-affect-start','voice-affect-consent','voice-affect-confirm','voice-affect-discard',
     'camera-affect-start','camera-affect-consent','camera-affect-confirm','camera-affect-discard',
-    'palette-open','import-data','delete-affect'
+    'palette-open','import-data','delete-affect','tip-toggle'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
