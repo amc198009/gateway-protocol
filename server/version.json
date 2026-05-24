@@ -1,5 +1,5 @@
 {
-  "version": "3.3.3",
+  "version": "3.3.4",
   "releasedAt": "2026-05-24T00:00:00Z",
-  "notes": "V3.3.3 — Smoother & steadier. The in-session field now glows with your live coherence as the breath settles. Under the hood, the renderer was split into focused files (data / affect / core) for faster, more maintainable loading, with a performance budget now guarding the bundle size. No change to your data — everything stays on your device."
+  "notes": "V3.3.4 — Maintenance & foundations. Internal refactor: the renderer is now split into focused, independently-loaded modules (content, visuals/audio, affect, core), trimming the main bundle ~27% and guarded by a CI performance budget. No user-facing change — your practice, data, and privacy are exactly as before, everything still on your device."
 }
