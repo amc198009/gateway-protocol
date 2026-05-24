@@ -218,7 +218,7 @@ const feed = []; // ring buffer, oldest at index 0
 // The full marketing page + its single inline script live in ./landing.js;
 // LANDING_SCRIPT is exported verbatim so the CSP sha256 below matches the
 // exact bytes served. The desktop app (Accept: */*) still receives JSON.
-const { LANDING_SCRIPT, renderLanding } = require('./landing.js');
+const { LANDING_SCRIPT, renderLanding, renderDocs } = require('./landing.js');
 const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LANDING_SCRIPT).digest('base64') + "'";
 // CSP for the landing response: external Google Fonts stylesheet + inline
 // <style> (style-src), font files (font-src), same-origin stats fetch
@@ -226,6 +226,19 @@ const LANDING_SCRIPT_HASH = "'sha256-" + crypto.createHash('sha256').update(LAND
 const LANDING_CSP = [
   "default-src 'self'",
   `script-src 'self' ${LANDING_SCRIPT_HASH}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src https://fonts.gstatic.com",
+  "connect-src 'self'",
+  "img-src 'self' data:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+// CSP for /docs — same as the landing minus the inline-script hash, since the
+// docs page is fully static (no inline script at all).
+const DOCS_CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
   "connect-src 'self'",
@@ -689,6 +702,18 @@ const server = http.createServer((req, res) => {
       return res.end(renderLanding({ stats, supportUrl: SUPPORT_URL, commit: COMMIT_SHORT }));
     }
     return jsonResponse(res, 200, stats);
+  }
+  // GET /docs — static, brand-consistent developer reference for the network surface.
+  if (req.method === 'GET' && path === '/docs') {
+    const v = readVersion();
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, max-age=300',
+      'Content-Security-Policy': DOCS_CSP,
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
+    });
+    return res.end(renderDocs({ commit: COMMIT_SHORT, version: v && v.version }));
   }
   // GET /feed
   if (req.method === 'GET' && path === '/feed') return handleFeedGet(req, res, url);

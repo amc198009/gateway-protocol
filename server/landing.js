@@ -34,6 +34,8 @@ const EXTRA_CSS = `
   .installnote strong{color:var(--silver);font-weight:400}
   .installnote em{color:var(--gold-light);font-style:italic}
   .installnote code{font-family:'SF Mono',Menlo,monospace;font-size:11.5px;color:var(--gold-light);background:rgba(0,0,0,.4);padding:2px 7px;border-radius:3px;word-break:break-all}
+  footer a{color:var(--gold);text-decoration:none;border-bottom:1px solid var(--hairline);transition:border-color .3s}
+  footer a:hover{border-color:var(--gold)}
 `;
 
 function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
@@ -107,7 +109,7 @@ function renderLanding(opts){
 '  <svg class="glyph-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L22 12 L12 22 L2 12 Z M12 7 L17 12 L12 17 L7 12 Z" fill="currentColor" stroke="none"></path></svg>\n' +
 '  <div class="trail">Gateway Protocol \u00b7 Consciousness \u00b7 Healing \u00b7 Abundance \u00b7 Liberation \u00b7 Owned, not subscribed.</div>\n' +
 '  <p class="discl">This platform supports practice; it does not diagnose, treat, or cure. Not medical advice. Coherence is estimated from breathing rhythm \u2014 a contemplative proxy, not a clinical HRV reading. Solfeggio and frequency associations are contemplative / traditional framings, not established clinical fact.</p>\n' +
-'  <div class="trail" style="margin-top:30px">\u00a9 MMXXVI \u00b7 Made for the long quiet \u00b7 build ' + esc(commit) + '</div>\n' +
+'  <div class="trail" style="margin-top:30px">\u00a9 MMXXVI \u00b7 Made for the long quiet \u00b7 build ' + esc(commit) + ' \u00b7 <a href="/docs">Network &amp; API reference</a></div>\n' +
 '</footer>';
 
   const nav =
@@ -146,4 +148,114 @@ function renderLanding(opts){
     '\n<script>' + LANDING_SCRIPT + '</script>\n</body>\n</html>';
 }
 
-module.exports = { LANDING_SCRIPT, renderLanding };
+// ─────────────────────────────────────────────────────────────────────────
+// /docs — brand-consistent developer reference for the network surface.
+// Static (no inline script) so it can run under a simple script-src 'self' CSP.
+const DOCS_CSS =
+  ":root{--void:#02020a;--void2:#05050f;--card:#0f0f22;--card2:#0a0a1a;--hairline:rgba(201,168,76,.20);--gold:#c9a84c;--gold-light:#f0d88a;--text:#ece7da;--muted:#928974;--serif:'Cormorant Garamond','Hoefler Text',Garamond,serif;--sans:'Montserrat',-apple-system,BlinkMacSystemFont,sans-serif}" +
+  "*{box-sizing:border-box;margin:0;padding:0}" +
+  "body{background:var(--void);color:var(--text);font-family:var(--sans);font-weight:300;line-height:1.7;-webkit-font-smoothing:antialiased;background-image:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(40,30,70,.5) 0%,transparent 60%),linear-gradient(180deg,#000004,var(--void) 45%,var(--void2));background-attachment:fixed;min-height:100vh}" +
+  ".wrap{max-width:880px;margin:0 auto;padding:48px clamp(20px,5vw,48px) 96px}" +
+  ".top{display:flex;align-items:center;justify-content:space-between;margin-bottom:54px}" +
+  ".mark{display:flex;align-items:center;gap:11px;color:var(--gold);font-size:11px;letter-spacing:.34em;text-transform:uppercase;text-decoration:none}" +
+  ".mark svg{width:13px;height:13px}" +
+  ".back{color:var(--muted);font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--hairline);transition:color .3s,border-color .3s}" +
+  ".back:hover{color:var(--gold-light);border-color:var(--gold)}" +
+  ".eyebrow{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}" +
+  "h1{font-family:var(--serif);font-weight:300;font-size:clamp(34px,6vw,52px);color:var(--gold-light);letter-spacing:.5px;line-height:1.1}" +
+  ".lead{color:var(--muted);font-size:15px;max-width:62ch;margin:18px 0 8px}" +
+  ".grp{margin-top:54px}" +
+  ".grp h2{font-family:var(--serif);font-weight:400;font-size:22px;color:var(--gold-light);letter-spacing:.5px;padding-bottom:12px;border-bottom:1px solid var(--hairline)}" +
+  ".eps{display:flex;flex-direction:column}" +
+  ".ep{display:grid;grid-template-columns:58px minmax(0,auto) 1fr;gap:16px;align-items:baseline;padding:15px 4px;border-bottom:1px solid rgba(201,168,76,.07)}" +
+  ".ep:last-child{border-bottom:none}" +
+  ".m{font-family:'SF Mono',Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em}" +
+  ".ep code{font-family:'SF Mono',Menlo,monospace;font-size:12.5px;color:var(--gold-light);background:rgba(0,0,0,.4);border:1px solid var(--hairline);border-radius:3px;padding:3px 9px;white-space:nowrap;overflow-x:auto}" +
+  ".d{color:var(--muted);font-size:13px}" +
+  ".notes{margin-top:60px;border:1px solid var(--hairline);background:linear-gradient(180deg,var(--card),var(--card2));padding:26px 30px}" +
+  ".notes h2{font-family:var(--serif);font-weight:400;font-size:18px;color:var(--gold);margin-bottom:12px}" +
+  ".notes ul{list-style:none;display:flex;flex-direction:column;gap:9px}" +
+  ".notes li{color:var(--muted);font-size:13px;padding-left:18px;position:relative}" +
+  ".notes li::before{content:'\u25c8';position:absolute;left:0;color:var(--gold);font-size:9px;top:4px}" +
+  ".foot{margin-top:60px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);text-align:center}" +
+  "@media(max-width:560px){.ep{grid-template-columns:1fr;gap:6px}.ep code{white-space:normal;word-break:break-all}}";
+
+function renderDocs(opts){
+  opts = opts || {};
+  const commit = opts.commit || 'main';
+  const version = opts.version || '';
+  const GLYPH = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2 L22 12 L12 22 L2 12 Z M12 7 L17 12 L12 17 L7 12 Z"></path></svg>';
+  const MCOLOR = { GET:'#7fb3ff', POST:'#f0b46a', WSS:'#9bd1a6', HEAD:'#9aa0b5' };
+  const GROUPS = [
+    { title:'App & status', items:[
+      ['GET','/', 'Marketing landing for browsers; health JSON for API clients (content-negotiated on Accept).'],
+      ['GET','/app', 'The installable web app (PWA).'],
+      ['GET','/version', 'Latest desktop version \u2014 drives the in-app update banner. Returns { version, releasedAt, notes, downloadUrl }.'],
+      ['GET','/manifest.webmanifest', 'PWA manifest; plus /sw.js, /qr-app.svg, /icons/*.'],
+    ]},
+    { title:'Downloads', items:[
+      ['GET','/download', 'macOS disk image (.dmg), baked into the deploy.'],
+      ['GET','/download/windows', '302 \u2192 latest Windows installer on the GitHub Release.'],
+      ['GET','/download/linux', '302 \u2192 latest Linux package on the GitHub Release.'],
+    ]},
+    { title:'Transmission feed', items:[
+      ['GET','/feed?wave=&code=&limit=', 'List anonymous transmissions. limit defaults to 50 (max 200); optional filter by wave or activation code.'],
+      ['POST','/feed', 'Publish a transmission. Requires the X-Gateway-Client header (CSRF guard); rate-limited per IP.'],
+      ['POST','/feed/:id/react', 'Add a +1 reaction to a transmission.'],
+    ]},
+    { title:'Practice rooms', items:[
+      ['WSS','/room/:code', 'Join a live-synchronized room (code = 4\u201312 alphanumerics). First joiner hosts the timer + phase; everyone else mirrors it. Anonymous presence count only \u2014 no chat, no identifiers.'],
+    ]},
+    { title:'Optional LLM/TTS relay (PWA / mobile)', items:[
+      ['GET','/api/status \u00b7 /byok/status', 'Relay availability for the managed (server-key) and bring-your-own-key paths.'],
+      ['POST','/api/anthropic/messages', 'Managed Council relay, only if a server key is configured.'],
+      ['POST','/byok/anthropic/messages', 'Bring-your-own-key relay \u2014 your key is proxied per-request, never stored.'],
+    ]},
+  ];
+
+  let groups = '';
+  GROUPS.forEach(function(g){
+    let eps = '';
+    g.items.forEach(function(it){
+      const m = it[0];
+      eps += '<div class="ep"><span class="m" style="color:' + (MCOLOR[m] || '#cccccc') + '">' + esc(m) +
+             '</span><code>' + esc(it[1]) + '</code><span class="d">' + esc(it[2]) + '</span></div>';
+    });
+    groups += '<section class="grp"><h2>' + esc(g.title) + '</h2><div class="eps">' + eps + '</div></section>';
+  });
+
+  return '<!doctype html>\n<html lang="en">\n<head>\n' +
+    '<meta charset="utf-8">\n' +
+    '<title>Network & API Reference \u2014 Gateway Protocol</title>\n' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    '<meta name="description" content="Developer reference for the Gateway Protocol server: a small, anonymous, in-memory REST + WebSocket surface.">\n' +
+    '<meta name="robots" content="all">\n' +
+    '<meta name="theme-color" content="#02020a">\n' +
+    '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
+    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">\n' +
+    '<style>' + DOCS_CSS + '</style>\n</head>\n<body>\n' +
+    '<div class="wrap">\n' +
+    '  <div class="top">\n' +
+    '    <a class="mark" href="/">' + GLYPH + '<span>Gateway Protocol</span></a>\n' +
+    '    <a class="back" href="/">\u2190 Back to gateway</a>\n' +
+    '  </div>\n' +
+    '  <p class="eyebrow">For developers</p>\n' +
+    '  <h1>Network &amp; API reference</h1>\n' +
+    '  <p class="lead">Gateway Protocol is sovereign on the desktop and works fully offline. This server adds an optional, anonymous, in-memory network layer \u2014 a small REST + WebSocket surface. No accounts, no cookies, nothing persisted to disk.</p>\n' +
+    groups +
+    '  <div class="notes">\n' +
+    '    <h2>Conventions</h2>\n' +
+    '    <ul>\n' +
+    '      <li>Responses are JSON; errors return a non-2xx status with { error }.</li>\n' +
+    '      <li>CORS is restricted to an allow-list of origins, reflected per request.</li>\n' +
+    '      <li>Writes are rate-limited per IP; POST /feed also requires the X-Gateway-Client header.</li>\n' +
+    '      <li>Feed and room state are in-memory and ephemeral \u2014 they do not survive a restart, by design.</li>\n' +
+    '      <li>No authentication or identity is required or collected for the public surface.</li>\n' +
+    '    </ul>\n' +
+    '  </div>\n' +
+    '  <div class="foot">Gateway Protocol \u00b7 Reference Server' + (version ? ' \u00b7 v' + esc(version) : '') + ' \u00b7 build ' + esc(commit) + '</div>\n' +
+    '</div>\n</body>\n</html>';
+}
+
+module.exports = { LANDING_SCRIPT, renderLanding, renderDocs };
