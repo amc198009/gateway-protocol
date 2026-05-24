@@ -1,6 +1,6 @@
 # Decision memo — Bundling MediaPipe for facial affect (V6·T3) & the CSP trade-off
 
-**Status:** awaiting decision · **Owner:** Arturo · **Prepared by:** Claude
+**Status:** ✅ **DECIDED — NO-GO (2026-05-24).** Keep the model-free camera approach; **no CSP change**. The renderer CSP stays `script-src 'self'` (audit posture preserved). Full MediaPipe facial affect is **won't-do / revisit only if it becomes a priority**. · **Owner:** Arturo · **Prepared by:** Claude
 **TL;DR:** Shipping real facial landmarks (head pose / blink / gaze / affect) means adding **`'wasm-unsafe-eval'`** to the renderer CSP — a **global, permanent** relaxation of a hardening we added during the security audit. It's narrower than it sounds, and low marginal risk *given our other controls*, but it's a conscious trade-off. This memo lays out exactly what changes, the risk, alternatives, and a recommendation so you can make a clean go / no-go.
 
 ---
@@ -77,7 +77,7 @@ Rationale: the model-free signals (A, shipped) already give an *honest* settledn
 
 ## 7. Decision
 - [ ] **GO** — accept `'wasm-unsafe-eval'` (global, permanent); proceed with the scoped plan in §6.
-- [ ] **NO-GO** — keep model-free signals; no CSP change.
+- [x] **NO-GO** — keep model-free signals; no CSP change. _(Chosen 2026-05-24. CSP stays `script-src 'self'`; the shipped stillness/fidget/presence camera signals remain the approach. Full MediaPipe facial affect is shelved unless re-prioritized.)_
 - [ ] **Defer** — revisit after [date / milestone].
 
 _Once decided, this memo + the choice should be linked from `V6_ROADMAP.md` (T3) and, if NO-GO, from `TODO.md`._
