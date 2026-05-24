@@ -660,6 +660,9 @@ const HRV={
     // V6·T2 — felt "coherence bloom" the first time sustained breathing pushes
     // coherence past the threshold this session.
     if(this._score>=this.BLOOM_AT && !this._bloomed){ this._bloomed=true; this._bloom(); }
+    // V6·T2b — the cinematic pulse ring glows with live coherence (CSS reads
+    // --gp-coherence). The field visibly responds as the breath settles.
+    try{ document.documentElement.style.setProperty('--gp-coherence', (this._score/100).toFixed(3)); }catch(e){}
   },
 
   _bloom(){
@@ -681,6 +684,7 @@ const HRV={
     this._history.length=0;
     this._cycles=0;this._score=0;
     this._bloomed=false;
+    try{ document.documentElement.style.setProperty('--gp-coherence','0'); }catch(e){} // reset the ring glow
     this._phase=null;
     const score=document.getElementById('gp-hrv-score');
     if(score) score.textContent='—';
