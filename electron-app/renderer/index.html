@@ -107,6 +107,14 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 .gp-setup-skip{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);background:transparent;border:.5px solid var(--border);padding:13px 22px;border-radius:3px;cursor:pointer;margin-right:10px}
 .gp-setup-skip:hover{color:var(--silver);border-color:var(--silver)}
 .gp-setup-actions{display:flex;align-items:center}
+/* Voice check-in (on-device affect signals) */
+.gp-voice-affect{margin-top:16px;padding-top:16px;border-top:.5px solid var(--border)}
+.gp-voice-affect-btn{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:transparent;border:.5px solid var(--border);padding:11px 16px;border-radius:3px;cursor:pointer;transition:all .2s}
+.gp-voice-affect-btn:hover{border-color:var(--gold);background:var(--glow)}
+.gp-voice-affect-status{font-size:14px;color:var(--silver);line-height:1.7;margin-top:12px}
+.gp-voice-affect-status strong{color:var(--gold2);font-weight:400}
+.gp-link{background:none;border:none;color:var(--gold);cursor:pointer;font:inherit;text-decoration:underline;padding:0 2px}
+.gp-link:hover{color:var(--gold2)}
 html{scroll-behavior:smooth;font-size:18px;overflow-x:hidden}
 @media (min-width:1100px){html{font-size:19px}}
 body{
