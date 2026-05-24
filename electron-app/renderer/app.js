@@ -121,6 +121,9 @@ const GP_ACTIONS = {
   'camera-affect-confirm': () => CAMERA_AFFECT.confirm(),
   'camera-affect-discard': () => CAMERA_AFFECT.discard(),
   'palette-open': () => PALETTE.open(),
+  'import-data': () => IMPORT.trigger(),
+  'import-data-file': (el) => IMPORT.handle(el),
+  'delete-affect': () => DELETE_AFFECT.run(),
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -209,7 +212,7 @@ const GP_EVENT_ACTIONS = {
     'setup-goal','setup-next','setup-finish',
     'voice-affect-start','voice-affect-consent','voice-affect-confirm','voice-affect-discard',
     'camera-affect-start','camera-affect-consent','camera-affect-confirm','camera-affect-discard',
-    'palette-open'
+    'palette-open','import-data','delete-affect'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
@@ -217,7 +220,7 @@ const GP_EVENT_ACTIONS = {
   ]),
   change: new Set([
     'protobuild-handle-import','network-save-share-consent','network-load-feed-change','reminders-save',
-    'network-save-config-change'
+    'network-save-config-change','import-data-file'
   ]),
   keydown: new Set([]),
   blur: new Set(['network-save-config-blur']),
@@ -4814,6 +4817,35 @@ const EXPORT={
     a.click();
     setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },200);
     toast('Backup downloaded — '+(data.journal?.length||0)+' entries, '+(data.synchronicities?.length||0)+' syncs');
+  }
+};
+
+// V6·T7 — data portability: import a backup, and delete just the on-device
+// affect/check-in history without touching the rest.
+const IMPORT={
+  trigger(){ const i=document.getElementById('gp-import-input'); if(i) i.click(); },
+  async handle(input){
+    const file=input.files&&input.files[0]; if(!file) return;
+    let payload;
+    try{ payload=JSON.parse(await file.text()); }
+    catch(e){ toast('Import failed: not valid JSON'); input.value=''; return; }
+    const data=(payload && payload.data) ? payload.data : payload; // accept wrapped or raw
+    if(!data || typeof data!=='object' || Array.isArray(data)){ toast('Import failed: unrecognized backup'); input.value=''; return; }
+    if(!confirm('Import this backup? It will REPLACE your current data on this device.')){ input.value=''; return; }
+    const merged={...DB.defaults(), ...data}; // fill any missing keys from the schema
+    DB.save(merged);
+    stats=DB.load();
+    try{ updateStats(); if(typeof renderJournalHistory==='function') renderJournalHistory(); if(typeof renderToday==='function') renderToday(); }catch(e){}
+    toast('Imported ✓ — '+((merged.journal||[]).length)+' entries restored');
+    input.value='';
+  }
+};
+const DELETE_AFFECT={
+  run(){
+    if(!confirm('Delete all mood, voice, and camera check-in history? This cannot be undone.')) return;
+    const d=DB.load(); d.moods=[]; d.voiceCheckins=[]; d.cameraCheckins=[]; DB.save(d);
+    try{ if(typeof renderToday==='function') renderToday(); if(typeof updateStats==='function') updateStats(); }catch(e){}
+    toast('Check-in data deleted ✓');
   }
 };
 

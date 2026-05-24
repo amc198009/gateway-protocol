@@ -1741,11 +1741,19 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       <div style="font-size:14px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem">◈ Data Management</div>
       <div style="font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:1rem">
         Your data lives locally on this machine — in IndexedDB (primary) and localStorage (mirror). No cloud, no sync.
-        Export anytime as portable JSON. Reset wipes everything irreversibly.
+        Export or import anytime as portable JSON. Reset wipes everything irreversibly.
       </div>
       <div class="btn-row">
         <button class="gp-btn primary" data-act="export-download">Export All Data ↓</button>
+        <button class="gp-btn" data-act="import-data">Import Data ↑</button>
+        <input type="file" id="gp-import-input" accept=".json,application/json" style="display:none" data-act="import-data-file" aria-label="Import data file">
         <button class="gp-btn" data-act="confirm-reset" style="border-color:rgba(192,64,64,.4);color:#c04040">Reset All Data</button>
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-top:1rem;border-top:.5px solid var(--border);padding-top:1rem">
+        Check-in data (mood, voice, and camera stillness readings) is derived on-device and never leaves it. You can remove just that history without touching the rest:
+      </div>
+      <div class="btn-row" style="margin-top:.6rem">
+        <button class="gp-btn" data-act="delete-affect" style="border-color:rgba(192,64,64,.4);color:#c04040">Delete check-in data</button>
       </div>
     </div>
 
