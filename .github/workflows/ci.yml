@@ -51,6 +51,9 @@ jobs:
             console.log('OK · '+n+' inline script(s) parsed');
           "
 
+      - name: Accessibility lint (static WCAG checks)
+        run: node scripts/a11y-lint.mjs
+
       - name: Verify no secrets accidentally committed
         run: |
           # Look for anything that looks like an API key in tracked files
