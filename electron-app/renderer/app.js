@@ -1913,13 +1913,23 @@ function renderToday(){
   const moodLine = lastMood ? `<div class="gp-today-mood-now">Last check-in: <strong>${escapeHTML(MOOD.summary(lastMood))}</strong></div>` : '';
   const presetChips = (typeof PRESETS!=='undefined') ? Object.keys(PRESETS).map(k=>
     `<button data-act="apply-preset" data-arg="${k}">${escapeHTML(PRESETS[k].label)}</button>`).join('') : '';
+  // V6·T1 — attuned recommendation from the practitioner's own signals.
+  const attuned = (typeof GP_STATE!=='undefined') ? GP_STATE.recommend() : null;
+  const attunedHtml = attuned ? `
+    <div class="gp-attuned" role="region" aria-label="Attuned recommendation">
+      <div class="gp-attuned-tag">Attuned to you</div>
+      <div class="gp-attuned-title">${escapeHTML(attuned.title)}</div>
+      <div class="gp-attuned-because">${escapeHTML(attuned.because)}</div>
+      <button class="gp-today-cta" data-act="apply-preset" data-arg="${escapeHTML(attuned.presetKey)}">Begin this →</button>
+    </div>` : '';
   body.innerHTML=`
     <div class="gp-today-presets" aria-label="Quick intents">${presetChips}</div>
     <div class="gp-today-grid">
       <div class="gp-today-card">
         <h3>Today's Practice</h3>
+        ${attunedHtml}
         ${recHtml}
-        <button class="gp-today-cta" data-act="show" data-arg="sessions">Begin a session →</button>
+        <button class="gp-today-cta" data-act="show" data-arg="sessions">${attuned?'Or pick another session →':'Begin a session →'}</button>
         <div class="gp-today-quick">
           <button data-act="show" data-arg="journal">Journal</button>
           <button data-act="show" data-arg="council">Council</button>
@@ -2273,6 +2283,43 @@ const BIOFIELD = {
     }
     ctx.beginPath(); ctx.arc(cx,cy,baseR*0.55,0,Math.PI*2);
     ctx.fillStyle=`hsla(${hue.toFixed(0)},85%,72%,0.55)`; ctx.fill();
+  }
+};
+
+// ═══════════════ ADAPTIVE PRACTICE ENGINE 2.0 (V6·T1) ═══════════════
+// One shared state model fusing the practitioner's own check-ins (mood +
+// voice + stillness) into a transparent recommendation with a "because…"
+// rationale and a one-tap apply. Pure read of local state — no network, and
+// every input is labeled by source so nothing is a black box.
+const GP_STATE = {
+  // {arousal,valence,energy} from the same fusion the biofield uses, plus the
+  // contributing sources (for the rationale) and a coherence proxy.
+  compute(){
+    const base = (typeof BIOFIELD!=='undefined') ? BIOFIELD.state() : {arousal:0.5,valence:0.5,energy:0.4};
+    const sources=[]; let coherence=null;
+    try{
+      const m=(typeof MOOD!=='undefined')?MOOD.latest():null;
+      if(m) sources.push({ kind:'self-report', label:MOOD.summary(m) });
+      const v=(typeof VOICE_AFFECT!=='undefined')?VOICE_AFFECT.latest():null;
+      if(v) sources.push({ kind:'voice', label:(v.labels||[]).join(', ') });
+      const c=(typeof CAMERA_AFFECT!=='undefined')?CAMERA_AFFECT.latest():null;
+      if(c){ if(c.present) coherence=c.stillness; sources.push({ kind:'stillness', label:(c.labels||[]).join(', ') }); }
+    }catch(e){}
+    return { ...base, coherence, sources };
+  },
+  // Map the state vector → a recommended intent preset + plain-language reason.
+  // Returns null when there are no signals yet (so the UI can stay quiet).
+  recommend(){
+    const s=this.compute();
+    if(!s.sources.length) return null;
+    let presetKey, title;
+    if(s.arousal>0.6 && s.valence<0.45){ presetKey='reset';    title='Grounding reset'; }
+    else if(s.arousal>0.78){            presetKey='sleep';     title='Settle & rest'; }
+    else if(s.energy<0.35){             presetKey='deepwork';  title='Gentle activation'; }
+    else if(s.valence>0.6 && s.energy>0.6){ presetKey='manifest'; title='Manifestation'; }
+    else {                              presetKey='gateway';   title='Gateway training'; }
+    const because = 'Because your ' + s.sources.map(x=>`${x.kind} read “${x.label}”`).join(' and ') + '.';
+    return { presetKey, title, because, state:s };
   }
 };
 function _navTo(id, navBtn){
