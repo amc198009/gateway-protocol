@@ -112,6 +112,10 @@ const GP_ACTIONS = {
   'setup-goal': (el) => SETUP.pickGoal(el.dataset.arg),
   'setup-next': () => SETUP.next(),
   'setup-finish': () => SETUP.finish(),
+  'voice-affect-start': () => VOICE_AFFECT.start(),
+  'voice-affect-consent': () => { VOICE_AFFECT.grantConsent(); VOICE_AFFECT.start(); },
+  'voice-affect-confirm': () => VOICE_AFFECT.confirm(),
+  'voice-affect-discard': () => VOICE_AFFECT.discard(),
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -197,7 +201,8 @@ const GP_EVENT_ACTIONS = {
     'export-download','confirm-reset','shadow-open','shadow-close','shadow-send','toggle-wave','start-wave',
     'toggle-solf','select-session-index','voice-set-engine','voice-test-speak','voice-stop','set-breath',
     'tt-mark-slot','institute-issue','mood-save','apply-preset',
-    'setup-goal','setup-next','setup-finish'
+    'setup-goal','setup-next','setup-finish',
+    'voice-affect-start','voice-affect-consent','voice-affect-confirm','voice-affect-discard'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
@@ -1349,7 +1354,7 @@ const DB={
   KEY:'gateway_protocol_v1',
   IDB_KEY:'main',
   _cache:null,
-  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[],moods:[]};},
+  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[],moods:[],voiceCheckins:[]};},
 
   // Boot-time hydration. Called once before init() runs. Idempotent.
   async hydrate(){
@@ -1932,6 +1937,10 @@ const MOOD = {
         <div class="gp-mood-help">A quick, private check-in. It shapes your recommendation — nothing leaves your device.</div>
         ${rows}
         <button class="gp-today-cta" data-act="mood-save" style="margin-top:10px">Save check-in</button>
+        <div class="gp-voice-affect">
+          <button class="gp-voice-affect-btn" data-act="voice-affect-start">🎙 Add a voice check-in (optional)</button>
+          <div id="gp-voice-affect-status" class="gp-voice-affect-status" role="status" aria-live="polite"></div>
+        </div>
       </div>`;
   },
   save(){
@@ -1968,6 +1977,108 @@ function applyPreset(key){
   if(typeof showScreen==='function') showScreen('sessions');
   toast(p.label+' loaded · press Begin');
 }
+
+// ═══════════════ ON-DEVICE VOICE CHECK-IN (affect signals) ═══════════════
+// Optional, consent-gated, 100% on-device. Captures a short mic sample via the
+// Web Audio API and derives transparent acoustic features (energy, pitch range,
+// pace). No raw audio is recorded, stored, or transmitted — only the derived
+// numbers, and only if the user keeps the result. NOT medical/diagnostic; the
+// state is a guess the practitioner confirms or rejects.
+const VOICE_AFFECT = {
+  CONSENT_KEY:'gp_voice_affect_consent',
+  DURATION_MS:8000,
+  FRAME_MS:60,
+  _running:false,
+  _lastResult:null,
+  hasConsent(){ try{ return localStorage.getItem(this.CONSENT_KEY)==='1'; }catch(e){ return false; } },
+  grantConsent(){ try{ localStorage.setItem(this.CONSENT_KEY,'1'); }catch(e){} },
+
+  // Pure analysis — unit-testable without a microphone. `frames.rms` is per-frame
+  // loudness (0..1), `frames.pitch` is per-frame dominant Hz (0 when unvoiced).
+  _analyze(frames){
+    const rms=frames.rms||[], pitch=frames.pitch||[];
+    const n=rms.length||1;
+    const energy=rms.reduce((a,b)=>a+b,0)/n;
+    const voiced=pitch.filter((p,i)=>p>0 && (rms[i]||0)>0.04);
+    let pitchRange=0, pitchMean=0;
+    if(voiced.length){
+      const mn=Math.min(...voiced), mx=Math.max(...voiced);
+      pitchRange=mx-mn; pitchMean=voiced.reduce((a,b)=>a+b,0)/voiced.length;
+    }
+    const thr=Math.max(0.05, energy*0.8); let onsets=0;
+    for(let i=1;i<rms.length;i++){ if(rms[i-1]<thr && rms[i]>=thr) onsets++; }
+    const secs=(rms.length*(frames.dt||this.FRAME_MS))/1000 || 1;
+    const tempo=onsets/secs;
+    const energyL = energy>0.18?'high energy' : energy<0.07?'low energy' : 'steady energy';
+    const paceL   = tempo>2.2?'fast pace' : tempo<0.9?'slow pace' : 'even pace';
+    const pitchL  = pitchRange>120?'wide pitch range' : pitchRange<40?'narrow pitch range' : 'moderate pitch range';
+    let guess='balanced';
+    if(energy<0.07 && tempo<0.9) guess='calm or tired';
+    else if(energy>0.18 && tempo>2.2) guess='energized or activated';
+    else if(pitchRange<40 && energy<0.1) guess='subdued';
+    else if(pitchRange>120) guess='expressive';
+    return {
+      energy:+energy.toFixed(3), pitchMeanHz:Math.round(pitchMean), pitchRangeHz:Math.round(pitchRange),
+      tempo:+tempo.toFixed(2), labels:[energyL,paceL,pitchL], guess
+    };
+  },
+
+  async start(){
+    if(this._running) return;
+    if(!this.hasConsent()){ this._showConsent(); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast('Microphone not available on this device.'); return; }
+    let stream;
+    try{ stream=await navigator.mediaDevices.getUserMedia({audio:true}); }
+    catch(e){ this._setStatus(''); toast('Microphone permission denied.'); return; }
+    this._running=true;
+    this._setStatus("Listening… speak what you're bringing into this session.");
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const ctx=new AC();
+    const src=ctx.createMediaStreamSource(stream);
+    const an=ctx.createAnalyser(); an.fftSize=2048; src.connect(an);
+    const td=new Float32Array(an.fftSize);
+    const fd=new Uint8Array(an.frequencyBinCount);
+    const binHz=ctx.sampleRate/an.fftSize;
+    const lo=Math.floor(80/binHz), hi=Math.ceil(400/binHz);
+    const rms=[], pitch=[];
+    const tick=()=>{
+      an.getFloatTimeDomainData(td);
+      let s=0; for(let i=0;i<td.length;i++) s+=td[i]*td[i];
+      rms.push(Math.sqrt(s/td.length));
+      an.getByteFrequencyData(fd);
+      let maxV=0,maxBin=0;
+      for(let b=lo;b<=hi && b<fd.length;b++){ if(fd[b]>maxV){ maxV=fd[b]; maxBin=b; } }
+      pitch.push(maxV>40 ? Math.round(maxBin*binHz) : 0);
+    };
+    const iv=setInterval(tick,this.FRAME_MS);
+    setTimeout(()=>{
+      clearInterval(iv);
+      try{ stream.getTracks().forEach(t=>t.stop()); ctx.close(); }catch(e){}
+      this._running=false;
+      this._showResult(this._analyze({rms,pitch,dt:this.FRAME_MS}));
+    }, this.DURATION_MS);
+  },
+
+  _setStatus(html){ const el=document.getElementById('gp-voice-affect-status'); if(el) el.innerHTML=html; },
+  _showConsent(){
+    this._setStatus('Voice check-in runs <strong>entirely on your device</strong> — no audio is recorded, stored, or sent. It reads tone, energy, and pace only, and is not medical. <button data-act="voice-affect-consent" class="gp-link">Enable &amp; start</button>');
+  },
+  _showResult(r){
+    this._lastResult=r;
+    this._setStatus(`Measured from your voice: <strong>${r.labels.join(' · ')}</strong>. This sounds like <strong>${escapeHTML(r.guess)}</strong> — <button data-act="voice-affect-confirm" class="gp-link">that fits</button> · <button data-act="voice-affect-discard" class="gp-link">not quite</button>`);
+  },
+  confirm(){
+    const r=this._lastResult; if(!r) return;
+    const dd=DB.load();
+    dd.voiceCheckins=[...(dd.voiceCheckins||[]), {date:new Date().toISOString(), ...r}].slice(-60);
+    DB.save(dd);
+    this._lastResult=null;
+    this._setStatus('Saved ✓ — woven into your next recommendation.');
+    toast('Voice check-in saved ✓');
+  },
+  discard(){ this._lastResult=null; this._setStatus('Discarded. Nothing was saved.'); },
+  latest(){ const v=(DB.load().voiceCheckins||[]); return v[v.length-1]||null; }
+};
 function _navTo(id, navBtn){
   const reduced=document.body.classList.contains('gp-reduced')||
     (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -3382,6 +3493,14 @@ const PRESESSION={
           date:new Date(m.date).toLocaleDateString(),
           session:'Arrival check-in',
           data:[{prompt:'Current state (self-reported)', response:MOOD.summary(m)}]
+        });
+      }
+      if(typeof VOICE_AFFECT!=='undefined'){
+        const v=VOICE_AFFECT.latest();
+        if(v) entries.push({
+          date:new Date(v.date).toLocaleDateString(),
+          session:'Voice check-in',
+          data:[{prompt:'Voice signals (on-device, user-confirmed)', response:`${(v.labels||[]).join(', ')} — sounds like ${v.guess}`}]
         });
       }
     }catch(e){}
