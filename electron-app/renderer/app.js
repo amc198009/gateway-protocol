@@ -246,6 +246,29 @@ function gpKeyActivate(e){
   GP_ACTIONS[act](el,e);
 }
 document.addEventListener('keydown',gpKeyActivate);
+
+// Unified async-state UI. Renders consistent, accessible loading / error /
+// empty states into a container so async flows stop relying on toast-only
+// errors and offer a recoverable retry. `retryAct` reuses an existing
+// data-act so the delegated dispatcher wires the retry button automatically.
+const GP_ASYNC = {
+  loading(el, msg){
+    if(!el) return;
+    el.innerHTML=`<div class="gp-async gp-async-loading" role="status" aria-live="polite"><span class="gp-async-spin" aria-hidden="true"></span>${escapeHTML(msg||'Working…')}</div>`;
+    el.classList.add('visible');
+  },
+  error(el, msg, retryAct, retryArg){
+    if(!el) return;
+    const btn = retryAct ? `<button class="gp-async-retry" data-act="${escapeHTML(retryAct)}"${retryArg?` data-arg="${escapeHTML(retryArg)}"`:''}>Try again</button>` : '';
+    el.innerHTML=`<div class="gp-async gp-async-error" role="alert"><div class="gp-async-msg">${escapeHTML(msg||'Something went wrong.')}</div>${btn}</div>`;
+    el.classList.add('visible');
+  },
+  empty(el, msg){
+    if(!el) return;
+    el.innerHTML=`<div class="gp-async gp-async-empty">${escapeHTML(msg||'Nothing here yet.')}</div>`;
+    el.classList.add('visible');
+  }
+};
 // Council system prompts — VERBATIM parity with electron-app/main.js so the
 // hosted web build produces identical transmissions to the desktop app. If you
 // edit one, edit both (or extract to a shared module per server/MOBILE.md §Phase-2).
@@ -4081,9 +4104,9 @@ const PATTERNS={
       const t=new Date(j.date).getTime();
       return !isNaN(t) && t>=cutoff;
     });
-    if(entries.length<3){ toast('Need at least 3 journal entries in the last 30 days.'); return; }
+    if(entries.length<3){ GP_ASYNC.empty(results, 'Add at least 3 journal entries in the last 30 days, then the Council can read your patterns.'); return; }
     btn.disabled=true; btn.textContent='Reading…';
-    results.classList.remove('visible');
+    GP_ASYNC.loading(results, 'Reading the last 30 days…');
     try{
       const payload=entries.map(e=>({
         date:new Date(e.date).toLocaleDateString(),
@@ -4114,11 +4137,13 @@ const PATTERNS={
       `;
       results.classList.add('visible');
     }catch(e){
-      toast('Patterns: '+humanError(e));
       const raw=parseFailRaw(e);
       if(raw){
         results.innerHTML='<div class="gp-pat-block"><div class="gp-pat-block-h">Unstructured Response</div><pre style="white-space:pre-wrap;font-size:15px;color:var(--muted);max-height:240px;overflow:auto">'+escapeHTML(raw)+'</pre></div>';
         results.classList.add('visible');
+      } else {
+        // Inline, recoverable error instead of a transient toast.
+        GP_ASYNC.error(results, 'The Council could not be reached: '+humanError(e), 'patterns-analyze');
       }
     }finally{
       btn.disabled=false; btn.textContent='Analyze Last 30 Days';
