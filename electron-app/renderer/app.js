@@ -116,6 +116,10 @@ const GP_ACTIONS = {
   'voice-affect-consent': () => { VOICE_AFFECT.grantConsent(); VOICE_AFFECT.start(); },
   'voice-affect-confirm': () => VOICE_AFFECT.confirm(),
   'voice-affect-discard': () => VOICE_AFFECT.discard(),
+  'camera-affect-start': () => CAMERA_AFFECT.start(),
+  'camera-affect-consent': () => { CAMERA_AFFECT.grantConsent(); CAMERA_AFFECT.start(); },
+  'camera-affect-confirm': () => CAMERA_AFFECT.confirm(),
+  'camera-affect-discard': () => CAMERA_AFFECT.discard(),
   'open-pairing-link': (el, e) => openPairingLink(e, el),
   'ambient-noise': (el) => AMBIENT.setNoise(+el.value),
   'ambient-solfeggio': (el) => AMBIENT.setSolfeggio(+el.value),
@@ -202,7 +206,8 @@ const GP_EVENT_ACTIONS = {
     'toggle-solf','select-session-index','voice-set-engine','voice-test-speak','voice-stop','set-breath',
     'tt-mark-slot','institute-issue','mood-save','apply-preset',
     'setup-goal','setup-next','setup-finish',
-    'voice-affect-start','voice-affect-consent','voice-affect-confirm','voice-affect-discard'
+    'voice-affect-start','voice-affect-consent','voice-affect-confirm','voice-affect-discard',
+    'camera-affect-start','camera-affect-consent','camera-affect-confirm','camera-affect-discard'
   ]),
   input: new Set([
     'ambient-noise','ambient-solfeggio','ambient-binaural','keys-set','tt-save-desire','voice-ws-rate',
@@ -1377,7 +1382,7 @@ const DB={
   KEY:'gateway_protocol_v1',
   IDB_KEY:'main',
   _cache:null,
-  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[],moods:[],voiceCheckins:[]};},
+  defaults(){return{sessions:0,minutes:0,streak:[],waveProgress:[0,0,0,0,0,0,0],waveCompletions:[0,0,0,0,0,0,0],journal:[],lastSeen:null,tier:0,sessionLog:[],teslaTracker:{},synchronicities:[],customAffirmations:[],customProtocols:[],moods:[],voiceCheckins:[],cameraCheckins:[]};},
 
   // Boot-time hydration. Called once before init() runs. Idempotent.
   async hydrate(){
@@ -1968,6 +1973,11 @@ const MOOD = {
           <button class="gp-voice-affect-btn" data-act="voice-affect-start">🎙 Add a voice check-in (optional)</button>
           <div id="gp-voice-affect-status" class="gp-voice-affect-status" role="status" aria-live="polite"></div>
         </div>
+        <div class="gp-voice-affect">
+          <button class="gp-voice-affect-btn" data-act="camera-affect-start">📷 Add a stillness check-in (optional)</button>
+          <video id="gp-camera-preview" class="gp-camera-preview" muted playsinline></video>
+          <div id="gp-camera-affect-status" class="gp-voice-affect-status" role="status" aria-live="polite"></div>
+        </div>
       </div>`;
   },
   save(){
@@ -2107,6 +2117,100 @@ const VOICE_AFFECT = {
   latest(){ const v=(DB.load().voiceCheckins||[]); return v[v.length-1]||null; }
 };
 
+// ═══════════════ ON-DEVICE CAMERA CHECK-IN (stillness / presence) ═══════════════
+// Optional, consent-gated, 100% on-device. Reads MOVEMENT and STILLNESS via
+// low-res frame differencing — honestly a settledness proxy, NOT facial emotion
+// recognition (that would need a bundled ML model and is far less reliable). No
+// frames are recorded, stored, or transmitted; only the derived numbers persist,
+// and only on confirm. A live preview + "camera on" indicator stay visible while
+// it reads. NOT medical/diagnostic.
+const CAMERA_AFFECT = {
+  CONSENT_KEY:'gp_camera_affect_consent',
+  DURATION_MS:8000,
+  FRAME_MS:100,
+  W:64, H:48,
+  _running:false,
+  _lastResult:null,
+  hasConsent(){ try{ return localStorage.getItem(this.CONSENT_KEY)==='1'; }catch(e){ return false; } },
+  grantConsent(){ try{ localStorage.setItem(this.CONSENT_KEY,'1'); }catch(e){} },
+
+  // Pure analysis — unit-testable. `frames.motion` is per-frame mean absolute
+  // pixel difference (0..1); `frames.brightness` is per-frame mean luma (0..1).
+  _analyze(frames){
+    const motion=frames.motion||[], bright=frames.brightness||[];
+    const mMean = motion.length ? motion.reduce((a,b)=>a+b,0)/motion.length : 0;
+    const bMean = bright.length ? bright.reduce((a,b)=>a+b,0)/bright.length : 0;
+    const stillness = gpClamp01(1 - mMean*8);              // small diffs => very still
+    const present = bMean > 0.06;                          // something lit in frame
+    const moveL = mMean<0.012 ? 'very still' : mMean>0.05 ? 'lots of movement' : 'some movement';
+    let guess;
+    if(!present) guess='camera sees little — low light or out of frame';
+    else if(stillness>0.8) guess='settled and grounded';
+    else if(stillness<0.4) guess='restless or activated';
+    else guess='gently present';
+    return { stillness:+stillness.toFixed(3), motion:+mMean.toFixed(4), brightness:+bMean.toFixed(3), present, labels:[moveL, present?'present':'low presence'], guess };
+  },
+
+  async start(){
+    if(this._running) return;
+    if(!this.hasConsent()){ this._showConsent(); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast('Camera not available on this device.'); return; }
+    let stream;
+    try{ stream=await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); }
+    catch(e){ this._setStatus(''); toast('Camera permission denied.'); return; }
+    this._running=true;
+    const video=document.getElementById('gp-camera-preview');
+    if(video){ video.srcObject=stream; video.classList.add('on'); try{ await video.play(); }catch(e){} }
+    this._setStatus('<span class="gp-cam-dot" aria-hidden="true"></span>Camera on — sit naturally for a few seconds…');
+    const cv=document.createElement('canvas'); cv.width=this.W; cv.height=this.H;
+    const cctx=cv.getContext('2d', { willReadFrequently:true });
+    const motion=[], brightness=[]; let prev=null;
+    const tick=()=>{
+      try{ cctx.drawImage(video, 0,0, this.W, this.H); }catch(e){ return; }
+      const img=cctx.getImageData(0,0,this.W,this.H).data;
+      const px=img.length/4;
+      const cur=new Float32Array(px);
+      let sum=0, diff=0;
+      for(let i=0,j=0;i<img.length;i+=4,j++){
+        const lum=(img[i]*0.299+img[i+1]*0.587+img[i+2]*0.114)/255;
+        cur[j]=lum; sum+=lum;
+        if(prev) diff+=Math.abs(lum-prev[j]);
+      }
+      brightness.push(sum/px);
+      if(prev) motion.push(diff/px);
+      prev=cur;
+    };
+    const iv=setInterval(tick,this.FRAME_MS);
+    setTimeout(()=>{
+      clearInterval(iv);
+      try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+      if(video){ video.srcObject=null; video.classList.remove('on'); }
+      this._running=false;
+      this._showResult(this._analyze({motion,brightness}));
+    }, this.DURATION_MS);
+  },
+
+  _setStatus(html){ const el=document.getElementById('gp-camera-affect-status'); if(el) el.innerHTML=html; },
+  _showConsent(){
+    this._setStatus('The camera check-in runs <strong>entirely on your device</strong> — no images are recorded, stored, or sent. It reads only movement and stillness (a settledness cue), not facial emotion, and is not medical. <button data-act="camera-affect-consent" class="gp-link">Enable &amp; start</button>');
+  },
+  _showResult(r){
+    this._lastResult=r;
+    this._setStatus(`Measured from movement: <strong>${r.labels.join(' · ')}</strong>. This reads as <strong>${escapeHTML(r.guess)}</strong> — <button data-act="camera-affect-confirm" class="gp-link">that fits</button> · <button data-act="camera-affect-discard" class="gp-link">not quite</button>`);
+  },
+  confirm(){
+    const r=this._lastResult; if(!r) return;
+    const dd=DB.load();
+    dd.cameraCheckins=[...(dd.cameraCheckins||[]), {date:new Date().toISOString(), ...r}].slice(-60);
+    DB.save(dd);
+    this._lastResult=null;
+    this._setStatus('Saved ✓ — woven into your biofield and next recommendation.');
+    toast('Stillness check-in saved ✓');
+  },
+  discard(){ this._lastResult=null; this._setStatus('Discarded. Nothing was saved.'); },
+  latest(){ const v=(DB.load().cameraCheckins||[]); return v[v.length-1]||null; }
+};
+
 // ═══════════════ BIOFIELD VISUALIZATION (honest, derived) ═══════════════
 // NOT a measured aura — a transparent, on-brand rendering DERIVED from the
 // practitioner's own check-ins. Hue follows valence, radius/density follow
@@ -2127,6 +2231,8 @@ const BIOFIELD = {
       }
       const v=(typeof VOICE_AFFECT!=='undefined')?VOICE_AFFECT.latest():null;
       if(v){ energy=Math.max(energy, gpClamp01(v.energy/0.3)); arousal=Math.max(arousal, gpClamp01(v.tempo/4)); }
+      const c=(typeof CAMERA_AFFECT!=='undefined')?CAMERA_AFFECT.latest():null;
+      if(c && c.present){ arousal=gpClamp01(arousal*(1-0.5*c.stillness)); } // physical stillness settles arousal
     }catch(e){}
     return { arousal:gpClamp01(arousal), valence:gpClamp01(valence), energy:gpClamp01(energy) };
   },
@@ -3591,6 +3697,14 @@ const PRESESSION={
           date:new Date(v.date).toLocaleDateString(),
           session:'Voice check-in',
           data:[{prompt:'Voice signals (on-device, user-confirmed)', response:`${(v.labels||[]).join(', ')} — sounds like ${v.guess}`}]
+        });
+      }
+      if(typeof CAMERA_AFFECT!=='undefined'){
+        const c=CAMERA_AFFECT.latest();
+        if(c) entries.push({
+          date:new Date(c.date).toLocaleDateString(),
+          session:'Stillness check-in',
+          data:[{prompt:'Movement/stillness (on-device, user-confirmed)', response:`${(c.labels||[]).join(', ')} — reads as ${c.guess}`}]
         });
       }
     }catch(e){}

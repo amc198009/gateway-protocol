@@ -115,6 +115,11 @@ select:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible,
 .gp-voice-affect-status strong{color:var(--gold2);font-weight:400}
 .gp-link{background:none;border:none;color:var(--gold);cursor:pointer;font:inherit;text-decoration:underline;padding:0 2px}
 .gp-link:hover{color:var(--gold2)}
+.gp-camera-preview{display:none;width:160px;height:120px;object-fit:cover;border-radius:6px;border:.5px solid var(--gold);margin-top:12px;transform:scaleX(-1)}
+.gp-camera-preview.on{display:block}
+.gp-cam-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--danger);margin-right:8px;vertical-align:middle;animation:gp-camdot 1.2s ease-in-out infinite}
+@keyframes gp-camdot{50%{opacity:.3}}
+@media (prefers-reduced-motion: reduce){.gp-cam-dot{animation:none}}
 /* Biofield (derived visualization) */
 .gp-biofield-card{margin-top:18px}
 .gp-derived{font-family:Montserrat,sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border:.5px solid var(--border);border-radius:10px;padding:3px 8px;margin-left:8px;vertical-align:middle}
