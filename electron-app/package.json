@@ -4,10 +4,7 @@
   "version": "3.2.0",
   "description": "The most advanced personal consciousness and Gateway Process platform — Monroe-accurate waves, Council of Five intelligence, frequency layering, owned not subscribed.",
   "main": "main.js",
-  "author": {
-    "name": "AM",
-    "email": "artmor30@gmail.com"
-  },
+  "author": "AM",
   "license": "AGPL-3.0-only",
   "private": true,
   "scripts": {

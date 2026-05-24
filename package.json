@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "private": true,
   "license": "AGPL-3.0-only",
-  "author": "AM <artmor30@gmail.com>",
+  "author": "AM",
   "description": "Root delegator — V1 (proxy.js) lives at root, V2 (Electron) lives in electron-app/. These scripts let you run either from here.",
   "scripts": {
     "start":   "cd electron-app && npm start",

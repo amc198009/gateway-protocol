@@ -4,7 +4,7 @@
   "description": "Reference WebSocket + REST server for Gateway Protocol Community Practice Rooms and Transmission Feed. Lives separately from the desktop app so deployment is independent.",
   "main": "practice-room.js",
   "license": "AGPL-3.0-only",
-  "author": "AM <artmor30@gmail.com>",
+  "author": "AM",
   "scripts": {
     "start": "node practice-room.js",
     "dev": "node --watch practice-room.js",
