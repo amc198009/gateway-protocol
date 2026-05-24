@@ -593,6 +593,15 @@ body{
    not in cinematic session mode. In cinematic we use a decorative pulse
    ring around the timer instead — see .gp-pulse-ring below. */
 body.gp-cinematic .gp-hrv-wrap{display:none!important}
+/* Brand-styled range sliders — replaces the off-brand native blue control
+   with the gold-on-void aesthetic (thin dark track, gold thumb). */
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:3px;background:var(--border2);cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:transparent}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-5px;width:14px;height:14px;border-radius:50%;background:var(--gold);border:1px solid var(--gold2);box-shadow:0 1px 3px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-track{height:4px;border-radius:3px;background:var(--border2)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--gold);border:1px solid var(--gold2)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(201,168,76,.35)}
+input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px rgba(201,168,76,.35)}
 /* Decorative pulse ring around the timer SVG in cinematic mode.
    A slow ~6-second breathing animation that suggests living presence
    without claiming to measure anything. Sits behind the timer numbers. */
@@ -625,7 +634,11 @@ body.gp-cinematic .btn-row > button:not(#timer-btn){display:none!important}
 
 body.gp-cinematic #screen-sessions{padding:0;max-width:none;margin:0}
 body.gp-cinematic #screen-sessions .timer-wrap{
-  position:fixed;inset:0;width:100vw;height:100vh;display:flex;flex-direction:column;
+  /* !important so the cinematic full-viewport overlay wins over the inline
+     position:relative on .timer-wrap (that inline style gives the pulse ring
+     its positioning context outside cinematic; without !important it would
+     override position:fixed and break the centered overlay). */
+  position:fixed!important;inset:0;width:100vw;height:100vh;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:1.5rem;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%);
   z-index:50;
   /* Entering immersion is the signature moment — the vignette darkens in
@@ -1157,7 +1170,7 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
       </div>
     </div>
     <!-- Ambient engine controls -->
-    <div style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem">
+    <div class="ambient-controls" style="background:var(--card);border:.5px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:1rem">
       <div style="font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
         <span>Ambient Layer</span>
         <span id="ambient-state" style="font-size:14px;color:var(--muted);letter-spacing:1px">Off</span>
