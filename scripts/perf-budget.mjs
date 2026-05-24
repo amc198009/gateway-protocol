@@ -6,8 +6,9 @@
 import fs from 'node:fs';
 
 const BUDGETS = [
-  { file: 'electron-app/renderer/app.js',     maxKB: 360 },
-  { file: 'electron-app/renderer/index.html', maxKB: 175 },
+  { file: 'electron-app/renderer/app.js',        maxKB: 340 },
+  { file: 'electron-app/renderer/app-affect.js', maxKB: 60 },
+  { file: 'electron-app/renderer/index.html',    maxKB: 175 },
 ];
 
 let fail = 0;
