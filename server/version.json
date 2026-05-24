@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0",
+  "version": "3.3.1",
   "releasedAt": "2026-05-24T00:00:00Z",
-  "notes": "V3.3 — The Attuned Companion. A new Adaptive Practice Engine reads your own check-ins (mood, voice, stillness) and offers a transparent “Attuned to you” recommendation with a plain-language reason and one-tap start. Plus: a ⌘K command palette for fast navigation, a Signal Trends view that mirrors how you've been arriving over time, and a felt “coherence bloom” when your breathing settles in-session. Accessibility deepened (a main landmark, fully labeled controls) with an automated a11y check now in CI. Everything stays on your device."
+  "notes": "V3.3.1 — Data portability & honesty. Import a backup to restore your data, and delete just your on-device check-in history (mood, voice, camera) without touching anything else. Added clear info notes distinguishing estimated/interpretive signals from measurements (coherence is a breathing-based proxy, not a clinical HRV reading; solfeggio framing is contemplative, not clinical). Everything stays on your device."
 }
