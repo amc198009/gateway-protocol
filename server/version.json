@@ -1,5 +1,5 @@
 {
-  "version": "3.3.4",
+  "version": "3.3.5",
   "releasedAt": "2026-05-24T00:00:00Z",
-  "notes": "V3.3.4 — Maintenance & foundations. Internal refactor: the renderer is now split into focused, independently-loaded modules (content, visuals/audio, affect, core), trimming the main bundle ~27% and guarded by a CI performance budget. No user-facing change — your practice, data, and privacy are exactly as before, everything still on your device."
+  "notes": "V3.3.5 — Cinematic session alignment fix. In timed sessions, the full-screen cinematic view now centers perfectly: the ambient-audio panel no longer leaks into the immersive view, and the timer, phase, and guidance text are properly centered instead of pushed off-screen. Sliders also adopt the gold-on-void brand styling. No change to your practice, data, or privacy — everything still on your device."
 }
