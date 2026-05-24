@@ -1,5 +1,5 @@
 {
-  "version": "3.3.2",
+  "version": "3.3.3",
   "releasedAt": "2026-05-24T00:00:00Z",
-  "notes": "V3.3.2 — Richer on-device signals & a sense of company. The optional camera check-in now reads steadiness vs. fidget and presence more honestly (still fully on-device, no images stored or sent). And a new Collective Field on the Network screen shows an anonymous, aggregate sense of how many are practicing right now — you're not practicing alone. No identifiers, counts only."
+  "notes": "V3.3.3 — Smoother & steadier. The in-session field now glows with your live coherence as the breath settles. Under the hood, the renderer was split into focused files (data / affect / core) for faster, more maintainable loading, with a performance budget now guarding the bundle size. No change to your data — everything stays on your device."
 }
