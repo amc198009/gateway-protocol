@@ -157,6 +157,10 @@ body.gp-coherence-bloom::after{content:"";position:fixed;inset:0;z-index:8000;po
 .gp-insight-label{flex:0 0 96px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
 .gp-insight-spark{flex:1;min-width:0;height:44px;display:block}
 .gp-insight-empty{font-size:14px;color:var(--muted);font-style:italic;line-height:1.7}
+/* V6·T9 collective field */
+.gp-collective-live{font-size:16px;color:var(--silver);line-height:1.6}
+.gp-collective-live strong{color:var(--gold2);font-weight:400;font-family:'Cormorant Garamond',serif;font-size:22px}
+.gp-collective-sub{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
 /* V6·T5 evidence/interpretation info tips */
 .gp-tip-wrap{position:relative;display:inline-block}
 .gp-tip-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0 2px;vertical-align:middle;line-height:1}
@@ -1521,6 +1525,12 @@ body[data-tier="4"] .hero{padding-top:1.5rem;padding-bottom:1rem}
     <div class="gp-net-panel">
       <div class="gp-net-status" id="gp-net-server-status"><span class="dot"></span>Server: not configured</div>
       <div style="font-size:15px;color:var(--muted);margin-bottom:.6rem">Set the server URL in <a href="#" data-act="show-screen" data-arg="settings" style="color:var(--gold)">Settings → Network</a> to enable Practice Rooms and the Feed.</div>
+    </div>
+
+    <!-- V6·T9 — Collective Field (anonymized aggregate from the configured server) -->
+    <div class="gp-net-panel">
+      <div class="gp-net-title">◈ The Collective Field</div>
+      <div id="gp-collective" role="status" aria-live="polite"><div class="gp-net-empty">Configure a server URL in Settings to see the live field.</div></div>
     </div>
 
     <!-- Practice Rooms -->
