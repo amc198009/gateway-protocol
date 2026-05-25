@@ -12,11 +12,13 @@ A sovereign consciousness-practice platform for the Monroe Gateway Process. Thre
 
 Repo: github.com/amc198009/gateway-protocol · Owner: Arturo (artmor30@gmail.com).
 
-## Current state (updated 2026-05-24)
+## Current state (snapshot 2026-05-24 — everything below is shipped & merged; nothing in-flight)
 - **Desktop:** shipped **v3.3.5** across all 4 platforms (win, mac arm64, mac x64, linux). Deployed version live = 3.3.5.
 - **v3.3.5 fix:** cinematic timed-session alignment — ambient panel was leaking into the immersive view (`.ambient-controls` class was never applied), and `.timer-wrap`'s inline `position:relative` overrode the cinematic `position:fixed` (fixed with `!important`). Also brand-styled the range sliders (were native blue).
 - **Landing redesign (server-only):** `GET /` is now a cinematic product narrative (Council of Five + live in-browser Mirror demo, 6-movement Protocol, Coherence Bloom, Waves I–VII, honesty matrix). Source: `scripts/landing-source.html` → built by `scripts/build-landing.mjs` → `server/landing.js` (reproducible). Adapted from a Claude.ai artifact export: stripped the tweaks panel + `window.claude`/`postMessage`, swapped inlined base64 fonts for Google Fonts, wired real CTAs + live stats.
 - **`/docs` (server-only):** static, brand-consistent developer reference (`renderDocs()` in `server/landing.js`); landing footer links to it.
+- **Docs & continuity:** root `package.json` now has the real project description (version synced to 3.3.5); `README.md` refreshed from desktop-only/V6 framing to the three-surface reality (live links, 4-platform release matrix, V7 changelog). **This `CLAUDE.md` is the cross-session context key** (auto-loaded by Claude Code); a private memory store at `~/.claude/projects/-Users-arturomorales/memory/` holds Arturo's working preferences. Browser recall needs a one-time paste of this file into a claude.ai Project.
+- **Recent PRs (all merged to main):** #61 cinematic alignment (v3.3.5) · #62 landing redesign · #63 /docs · #64 CLAUDE.md · #65 README+description · #66 Next-up section. No work left in-flight as of this snapshot.
 - **V6 roadmap (`V6_ROADMAP.md`):** T1–T9 shipped except T3 = **NO-GO** (MediaPipe facial-affect, to preserve the strict CSP — see `MEDIAPIPE_CSP_MEMO.md`). T8 modularization paused at a clean milestone. esbuild bundler = **DEFER** (`ESBUILD_BUNDLER_MEMO.md`).
 ## Next up (open threads) — read this first to know what's pending
 **Owner-gated — need Arturo's decision or a real-world action (don't just execute):**
