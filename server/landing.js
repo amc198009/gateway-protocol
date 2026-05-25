@@ -250,7 +250,7 @@ function renderDocs(opts){
     '      <li>Responses are JSON; errors return a non-2xx status with { error }.</li>\n' +
     '      <li>CORS is restricted to an allow-list of origins, reflected per request.</li>\n' +
     '      <li>Writes are rate-limited per IP; POST /feed also requires the X-Gateway-Client header.</li>\n' +
-    '      <li>Feed and room state are in-memory and ephemeral \u2014 they do not survive a restart, by design.</li>\n' +
+    '      <li>Feed and room state are durable across restarts/deploys when the server is configured with Redis; without it they fall back to in-memory (ephemeral).</li>\n' +
     '      <li>No authentication or identity is required or collected for the public surface.</li>\n' +
     '    </ul>\n' +
     '  </div>\n' +
