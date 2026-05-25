@@ -28,6 +28,7 @@ const fs = require('fs');
 const { join: joinPath } = require('path');
 const { WebSocketServer } = require('ws');
 const crypto = require('crypto');
+const store = require('./store'); // durable feed + rooms (Redis if REDIS_URL set; else in-memory)
 
 // Releases dir baked into the Docker image at build time. `npm run deploy`
 // from server/ copies the freshly-built .dmg into ./download/ before
@@ -311,6 +312,7 @@ function handleFeedPost(req, res) {
 
     feed.push(item);
     if (feed.length > FEED_MAX) feed.shift();
+    store.scheduleFeedSave(feed);
     jsonResponse(res, 201, { ok: true, id: item.id });
     console.log(`[Feed] +${item.id} wave=${item.wave} code=${item.code}`);
   });
@@ -320,6 +322,7 @@ function handleFeedReact(req, res, id) {
   const item = feed.find(t => t.id === id);
   if (!item) return jsonResponse(res, 404, { error: 'not found' });
   item.reactions++;
+  store.scheduleFeedSave(feed);
   jsonResponse(res, 200, { ok: true, reactions: item.reactions });
 }
 
@@ -866,12 +869,19 @@ function joinRoom(ws, code) {
     if (rooms.size >= MAX_ROOMS) { send(ws, { type: 'error', error: 'Server at capacity — try again shortly.' }); try { ws.close(); } catch {} return; }
     room = { code, wave: 0, clients: new Set(), hostId: ws._id, state: defaultState(), createdAt: Date.now(), lastActivityAt: Date.now() };
     rooms.set(code, room);
+    store.saveRoomNow(room);
     console.log(`[Room ${code}] created (host=${ws._id})`);
   } else if (room.clients.size >= MAX_CLIENTS_PER_ROOM) {
     send(ws, { type: 'error', error: 'This room is full.' }); try { ws.close(); } catch {} return;
   }
   room.clients.add(ws);
+  // If no connected client currently holds the host role — e.g. this room was
+  // rehydrated from Redis after a restart, so the original host's socket is
+  // gone — hand it to this joiner so the timer can be driven again.
+  const hostLive = [...room.clients].some(c => c._id === room.hostId);
+  if (!hostLive) room.hostId = ws._id;
   room.lastActivityAt = Date.now();
+  store.scheduleRoomSave(room);
   broadcast(room, { type: 'presence', count: room.clients.size, hostId: room.hostId, you: ws._id });
   // Replay current state to the new joiner so they catch up mid-session
   send(ws, { type: 'state', ...room.state, wave: room.wave });
@@ -881,18 +891,25 @@ function joinRoom(ws, code) {
   ws.on('error', () => leaveRoom(ws, room));
 }
 
+// Delete a room once it's been empty and idle for the grace period — both
+// from memory and from the durable store. Also used to reap rehydrated rooms
+// that no one reconnects to after a restart.
+function scheduleRoomGc(code) {
+  setTimeout(() => {
+    const r = rooms.get(code);
+    if (r && !r.clients.size && Date.now() - r.lastActivityAt >= ROOM_IDLE_MS) {
+      rooms.delete(code);
+      store.removeRoom(code);
+      console.log(`[Room ${code}] gc (idle)`);
+    }
+  }, ROOM_IDLE_MS);
+}
+
 function leaveRoom(ws, room) {
   if (!room.clients.delete(ws)) return;
   console.log(`[Room ${room.code}] leave ${ws._id} (remaining=${room.clients.size})`);
   if (!room.clients.size) {
-    // Don't delete immediately — give the host a grace period to reconnect.
-    setTimeout(() => {
-      const r = rooms.get(room.code);
-      if (r && !r.clients.size && Date.now() - r.lastActivityAt >= ROOM_IDLE_MS) {
-        rooms.delete(r.code);
-        console.log(`[Room ${r.code}] gc (idle)`);
-      }
-    }, ROOM_IDLE_MS);
+    scheduleRoomGc(room.code); // grace period for the host to reconnect
     return;
   }
   // Promote a new host if the host left
@@ -901,6 +918,7 @@ function leaveRoom(ws, room) {
     room.hostId = next?._id || null;
     console.log(`[Room ${room.code}] host → ${room.hostId}`);
   }
+  store.scheduleRoomSave(room);
   broadcast(room, { type: 'presence', count: room.clients.size, hostId: room.hostId });
 }
 
@@ -912,6 +930,7 @@ function handleRoomMessage(ws, room, raw) {
   // Wave selection — host-only
   if (msg.type === 'set-wave' && ws._id === room.hostId) {
     room.wave = clamp(parseInt(msg.wave, 10), 0, 7, 0);
+    store.scheduleRoomSave(room);
     broadcast(room, { type: 'state', ...room.state, wave: room.wave });
     return;
   }
@@ -935,6 +954,7 @@ function handleRoomMessage(ws, room, raw) {
       s.timerSeconds = clamp(msg.timerSeconds, 0, MAX_SEC, s.timerSeconds);
       s.phase = clampStr(msg.phase || s.phase, 100);
     }
+    store.scheduleRoomSave(room); // throttled in the store; ticks won't hammer Redis
     broadcast(room, { type: 'state', ...room.state, wave: room.wave });
     return;
   }
@@ -974,17 +994,56 @@ if (API_PROXY_ON && !API_ACCESS_TOKEN) {
 }
 
 // ── Startup ──────────────────────────────────────────────────────────
-server.listen(PORT, HOST, () => {
-  console.log('');
-  console.log('  ◈  Gateway Protocol Server');
-  console.log('  ───────────────────────────────────────────');
-  console.log(`  Listening:  http://${HOST}:${PORT}`);
-  console.log(`  Origin:     ${ALLOW_ORIGIN}`);
-  console.log('  Endpoints:');
-  console.log(`    GET  /                    health`);
-  console.log(`    GET  /feed?wave=&code=    list transmissions`);
-  console.log(`    POST /feed                publish transmission`);
-  console.log(`    POST /feed/:id/react      add a reaction`);
-  console.log(`    WS   /room/:code          join a practice room`);
-  console.log('');
-});
+// Connect the durable store (Redis if REDIS_URL is set), hydrate the feed and
+// any live rooms from the last process, then start listening. If the store is
+// not durable, hydration is a no-op and behaviour is identical to before.
+(async () => {
+  await store.init();
+  if (store.durable) {
+    const savedFeed = await store.loadFeed();
+    if (Array.isArray(savedFeed) && savedFeed.length) {
+      feed.length = 0;
+      for (const it of savedFeed.slice(-FEED_MAX)) feed.push(it);
+    }
+    const savedRooms = await store.loadRooms();
+    for (const s of savedRooms) {
+      if (rooms.size >= MAX_ROOMS) break;
+      rooms.set(s.code, {
+        code: s.code,
+        wave: s.wave || 0,
+        clients: new Set(),
+        hostId: s.hostId || null,
+        state: s.state || defaultState(),
+        createdAt: s.createdAt || Date.now(),
+        lastActivityAt: s.lastActivityAt || Date.now(),
+      });
+      scheduleRoomGc(s.code); // reaped if nobody reconnects within the idle window
+    }
+    console.log(`[Store] hydrated: feed=${feed.length} rooms=${rooms.size}`);
+  }
+
+  server.listen(PORT, HOST, () => {
+    console.log('');
+    console.log('  ◈  Gateway Protocol Server');
+    console.log('  ───────────────────────────────────────────');
+    console.log(`  Listening:  http://${HOST}:${PORT}`);
+    console.log(`  Origin:     ${ALLOW_ORIGIN}`);
+    console.log(`  Storage:    ${store.durable ? 'durable (Redis)' : 'in-memory (ephemeral)'}`);
+    console.log('  Endpoints:');
+    console.log(`    GET  /                    health`);
+    console.log(`    GET  /feed?wave=&code=    list transmissions`);
+    console.log(`    POST /feed                publish transmission`);
+    console.log(`    POST /feed/:id/react      add a reaction`);
+    console.log(`    WS   /room/:code          join a practice room`);
+    console.log('');
+  });
+})();
+
+// Flush a final snapshot on graceful shutdown (Fly sends SIGTERM on deploy).
+// Race the flush against a short timeout so a wedged Redis can never block exit.
+for (const sig of ['SIGTERM', 'SIGINT']) {
+  process.once(sig, () => {
+    Promise.race([store.close(), new Promise(r => setTimeout(r, 2000))])
+      .finally(() => process.exit(0));
+  });
+}
