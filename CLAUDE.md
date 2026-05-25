@@ -18,7 +18,19 @@ Repo: github.com/amc198009/gateway-protocol · Owner: Arturo (artmor30@gmail.com
 - **Landing redesign (server-only):** `GET /` is now a cinematic product narrative (Council of Five + live in-browser Mirror demo, 6-movement Protocol, Coherence Bloom, Waves I–VII, honesty matrix). Source: `scripts/landing-source.html` → built by `scripts/build-landing.mjs` → `server/landing.js` (reproducible). Adapted from a Claude.ai artifact export: stripped the tweaks panel + `window.claude`/`postMessage`, swapped inlined base64 fonts for Google Fonts, wired real CTAs + live stats.
 - **`/docs` (server-only):** static, brand-consistent developer reference (`renderDocs()` in `server/landing.js`); landing footer links to it.
 - **V6 roadmap (`V6_ROADMAP.md`):** T1–T9 shipped except T3 = **NO-GO** (MediaPipe facial-affect, to preserve the strict CSP — see `MEDIAPIPE_CSP_MEMO.md`). T8 modularization paused at a clean milestone. esbuild bundler = **DEFER** (`ESBUILD_BUNDLER_MEMO.md`).
-- **Pending / decision-gated:** esbuild bundler (memo'd, owner call), T7 code-signing (needs paid certs — app is currently unsigned), T9 server-side rooms + Redis (currently in-memory/ephemeral).
+## Next up (open threads) — read this first to know what's pending
+**Owner-gated — need Arturo's decision or a real-world action (don't just execute):**
+- **esbuild bundler** — recommended **DEFER** (`ESBUILD_BUNDLER_MEMO.md`). If pursued: minify-only (Option B) first, then full ES modules. No CSP change.
+- **Code-signing (T7)** — desktop builds are **unsigned**; users get an "unverified developer" prompt. Needs a paid Apple Developer cert (~$99/yr) + a Windows cert — a purchase only Arturo can make. Once they exist, wire signing + notarization into the release matrix.
+- **Durable rooms/feed (T9)** — server state is **in-memory**, so rooms + the Transmission Feed reset on every deploy/restart. Decide if/when to back them with Redis (or similar).
+
+**Ready to execute when Arturo says go (no decision needed):**
+- Any visual polish on the new landing / `/docs` he flags after reviewing.
+- Optional: re-run the Codex audit on the new `server/landing.js` + `/docs` for a fresh grade.
+
+**Continuity housekeeping:**
+- Keep the **Current state** + this **Next up** section updated after each shipped change.
+- Browser recall is not automatic — Arturo pastes `CLAUDE.md` into a claude.ai Project once for the browser to "remember."
 
 ## Architecture essentials
 - **Renderer** (`electron-app/renderer/`): one big `index.html` + a 4-file classic-script chain loaded in order: `app-data.js` → `app-visuals.js` → `app-affect.js` → `app.js` (globals resolve at runtime). Strict CSP: `script-src 'self'` (NO unsafe-inline, NO wasm) — a hard constraint, preserved. Events go through a delegated dispatcher (`GP_ACTIONS` + `data-act`/`data-arg`/`data-id`), not inline handlers.
