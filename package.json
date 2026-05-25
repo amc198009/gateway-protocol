@@ -1,10 +1,10 @@
 {
   "name": "gateway-protocol-root",
-  "version": "3.0.0",
+  "version": "3.3.5",
   "private": true,
   "license": "AGPL-3.0-only",
   "author": "AM",
-  "description": "Root delegator — V1 (proxy.js) lives at root, V2 (Electron) lives in electron-app/. These scripts let you run either from here.",
+  "description": "Gateway Protocol — a sovereign consciousness-practice platform for the Monroe Gateway Process. Monroe-accurate waves, a Council of Five, frequency layering, and on-device affect. Owned, not subscribed.",
   "scripts": {
     "start":   "cd electron-app && npm start",
     "package": "cd electron-app && npm run package",
