@@ -2,16 +2,28 @@
 
 > The most advanced personal consciousness and Gateway Process platform. Monroe-accurate waves. Council of Five intelligence. Frequency layering. Owned, not subscribed.
 
-A desktop application that turns the [Monroe Institute's Gateway Experience](https://www.monroeinstitute.org/) into a runnable practice — with AI guidance from a synthesized "Council of Five" (Monroe, Lipton, Dispenza, Tesla, Jung), real binaural beat generation, and a journal that responds.
+Turns the [Monroe Institute's Gateway Experience](https://www.monroeinstitute.org/) into a runnable practice — with AI guidance from a synthesized "Council of Five" (Monroe, Lipton, Dispenza, Tesla, Jung), real binaural beat generation, and a journal that responds.
+
+**Live:** [gateway-protocol.fly.dev](https://gateway-protocol.fly.dev/) · **Web app:** [/app](https://gateway-protocol.fly.dev/app) · **Download:** [/download](https://gateway-protocol.fly.dev/download) · **API:** [/docs](https://gateway-protocol.fly.dev/docs)
+
+### Three surfaces, one codebase
+
+| Surface | What | Where |
+|---|---|---|
+| **Desktop app** | The primary sovereign product. Encrypted local keys; works offline. | [`electron-app/`](electron-app/) |
+| **Web app (PWA)** | The same renderer, hosted, bring-your-own-key. | served at `/app` |
+| **Reference server** | Optional, anonymous, in-memory network layer — Community Practice Rooms (`WSS /room/:code`) + the Transmission Feed (`/feed`) + an optional LLM/TTS relay. | [`server/practice-room.js`](server/practice-room.js) on Fly.io |
+
+The desktop app is sovereign — it runs **without** the server; pointing at the server only adds the optional shared layer.
 
 ```bash
 git clone https://github.com/amc198009/gateway-protocol.git
 cd gateway-protocol
 npm run install:v2     # installs Electron + Forge + electron-store
-npm start              # launches the app
+npm start              # launches the desktop app
 ```
 
-Or just grab the latest `.dmg` from the [Releases page](https://github.com/amc198009/gateway-protocol/releases).
+Or grab the latest installer from the [Releases page](https://github.com/amc198009/gateway-protocol/releases) (macOS `.dmg`, Windows `Setup.exe`, Linux `.deb`/`.rpm`), or open the [web app](https://gateway-protocol.fly.dev/app) — no install required.
 
 ---
 
@@ -44,7 +56,7 @@ Or just grab the latest `.dmg` from the [Releases page](https://github.com/amc19
 
 ```
 ┌────────────────────────────── Renderer ──────────────────────────────┐
-│  3,680-line single HTML page · vanilla JS · no framework             │
+│  Single-page renderer · vanilla JS · no framework · 4-file chain     │
 │                                                                       │
 │  Three.js particle field    Cinematic mode    HRV visualizer         │
 │  AudioWorklet pink noise    Breath engine     Sacred geometry        │
@@ -71,7 +83,7 @@ Or just grab the latest `.dmg` from the [Releases page](https://github.com/amc19
 └──────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
-            ElevenLabs · OpenAI · Anthropic (claude-sonnet-4)
+            ElevenLabs · OpenAI · Anthropic (Claude — latest Sonnet)
 ```
 
 **The Council is not a generic LLM call.** Every Anthropic request is preceded by a curated system prompt that frames the model as the five voices (Monroe, Lipton, Dispenza, Tesla, Jung) speaking in synthesis, with structured JSON output enforced. Eight distinct prompt regimes for eight distinct tasks (mirror, pre-session, monthly patterns, affirmation, shadow dialogue, synchronicity, etc.). All cached.
@@ -83,30 +95,36 @@ Or just grab the latest `.dmg` from the [Releases page](https://github.com/amc19
 ```
 gateway-protocol/
 ├── README.md               ← you are here
+├── CLAUDE.md               ← current project context (state, architecture, workflow)
 ├── HANDOFF.md              ← original V1 design + V2 backlog (preserved)
 ├── PROGRESS.md             ← every feature shipped, per layer
 ├── TODO.md                 ← open decisions + nice-to-haves
+├── *_ROADMAP.md, *_MEMO.md ← per-version roadmaps + decision memos
 ├── package.json            ← root delegator (npm start, npm run make)
 ├── proxy.js                ← V1 fallback server (still works, kept at parity)
 ├── gateway-protocol.html   ← V1 single-file source (preserved unchanged)
+├── scripts/                ← CI gates (a11y-lint, perf-budget) + build-landing.mjs
+├── server/                 ← Node HTTP + WebSocket reference server (Fly.io)
+│   ├── practice-room.js     ← rooms, feed, relay, routing, CSP
+│   ├── landing.js           ← marketing landing (/) + /docs reference
+│   └── version.json         ← drives the in-app "update available" banner
 └── electron-app/
     ├── package.json
-    ├── forge.config.js     ← .dmg + .zip makers
-    ├── main.js             ← Electron main: IPC, key vault, reminders
+    ├── forge.config.js     ← .dmg / .zip / Squirrel / deb / rpm makers
+    ├── main.js             ← Electron main: IPC, safeStorage key vault, reminders
     ├── preload.js          ← contextBridge → window.gp.*
     └── renderer/
-        ├── index.html      ← the app (V2 + V3 + V4 + V5 layered on V1)
+        ├── index.html      ← the app shell
+        ├── app-data.js · app-visuals.js · app-affect.js · app.js   ← script chain
         ├── audio-worklet.js
-        └── vendor/
-            ├── three.min.js    ← bundled, offline
-            └── idb-keyval.js   ← (inline wrapper used instead — see DB module)
+        └── vendor/three.min.js   ← bundled, offline
 ```
 
 ---
 
 ## Requirements
 
-- **macOS 10.15+** (Catalina or later) → `.dmg`. **Windows** → Squirrel `Setup.exe`. **Linux** → `.deb` + `.rpm`. All three are configured in `forge.config.js`, but each artifact must be built **on its own OS** (Windows Squirrel needs Windows/wine; `.deb`/`.rpm` need `dpkg`/`rpmbuild`) — a CI matrix (macos/windows/ubuntu runners) is the clean way to produce all three from one tag. All builds are currently unsigned.
+- **macOS 11+** (Intel **and** Apple Silicon, native) → `.dmg`. **Windows** → Squirrel `Setup.exe`. **Linux** → `.deb` + `.rpm`. All four are built automatically from a single `vX.Y.Z` tag by the GitHub Actions [`Release` matrix](.github/workflows/release.yml) (Windows / macOS arm64 / macOS x64 / Linux). Builds are currently **unsigned** (no Apple Developer / code-signing certificate yet), so the first launch shows an "unverified developer" prompt — see [/docs](https://gateway-protocol.fly.dev/docs) and the in-app install note for the one-time "Open Anyway" step.
 - **Node 14+** (only for local development; the .dmg ships its own Node runtime inside Electron).
 - **API keys (BYOK):**
   - [OpenAI](https://platform.openai.com/api-keys) for TTS · `sk-proj-...`
@@ -150,9 +168,11 @@ To smoke-test a build without releasing, run the workflow manually (`workflow_di
 - **V3** — Full Immersion. Three.js particle field, cinematic fullscreen mode, AudioWorklet binaural with harmonic overtones, HRV coherence visualizer.
 - **V4** — Deep Intelligence. Monthly pattern recognition, custom affirmation generator, multi-turn Shadow Work dialogue with Jung, synchronicity log + AI analysis, code of the day, native practice reminders.
 - **V5** — Polish + IndexedDB. Prompt caching across all Council calls, affirmation wheel fix, wave context in cinematic, voice-over for shadow dialogue, JSON export, IndexedDB primary storage (lifts the 5MB localStorage cap).
-- **V6** — Repo + ops. Public README, GitHub Actions CI, HRV polish, Settings screen, GitHub Releases.
+- **V6** — Repo + ops. Public README, GitHub Actions CI, HRV polish, Settings screen, GitHub Releases. Renderer modularized into a four-file script chain; CI a11y + payload-size gates; on-device affect (voice / camera-stillness) and the Coherence Bloom; 4-platform cross-built release matrix. (MediaPipe facial-affect was evaluated and declined to preserve the strict CSP — see `MEDIAPIPE_CSP_MEMO.md`.)
+- **V7** — The Global Gateway Network. The `server/` reference server: anonymous, opt-in **Community Practice Rooms** (`WSS /room/:code`), the **Transmission Feed**, semantic memory, and the **hosted web app (PWA)** at `/app` with a bring-your-own-key relay (`/byok/*`). A redesigned marketing landing at `/` and a developer reference at `/docs`.
+- **Current line — v3.3.x** — see [`CLAUDE.md`](CLAUDE.md) for the live state, architecture, and release/deploy workflow.
 
-See [PROGRESS.md](PROGRESS.md) for the per-feature breakdown.
+See [PROGRESS.md](PROGRESS.md) for the per-feature breakdown, and [`CLAUDE.md`](CLAUDE.md) for current project context.
 
 ---
 
