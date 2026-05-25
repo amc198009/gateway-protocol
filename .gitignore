@@ -62,6 +62,15 @@ server/app/
 # *.dmg, but ignore the dir's contents too).
 server/download/
 
+# ── Third-party agent skills (installed via `npx skills add`; not project source) ──
+.agents/
+**/.agents/
+skills-lock.json
+**/skills-lock.json
+# Installer-created skill symlinks + per-user Claude settings (keep the rest of .claude/ committable)
+**/.claude/skills/
+**/.claude/settings.local.json
+
 # ── Runtime / cache ──
 .cache/
 *.tsbuildinfo
