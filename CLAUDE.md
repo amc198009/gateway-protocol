@@ -12,19 +12,19 @@ A sovereign consciousness-practice platform for the Monroe Gateway Process. Thre
 
 Repo: github.com/amc198009/gateway-protocol · Owner: Arturo (artmor30@gmail.com).
 
-## Current state (snapshot 2026-05-24 — everything below is shipped & merged; nothing in-flight)
+## Current state (snapshot 2026-05-25 — everything below is shipped & merged; nothing in-flight)
 - **Desktop:** shipped **v3.3.5** across all 4 platforms (win, mac arm64, mac x64, linux). Deployed version live = 3.3.5.
 - **v3.3.5 fix:** cinematic timed-session alignment — ambient panel was leaking into the immersive view (`.ambient-controls` class was never applied), and `.timer-wrap`'s inline `position:relative` overrode the cinematic `position:fixed` (fixed with `!important`). Also brand-styled the range sliders (were native blue).
 - **Landing redesign (server-only):** `GET /` is now a cinematic product narrative (Council of Five + live in-browser Mirror demo, 6-movement Protocol, Coherence Bloom, Waves I–VII, honesty matrix). Source: `scripts/landing-source.html` → built by `scripts/build-landing.mjs` → `server/landing.js` (reproducible). Adapted from a Claude.ai artifact export: stripped the tweaks panel + `window.claude`/`postMessage`, swapped inlined base64 fonts for Google Fonts, wired real CTAs + live stats.
 - **`/docs` (server-only):** static, brand-consistent developer reference (`renderDocs()` in `server/landing.js`); landing footer links to it.
+- **Durable feed + rooms (T9) — shipped & live.** `server/store.js` backs the Transmission Feed + Practice Rooms with **Redis (Upstash on Fly: `gateway-protocol-redis`, iad, pay-as-you-go, eviction disabled)**, activated by the `REDIS_URL` Fly secret. Graceful fallback to in-memory if `REDIS_URL` is unset/unreachable. Rehydrates on boot; a rehydrated room promotes the first reconnecting client to host. Verified in prod: a transmission survived a full `fly apps restart`. **Note:** the `redis` dep is a *production* dep (Docker uses `npm ci --omit=dev`), and `REDIS_URL` was created with the `expect` script `/tmp/provision_redis.exp` because `fly redis create`'s ProdPack prompt can't be answered non-interactively.
 - **Docs & continuity:** root `package.json` now has the real project description (version synced to 3.3.5); `README.md` refreshed from desktop-only/V6 framing to the three-surface reality (live links, 4-platform release matrix, V7 changelog). **This `CLAUDE.md` is the cross-session context key** (auto-loaded by Claude Code); a private memory store at `~/.claude/projects/-Users-arturomorales/memory/` holds Arturo's working preferences. Browser recall needs a one-time paste of this file into a claude.ai Project.
-- **Recent PRs (all merged to main):** #61 cinematic alignment (v3.3.5) · #62 landing redesign · #63 /docs · #64 CLAUDE.md · #65 README+description · #66 Next-up section. No work left in-flight as of this snapshot.
+- **Recent PRs (all merged to main):** #61 cinematic alignment (v3.3.5) · #62 landing redesign · #63 /docs · #64 CLAUDE.md · #65 README+description · #66 Next-up · #67 snapshot · #68 durable rooms+feed (Redis). No work left in-flight as of this snapshot.
 - **V6 roadmap (`V6_ROADMAP.md`):** T1–T9 shipped except T3 = **NO-GO** (MediaPipe facial-affect, to preserve the strict CSP — see `MEDIAPIPE_CSP_MEMO.md`). T8 modularization paused at a clean milestone. esbuild bundler = **DEFER** (`ESBUILD_BUNDLER_MEMO.md`).
 ## Next up (open threads) — read this first to know what's pending
 **Owner-gated — need Arturo's decision or a real-world action (don't just execute):**
 - **esbuild bundler** — recommended **DEFER** (`ESBUILD_BUNDLER_MEMO.md`). If pursued: minify-only (Option B) first, then full ES modules. No CSP change.
 - **Code-signing (T7)** — desktop builds are **unsigned**; users get an "unverified developer" prompt. Needs a paid Apple Developer cert (~$99/yr) + a Windows cert — a purchase only Arturo can make. Once they exist, wire signing + notarization into the release matrix.
-- **Durable rooms/feed (T9)** — server state is **in-memory**, so rooms + the Transmission Feed reset on every deploy/restart. Decide if/when to back them with Redis (or similar).
 
 **Ready to execute when Arturo says go (no decision needed):**
 - Any visual polish on the new landing / `/docs` he flags after reviewing.
